@@ -10,6 +10,9 @@ namespace Server_API
     {
         public static void Register(HttpConfiguration config)
         {
+            // Web API configuration and services
+            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
+            
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
