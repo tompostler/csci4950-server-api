@@ -1,3 +1,5 @@
 Server API/obj
+Server API/bin
 *.pubxml.user
 *.suo
+*.user
