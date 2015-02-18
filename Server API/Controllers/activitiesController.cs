@@ -74,14 +74,20 @@ namespace Server_API.Controllers
 
         // POST: api/activities
         [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Postactivity(activity activity)
+        public async Task<IHttpActionResult> Postactivity()
         {
+            activity act1 = new activity();
+            act1.id = 3;
+            act1.name = "Testing the API";
+            act1.user = 2;
+            act1.category = 1;
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.activities.Add(activity);
+            db.activities.Add(act1);
 
             try
             {
@@ -89,7 +95,7 @@ namespace Server_API.Controllers
             }
             catch (DbUpdateException)
             {
-                if (activityExists(activity.id))
+                if (activityExists(act1.id))
                 {
                     return Conflict();
                 }
@@ -99,7 +105,7 @@ namespace Server_API.Controllers
                 }
             }
 
-            return CreatedAtRoute("DefaultApi", new { id = activity.id }, activity);
+            return CreatedAtRoute("DefaultApi", new { id = act1.id }, act1);
         }
 
         // DELETE: api/activities/5
