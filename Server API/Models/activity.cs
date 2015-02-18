@@ -14,9 +14,17 @@ namespace Server_API.Models
     
     public partial class activity
     {
+        public activity()
+        {
+            this.activity_units = new HashSet<activity_units>();
+        }
+    
         public int id { get; set; }
         public int user { get; set; }
         public string name { get; set; }
-        public Nullable<byte> category { get; set; }
+        public byte category { get; set; }
+    
+        public virtual user user1 { get; set; }
+        public virtual ICollection<activity_units> activity_units { get; set; }
     }
 }

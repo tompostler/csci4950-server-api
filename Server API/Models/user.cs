@@ -14,10 +14,19 @@ namespace Server_API.Models
     
     public partial class user
     {
+        public user()
+        {
+            this.activities = new HashSet<activity>();
+            this.locations = new HashSet<location>();
+        }
+    
         public int id { get; set; }
         public string first_name { get; set; }
         public string last_name { get; set; }
-        public string email_address { get; set; }
+        public string email { get; set; }
         public string password { get; set; }
+    
+        public virtual ICollection<activity> activities { get; set; }
+        public virtual ICollection<location> locations { get; set; }
     }
 }

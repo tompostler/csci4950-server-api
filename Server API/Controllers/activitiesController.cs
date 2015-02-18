@@ -18,22 +18,9 @@ namespace Server_API.Controllers
         private csci4950s15Entities db = new csci4950s15Entities();
 
         // GET: api/activities
-        public IQueryable<activity> Getactivities(int user=0)
+        public IQueryable<activity> Getactivities()
         {
-            int userID = user;
-            if (userID != 0)
-            {
-                var activities = from a in db.activities
-                                 where a.user.Equals(userID)
-                                 select a;
-                return activities;
-            }
-            else
-            {
-                var activities = from a in db.activities
-                                 select a;
-                return activities;
-            }
+            return db.activities;
         }
 
         // GET: api/activities/5
@@ -94,22 +81,7 @@ namespace Server_API.Controllers
             }
 
             db.activities.Add(activity);
-
-            try
-            {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (activityExists(activity.id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await db.SaveChangesAsync();
 
             return CreatedAtRoute("DefaultApi", new { id = activity.id }, activity);
         }

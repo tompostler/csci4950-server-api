@@ -13,44 +13,44 @@ using Server_API.Models;
 
 namespace Server_API.Controllers
 {
-    public class activitiesController : ApiController
+    public class activity_unitsController : ApiController
     {
         private csci4950s15Entities db = new csci4950s15Entities();
 
-        // GET: api/activities
-        public IQueryable<activity> Getactivities()
+        // GET: api/activity_units
+        public IQueryable<activity_units> Getactivity_units()
         {
-            return db.activities;
+            return db.activity_units;
         }
 
-        // GET: api/activities/5
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Getactivity(int id)
+        // GET: api/activity_units/5
+        [ResponseType(typeof(activity_units))]
+        public async Task<IHttpActionResult> Getactivity_units(int id)
         {
-            activity activity = await db.activities.FindAsync(id);
-            if (activity == null)
+            activity_units activity_units = await db.activity_units.FindAsync(id);
+            if (activity_units == null)
             {
                 return NotFound();
             }
 
-            return Ok(activity);
+            return Ok(activity_units);
         }
 
-        // PUT: api/activities/5
+        // PUT: api/activity_units/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putactivity(int id, activity activity)
+        public async Task<IHttpActionResult> Putactivity_units(int id, activity_units activity_units)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != activity.id)
+            if (id != activity_units.id)
             {
                 return BadRequest();
             }
 
-            db.Entry(activity).State = EntityState.Modified;
+            db.Entry(activity_units).State = EntityState.Modified;
 
             try
             {
@@ -58,7 +58,7 @@ namespace Server_API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!activityExists(id))
+                if (!activity_unitsExists(id))
                 {
                     return NotFound();
                 }
@@ -71,35 +71,35 @@ namespace Server_API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/activities
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Postactivity(activity activity)
+        // POST: api/activity_units
+        [ResponseType(typeof(activity_units))]
+        public async Task<IHttpActionResult> Postactivity_units(activity_units activity_units)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.activities.Add(activity);
+            db.activity_units.Add(activity_units);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = activity.id }, activity);
+            return CreatedAtRoute("DefaultApi", new { id = activity_units.id }, activity_units);
         }
 
-        // DELETE: api/activities/5
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Deleteactivity(int id)
+        // DELETE: api/activity_units/5
+        [ResponseType(typeof(activity_units))]
+        public async Task<IHttpActionResult> Deleteactivity_units(int id)
         {
-            activity activity = await db.activities.FindAsync(id);
-            if (activity == null)
+            activity_units activity_units = await db.activity_units.FindAsync(id);
+            if (activity_units == null)
             {
                 return NotFound();
             }
 
-            db.activities.Remove(activity);
+            db.activity_units.Remove(activity_units);
             await db.SaveChangesAsync();
 
-            return Ok(activity);
+            return Ok(activity_units);
         }
 
         protected override void Dispose(bool disposing)
@@ -111,9 +111,9 @@ namespace Server_API.Controllers
             base.Dispose(disposing);
         }
 
-        private bool activityExists(int id)
+        private bool activity_unitsExists(int id)
         {
-            return db.activities.Count(e => e.id == id) > 0;
+            return db.activity_units.Count(e => e.id == id) > 0;
         }
     }
 }

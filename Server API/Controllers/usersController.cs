@@ -13,44 +13,44 @@ using Server_API.Models;
 
 namespace Server_API.Controllers
 {
-    public class activitiesController : ApiController
+    public class usersController : ApiController
     {
         private csci4950s15Entities db = new csci4950s15Entities();
 
-        // GET: api/activities
-        public IQueryable<activity> Getactivities()
+        // GET: api/users
+        public IQueryable<user> Getusers()
         {
-            return db.activities;
+            return db.users;
         }
 
-        // GET: api/activities/5
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Getactivity(int id)
+        // GET: api/users/5
+        [ResponseType(typeof(user))]
+        public async Task<IHttpActionResult> Getuser(int id)
         {
-            activity activity = await db.activities.FindAsync(id);
-            if (activity == null)
+            user user = await db.users.FindAsync(id);
+            if (user == null)
             {
                 return NotFound();
             }
 
-            return Ok(activity);
+            return Ok(user);
         }
 
-        // PUT: api/activities/5
+        // PUT: api/users/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putactivity(int id, activity activity)
+        public async Task<IHttpActionResult> Putuser(int id, user user)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != activity.id)
+            if (id != user.id)
             {
                 return BadRequest();
             }
 
-            db.Entry(activity).State = EntityState.Modified;
+            db.Entry(user).State = EntityState.Modified;
 
             try
             {
@@ -58,7 +58,7 @@ namespace Server_API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!activityExists(id))
+                if (!userExists(id))
                 {
                     return NotFound();
                 }
@@ -71,35 +71,35 @@ namespace Server_API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/activities
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Postactivity(activity activity)
+        // POST: api/users
+        [ResponseType(typeof(user))]
+        public async Task<IHttpActionResult> Postuser(user user)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.activities.Add(activity);
+            db.users.Add(user);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = activity.id }, activity);
+            return CreatedAtRoute("DefaultApi", new { id = user.id }, user);
         }
 
-        // DELETE: api/activities/5
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Deleteactivity(int id)
+        // DELETE: api/users/5
+        [ResponseType(typeof(user))]
+        public async Task<IHttpActionResult> Deleteuser(int id)
         {
-            activity activity = await db.activities.FindAsync(id);
-            if (activity == null)
+            user user = await db.users.FindAsync(id);
+            if (user == null)
             {
                 return NotFound();
             }
 
-            db.activities.Remove(activity);
+            db.users.Remove(user);
             await db.SaveChangesAsync();
 
-            return Ok(activity);
+            return Ok(user);
         }
 
         protected override void Dispose(bool disposing)
@@ -111,9 +111,9 @@ namespace Server_API.Controllers
             base.Dispose(disposing);
         }
 
-        private bool activityExists(int id)
+        private bool userExists(int id)
         {
-            return db.activities.Count(e => e.id == id) > 0;
+            return db.users.Count(e => e.id == id) > 0;
         }
     }
 }

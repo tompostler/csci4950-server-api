@@ -90,56 +90,59 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\activitiesController.cs" />
+    <Compile Include="Controllers\activity_unitsController.cs" />
+    <Compile Include="Controllers\locationsController.cs" />
+    <Compile Include="Controllers\usersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\activity.cs">
-      <DependentUpon>AllModel.tt</DependentUpon>
+      <DependentUpon>csci4950s15Model.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\activity_units.cs">
-      <DependentUpon>AllModel.tt</DependentUpon>
+      <DependentUpon>csci4950s15Model.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\AllModel.Context.cs">
+    <Compile Include="Models\csci4950s15Model.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>AllModel.Context.tt</DependentUpon>
+      <DependentUpon>csci4950s15Model.Context.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\AllModel.cs">
+    <Compile Include="Models\csci4950s15Model.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>AllModel.tt</DependentUpon>
+      <DependentUpon>csci4950s15Model.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\AllModel.Designer.cs">
+    <Compile Include="Models\csci4950s15Model.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>AllModel.edmx</DependentUpon>
+      <DependentUpon>csci4950s15Model.edmx</DependentUpon>
     </Compile>
     <Compile Include="Models\location.cs">
-      <DependentUpon>AllModel.tt</DependentUpon>
+      <DependentUpon>csci4950s15Model.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\user.cs">
-      <DependentUpon>AllModel.tt</DependentUpon>
+      <DependentUpon>csci4950s15Model.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
-    <EntityDeploy Include="Models\AllModel.edmx">
+    <EntityDeploy Include="Models\csci4950s15Model.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>AllModel.Designer.cs</LastGenOutput>
+      <LastGenOutput>csci4950s15Model.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <Content Include="Models\AllModel.Context.tt">
+    <Content Include="Models\csci4950s15Model.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>AllModel.edmx</DependentUpon>
-      <LastGenOutput>AllModel.Context.cs</LastGenOutput>
+      <DependentUpon>csci4950s15Model.edmx</DependentUpon>
+      <LastGenOutput>csci4950s15Model.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="Models\AllModel.edmx.diagram">
-      <DependentUpon>AllModel.edmx</DependentUpon>
+    <Content Include="Models\csci4950s15Model.edmx.diagram">
+      <DependentUpon>csci4950s15Model.edmx</DependentUpon>
     </Content>
-    <Content Include="Models\AllModel.tt">
+    <Content Include="Models\csci4950s15Model.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>AllModel.edmx</DependentUpon>
-      <LastGenOutput>AllModel.cs</LastGenOutput>
+      <DependentUpon>csci4950s15Model.edmx</DependentUpon>
+      <LastGenOutput>csci4950s15Model.cs</LastGenOutput>
     </Content>
     <None Include="Properties\PublishProfiles\tenunreals-t03.pubxml" />
     <None Include="Web.Debug.config">
@@ -166,7 +169,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>51901</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>

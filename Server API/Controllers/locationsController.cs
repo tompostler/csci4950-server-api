@@ -13,44 +13,44 @@ using Server_API.Models;
 
 namespace Server_API.Controllers
 {
-    public class activitiesController : ApiController
+    public class locationsController : ApiController
     {
         private csci4950s15Entities db = new csci4950s15Entities();
 
-        // GET: api/activities
-        public IQueryable<activity> Getactivities()
+        // GET: api/locations
+        public IQueryable<location> Getlocations()
         {
-            return db.activities;
+            return db.locations;
         }
 
-        // GET: api/activities/5
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Getactivity(int id)
+        // GET: api/locations/5
+        [ResponseType(typeof(location))]
+        public async Task<IHttpActionResult> Getlocation(int id)
         {
-            activity activity = await db.activities.FindAsync(id);
-            if (activity == null)
+            location location = await db.locations.FindAsync(id);
+            if (location == null)
             {
                 return NotFound();
             }
 
-            return Ok(activity);
+            return Ok(location);
         }
 
-        // PUT: api/activities/5
+        // PUT: api/locations/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putactivity(int id, activity activity)
+        public async Task<IHttpActionResult> Putlocation(int id, location location)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != activity.id)
+            if (id != location.id)
             {
                 return BadRequest();
             }
 
-            db.Entry(activity).State = EntityState.Modified;
+            db.Entry(location).State = EntityState.Modified;
 
             try
             {
@@ -58,7 +58,7 @@ namespace Server_API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!activityExists(id))
+                if (!locationExists(id))
                 {
                     return NotFound();
                 }
@@ -71,35 +71,35 @@ namespace Server_API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/activities
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Postactivity(activity activity)
+        // POST: api/locations
+        [ResponseType(typeof(location))]
+        public async Task<IHttpActionResult> Postlocation(location location)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.activities.Add(activity);
+            db.locations.Add(location);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = activity.id }, activity);
+            return CreatedAtRoute("DefaultApi", new { id = location.id }, location);
         }
 
-        // DELETE: api/activities/5
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Deleteactivity(int id)
+        // DELETE: api/locations/5
+        [ResponseType(typeof(location))]
+        public async Task<IHttpActionResult> Deletelocation(int id)
         {
-            activity activity = await db.activities.FindAsync(id);
-            if (activity == null)
+            location location = await db.locations.FindAsync(id);
+            if (location == null)
             {
                 return NotFound();
             }
 
-            db.activities.Remove(activity);
+            db.locations.Remove(location);
             await db.SaveChangesAsync();
 
-            return Ok(activity);
+            return Ok(location);
         }
 
         protected override void Dispose(bool disposing)
@@ -111,9 +111,9 @@ namespace Server_API.Controllers
             base.Dispose(disposing);
         }
 
-        private bool activityExists(int id)
+        private bool locationExists(int id)
         {
-            return db.activities.Count(e => e.id == id) > 0;
+            return db.locations.Count(e => e.id == id) > 0;
         }
     }
 }
