@@ -25,8 +25,9 @@ namespace Server_API.Controllers
 
         // GET: api/activities/5
         [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Getactivity(int id)
+        public async Task<IHttpActionResult> Getactivity(int id, string test="")
         {
+            System.Console.WriteLine(test);
             activity activity = await db.activities.FindAsync(id);
             if (activity == null)
             {
