@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -18,16 +18,31 @@ namespace Server_API.Controllers
         private csci4950s15Entities db = new csci4950s15Entities();
 
         // GET: api/activities
-        public IQueryable<activity> Getactivities()
+        public IQueryable<activity> Getactivities(int user=0, string name="", byte category=0)
         {
+            // Create the result set
+            var activities = from act in db.activities
+                             select act;
+
+            // Filter by user
+            if (user != 0)
+                activities = activities.Where(p => p.user.Equals(user));
+
+            // Filter by name, strict matching
+            if (!String.IsNullOrEmpty(name))
+                activities = activities.Where(p => p.name.Equals(name));
+
+            // Filter by category
+            if (category != 0)
+                activities = activities.Where(p => p.category.Equals(category));
+
             return db.activities;
         }
 
         // GET: api/activities/5
         [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Getactivity(int id, string test="")
+        public async Task<IHttpActionResult> Getactivity(int id)
         {
-            System.Console.WriteLine(test);
             activity activity = await db.activities.FindAsync(id);
             if (activity == null)
             {
@@ -87,6 +102,7 @@ namespace Server_API.Controllers
                 return BadRequest(ModelState);
             }
 
+<<<<<<< .merge_file_a08912
             db.activities.Add(act1);
 
             try
@@ -104,6 +120,10 @@ namespace Server_API.Controllers
                     throw;
                 }
             }
+=======
+            db.activities.Add(activity);
+            await db.SaveChangesAsync();
+>>>>>>> .merge_file_a10068
 
             return CreatedAtRoute("DefaultApi", new { id = act1.id }, act1);
         }

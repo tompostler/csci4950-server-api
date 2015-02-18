@@ -16,8 +16,11 @@ namespace Server_API.Models
     {
         public int id { get; set; }
         public int activity_id { get; set; }
-        public int location { get; set; }
+        public int location_id { get; set; }
         public System.DateTime start_time { get; set; }
         public System.DateTime end_time { get; set; }
+    
+        public virtual activity activity { get; set; }
+        public virtual location location { get; set; }
     }
 }
