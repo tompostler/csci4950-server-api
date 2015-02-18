@@ -38,6 +38,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -47,6 +55,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>packages\Microsoft.AspNet.WebApi.Client.5.2.2\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -79,14 +89,61 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\ActivitiesController.cs" />
+    <Compile Include="Controllers\activitiesController.cs" />
+    <Compile Include="Controllers\activity_unitsController.cs" />
+    <Compile Include="Controllers\locationsController.cs" />
+    <Compile Include="Controllers\usersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Models\activity.cs">
+      <DependentUpon>csci4950s15Model.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\activity_units.cs">
+      <DependentUpon>csci4950s15Model.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\csci4950s15Model.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>csci4950s15Model.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\csci4950s15Model.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>csci4950s15Model.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\csci4950s15Model.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>csci4950s15Model.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Models\location.cs">
+      <DependentUpon>csci4950s15Model.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\user.cs">
+      <DependentUpon>csci4950s15Model.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+    <EntityDeploy Include="Models\csci4950s15Model.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>csci4950s15Model.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <Content Include="Models\csci4950s15Model.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>csci4950s15Model.edmx</DependentUpon>
+      <LastGenOutput>csci4950s15Model.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Models\csci4950s15Model.edmx.diagram">
+      <DependentUpon>csci4950s15Model.edmx</DependentUpon>
+    </Content>
+    <Content Include="Models\csci4950s15Model.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>csci4950s15Model.edmx</DependentUpon>
+      <LastGenOutput>csci4950s15Model.cs</LastGenOutput>
+    </Content>
     <None Include="Properties\PublishProfiles\tenunreals-t03.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -97,6 +154,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -109,7 +169,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>51901</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
