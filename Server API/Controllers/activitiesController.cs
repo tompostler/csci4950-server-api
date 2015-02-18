@@ -18,16 +18,28 @@ namespace Server_API.Controllers
         private csci4950s15Entities db = new csci4950s15Entities();
 
         // GET: api/activities
-        public IQueryable<activity> Getactivities()
+        public IQueryable<activity> Getactivities(int user=0)
         {
-            return db.activities;
+            int userID = user;
+            if (userID != 0)
+            {
+                var activities = from a in db.activities
+                                 where a.user.Equals(userID)
+                                 select a;
+                return activities;
+            }
+            else
+            {
+                var activities = from a in db.activities
+                                 select a;
+                return activities;
+            }
         }
 
         // GET: api/activities/5
         [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Getactivity(int id, string test="")
+        public async Task<IHttpActionResult> Getactivity(int id)
         {
-            System.Console.WriteLine(test);
             activity activity = await db.activities.FindAsync(id);
             if (activity == null)
             {
