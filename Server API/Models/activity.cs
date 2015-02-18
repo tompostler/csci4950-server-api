@@ -22,7 +22,7 @@ namespace Server_API.Models
         public int id { get; set; }
         public int user { get; set; }
         public string name { get; set; }
-        public byte category { get; set; }
+        public sbyte category { get; set; }
     
         public virtual user user1 { get; set; }
         public virtual ICollection<activity_units> activity_units { get; set; }
