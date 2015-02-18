@@ -14,10 +14,18 @@ namespace Server_API.Models
     
     public partial class location
     {
+        public location()
+        {
+            this.activity_units = new HashSet<activity_units>();
+        }
+    
         public int id { get; set; }
-        public int user { get; set; }
+        public int user_id { get; set; }
         public string name { get; set; }
-        public Nullable<byte> type { get; set; }
+        public byte type { get; set; }
         public string content { get; set; }
+    
+        public virtual ICollection<activity_units> activity_units { get; set; }
+        public virtual user user { get; set; }
     }
 }
