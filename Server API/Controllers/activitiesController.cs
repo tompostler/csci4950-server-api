@@ -18,7 +18,7 @@ namespace Server_API.Controllers
         private csci4950s15Entities db = new csci4950s15Entities();
 
         // GET: api/activities
-        public IQueryable<activity> Getactivities(int user=0, string name="", sbyte category=0)
+        public IQueryable<activity> Getactivities(int user=0, string name="", byte category=0)
         {
             // Create the result set
             var activities = from act in db.activities
@@ -33,6 +33,8 @@ namespace Server_API.Controllers
                 activities = activities.Where(p => p.name.Equals(name));
 
             // Filter by category
+            if (category != 0)
+                activities = activities.Where(p => p.category.Equals(category));
 
             return db.activities;
         }
