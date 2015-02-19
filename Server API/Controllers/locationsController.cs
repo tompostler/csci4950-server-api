@@ -27,11 +27,15 @@ namespace Server_API.Controllers
         }
 
         // GET: api/locations
-        public IQueryable<LocationResult> Getlocations(int user=0, byte type=0, string content="")
+        public IQueryable<LocationResult> Getlocations(int id=0, int user=0, byte type=0, string content="")
         {
             // Create the result set
             var locations = from loc in db.locations
                             select loc;
+
+            // Filter on id
+            if (id != 0)
+                locations = locations.Where(p => p.id.Equals(id));
 
             // Filter on user
             if (user != 0)
@@ -59,19 +63,6 @@ namespace Server_API.Controllers
             }
 
             return results.AsQueryable();
-        }
-
-        // GET: api/locations/5
-        [ResponseType(typeof(location))]
-        public async Task<IHttpActionResult> Getlocation(int id)
-        {
-            location location = await db.locations.FindAsync(id);
-            if (location == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(location);
         }
 
         // PUT: api/locations/5

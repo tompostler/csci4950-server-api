@@ -26,11 +26,15 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activities
-        public IQueryable<ActivityResult> Getactivities(int user=0, string name="", byte category=0)
+        public IQueryable<ActivityResult> Getactivities(int id=0, int user=0, string name="", byte category=0)
         {
             // Create the result set
             var activities = from act in db.activities
                              select act;
+
+            // Filter by id
+            if (id != 0)
+                activities = activities.Where(p => p.id.Equals(id));
 
             // Filter by user
             if (user != 0)
@@ -57,19 +61,6 @@ namespace Server_API.Controllers
             }
 
             return results.AsQueryable();
-        }
-
-        // GET: api/activities/5
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Getactivity(int id)
-        {
-            activity activity = await db.activities.FindAsync(id);
-            if (activity == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(activity);
         }
 
         // PUT: api/activities/5

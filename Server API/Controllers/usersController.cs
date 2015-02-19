@@ -32,11 +32,15 @@ namespace Server_API.Controllers
         }
 
         // GET: api/users
-        public IQueryable<UserResult> Getusers(string email="")
+        public IQueryable<UserResult> Getusers(int id=0, string email="")
         {
             // Create the result set
             var users = from u in db.users
                         select u;
+
+            // Filter by id
+            if (id != 0)
+                users = users.Where(p => p.id.Equals(id));
 
             // Filter by email
             if (!String.IsNullOrEmpty(email))
@@ -60,19 +64,6 @@ namespace Server_API.Controllers
             }
 
             return results.AsQueryable();
-        }
-
-        // GET: api/users/5
-        [ResponseType(typeof(user))]
-        public async Task<IHttpActionResult> Getuser(int id)
-        {
-            user user = await db.users.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(user);
         }
 
         // PUT: api/users/5

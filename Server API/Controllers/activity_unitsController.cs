@@ -27,11 +27,15 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activity_units
-        public IQueryable<ActivityUnitResult> Getactivity_units(int activity=0, int location=0, DateTime? startTime=null, DateTime? endTime=null)
+        public IQueryable<ActivityUnitResult> Getactivity_units(int id=0, int activity=0, int location=0, DateTime? startTime=null, DateTime? endTime=null)
         {
             // Create the result set
             var activity_units = from au in db.activity_units
                                  select au;
+
+            // Filter on id
+            if (id != 0)
+                activity_units = activity_units.Where(p => p.id.Equals(id));
 
             // Filter on activity
             if (activity != 0)
@@ -93,19 +97,6 @@ namespace Server_API.Controllers
             activity_units = activity_units.Where(p => p.end_time < endTimeEnd.ToUniversalTime());
 
             return activity_units;
-        }
-
-        // GET: api/activity_units/5
-        [ResponseType(typeof(activity_units))]
-        public async Task<IHttpActionResult> Getactivity_units(int id)
-        {
-            activity_units activity_units = await db.activity_units.FindAsync(id);
-            if (activity_units == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(activity_units);
         }
 
         // PUT: api/activity_units/5
