@@ -17,8 +17,17 @@ namespace Server_API.Controllers
     {
         private csci4950s15Entities db = new csci4950s15Entities();
 
+        public class ActivityUnitResult
+        {
+            public int id { get; set; }
+            public int activity { get; set; }
+            public int location { get; set; }
+            public DateTime stime { get; set; }
+            public DateTime etime { get; set; }
+        }
+
         // GET: api/activity_units
-        public IQueryable<activity_units> Getactivity_units(int activity=0, int location=0, DateTime? startTime=null, DateTime? endTime=null)
+        public IQueryable<ActivityUnitResult> Getactivity_units(int activity=0, int location=0, DateTime? startTime=null, DateTime? endTime=null)
         {
             // Create the result set
             var activity_units = from au in db.activity_units
@@ -40,7 +49,20 @@ namespace Server_API.Controllers
             if (endTime != null)
                 activity_units = activity_units.Where(p => p.end_time.Equals(endTime.Value.ToUniversalTime()));
 
-            return activity_units;
+            // Convert the activity_units to more API friendly things
+            List<ActivityUnitResult> results = new List<ActivityUnitResult>();
+            foreach (var acu in activity_units)
+            {
+                var acuRes = new ActivityUnitResult();
+                acuRes.id = acu.id;
+                acuRes.activity = acu.activity_id;
+                acuRes.location = acu.location_id;
+                acuRes.stime = acu.start_time;
+                acuRes.etime = acu.end_time;
+                results.Add(acuRes);
+            }
+
+            return results.AsQueryable();
         }
 
         // GET: api/activity_units
