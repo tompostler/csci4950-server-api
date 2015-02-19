@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -18,9 +18,25 @@ namespace Server_API.Controllers
         private csci4950s15Entities db = new csci4950s15Entities();
 
         // GET: api/activities
-        public IQueryable<activity> Getactivities()
+        public IQueryable<activity> Getactivities(int user=0, string name="", byte category=0)
         {
-            return db.activities;
+            // Create the result set
+            var activities = from act in db.activities
+                             select act;
+
+            // Filter by user
+            if (user != 0)
+                activities = activities.Where(p => p.user.Equals(user));
+
+            // Filter by name, strict matching
+            if (!String.IsNullOrEmpty(name))
+                activities = activities.Where(p => p.name.Equals(name));
+
+            // Filter by category
+            if (category != 0)
+                activities = activities.Where(p => p.category.Equals(category));
+
+            return activities;
         }
 
         // GET: api/activities/5

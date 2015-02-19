@@ -1,0 +1,212 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>API Reference</title>
+</head>
+<body>
+
+<xmp style="display:none;" toc>
+# Overview and Basic Features
+
+This section gives you an overview of how to use the API as well as what types of requests you can
+make against the API.
+
+
+
+
+## Request URL Format
+
+In order to make a request of any type, the request URL must be a standard HTTP URL structured as
+such:
+
+    HOST/api/ROOTNODE[?PARAM1=VALUE1][&PARAM2=VALUE2][&PARAM3=VALUE3]...
+
+Where:
+
+Item | Description
+:---: | :---
+`HOST` | The hostname that is hosting the API. Right now, that would be `tenunreals-t03.cloudapp.net`
+`ROOTNODE` | The root node on the API. This is defined back on the main page.
+`[?PARAM1=VALUE1]` | If you wish/need to supply parameters to the URL for the request type you are using, then those start after the root node URL with a `?` and then a `key=value` system.
+`[&PARAM2=VALUE2]` | Any subsequent or additional parameters that you wish/need to define for the specific HTTP URL will continue in `key=value` format and are separated from other parameters with a `&`
+
+Any Date/Time formats that are passed in via the URL or in the JSON body will be represented by the
+standard UTC format of `yyyy-mm-ddThh:mm:ssZ`.
+    
+For example, February 18th, 2014 at 9:25:07 PM CST would translate to `2015-02-19T03:25:07Z` (with
+Daylight Savings Time not in effect on that date, CST is 6 hours behind UTC).
+
+
+
+
+## Request Types
+
+There are four types of requests you can make against the server, each of which performs a different
+action detailed below:
+
+* `GET`
+* `PUT`
+* `POST`
+* `DELETE`
+
+Requests will generally return data in a JSON format representing one thing or another.
+
+
+
+### GET Requests
+
+These are used to request data from the server in a read-only style.
+
+All parameters that you wish to supply are passed to the API via URL parameters. For example, if you
+wish to ask for the activity associated with user ID 7 and category 4, then the URL string you would
+use is:
+
+    tenunreals-t03.cloudapp.net/api/activities?user=7&category=4
+
+
+#### Response
+
+When querying using the regular parameters, the result will always be a JSON list of results that
+will contain 0 or more items serialized into an appropriate JSON format.
+
+If you are requesting one item by its specific ID (using the parameter `id=##` in the request URL),
+then you will receive either nothing (an empty response) or one item serialized into JSON.
+
+
+
+### PUT Requests
+
+These are used when updating an existing item on the server.
+
+All parameters are passed via JSON in a PUT request to the appropriate root node with the id to
+update as a subnode. For example, if you wish to update the activity with ID of 1, then you would
+send a PUT request with a JSON body of information to update to the URL string:
+
+    tenunreals-t03.cloudapp.net/api/activities/1
+
+
+
+### POST Requests
+
+These are used when creating a new item on the server.
+
+All parameters are passed via JSON in a POST request to the appropriate root node. For example, if
+you wanted to create a new activity, then you would send a POST request with a JSON body of
+information to the URL string:
+
+    tneunreals-t03.cloudapp.net/api/activities
+
+
+
+### DELETE Requests
+
+These are used when deleting an existing item on the server.
+
+No parameters are necessary. Simply send a DELETE request to the appropriate root node with the id
+to delete as a subnode. For example, if you wish to delete the activity with ID of 1, then you would
+send a DELETE request to the URL string:
+
+    tenunreals-t03.cloudapp.net/api/activities/1
+
+Deleting an item that is depended upon by other items (such as deleting a user) will cascade the
+deletion to delete all dependencies.
+
+
+
+
+
+# Nodes
+
+There are currently 4 root nodes, each with several optional and/or required subnodes for basic GET
+querying.
+
+
+
+
+## Root Nodes
+
+Node | Description
+:--- | :---
+[`/activities`](#activities-node) | Corresponds to an activity.
+[`/activity_units`](#activity_units-node) | Corresponds to an activity work unit.
+[`/locations`](#locations-node) | Corresponds to a location.
+[`/users`](#users-node) | Corresponds to a user.
+
+
+
+### activities Node
+
+The following are all optional parameters. Failing to specify any parameters will return all
+activities in the database.
+
+Parameter | Description
+:--- | :---
+`id` | An integer ID uniquely identifying the activity. This is automatically incremented on creation of a new activity and will be communicated in the response to a POST on successful creation.
+`user` | An integer correlating to an existing user ID. This will link an activity to a specific user.
+`name` | A maximum 50-character string for the user-defined name of an activity.
+`category` | A tinyint (range -128 to 127) matching to one of the predefined categories. The categories are TBD, but will be linked from here in the future.
+
+
+
+### activity_units Node
+
+TODO
+
+
+
+### locations Node
+
+TODO
+
+
+
+### users Node
+
+TODO
+
+
+
+
+## Subnodes
+
+For any request type (including `GET` requests), an ID can be used to work with one item of the
+corresponding type from a root node.
+
+For `GET` requests, this simply allows you to either get an empty response or a response containing
+serialized JSON for one element.
+
+For `PUT`, `POST`, and `DELETE` requests, this format is necessary to work with only one object at a
+time.
+
+As a reminder, the URL format for working with a subnode is:
+
+    tenunreals-t03.cloudapp.net/api/ROOTNODE/SUBNODE
+
+
+
+
+
+# Notes
+
+Random notes and things that don't have a better place in this documentation.
+
+
+
+### Security
+
+This API is currently completely public with no authentication, verification, or logging whatsoever.
+
+This will be our next feature target as soon as this API is determined to be stable and good enough
+for the rest of the team.
+
+Right now, the general idea is that we will have a long, random, and secure secret shared between
+the server and the app. The request string will have this secret appended to it and then hashed.
+If the server takes the request string, adds the secret, hashes it, and that hash matches the hash
+in the request, then the request will be accepted as valid.
+
+This is currently just an idea.
+</xmp>
+
+    <script src="http://ndossougbe.github.io/strapdown/dist/strapdown.js"></script>
+</body>
+</html>
