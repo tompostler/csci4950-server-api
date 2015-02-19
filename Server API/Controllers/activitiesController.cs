@@ -36,7 +36,7 @@ namespace Server_API.Controllers
             if (category != 0)
                 activities = activities.Where(p => p.category.Equals(category));
 
-            return db.activities;
+            return activities;
         }
 
         // GET: api/activities/5

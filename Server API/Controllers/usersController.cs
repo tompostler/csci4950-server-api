@@ -18,9 +18,17 @@ namespace Server_API.Controllers
         private csci4950s15Entities db = new csci4950s15Entities();
 
         // GET: api/users
-        public IQueryable<user> Getusers()
+        public IQueryable<user> Getusers(string email="")
         {
-            return db.users;
+            // Create the result set
+            var users = from u in db.users
+                        select u;
+
+            // Filter by email
+            if (!String.IsNullOrEmpty(email))
+                users = users.Where(p => p.email.Equals(email));
+
+            return users;
         }
 
         // GET: api/users/5

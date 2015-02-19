@@ -18,9 +18,59 @@ namespace Server_API.Controllers
         private csci4950s15Entities db = new csci4950s15Entities();
 
         // GET: api/activity_units
-        public IQueryable<activity_units> Getactivity_units()
+        public IQueryable<activity_units> Getactivity_units(int activity=0, int location=0, DateTime? startTime=null, DateTime? endTime=null)
         {
-            return db.activity_units;
+            // Create the result set
+            var activity_units = from au in db.activity_units
+                                 select au;
+
+            // Filter on activity
+            if (activity != 0)
+                activity_units = activity_units.Where(p => p.activity_id.Equals(activity));
+
+            // Filter on location
+            if (location != 0)
+                activity_units = activity_units.Where(p => p.location.Equals(location));
+
+            // Filter on startTime
+            if (startTime != null)
+                activity_units = activity_units.Where(p => p.start_time.Equals(startTime.Value.ToUniversalTime()));
+
+            // Filter on endTime
+            if (endTime != null)
+                activity_units = activity_units.Where(p => p.end_time.Equals(endTime.Value.ToUniversalTime()));
+
+            return activity_units;
+        }
+
+        // GET: api/activity_units
+        public IQueryable<activity_units> Getactivity_units(DateTime startTimeBeg, DateTime startTimeEnd, DateTime endTimeBeg, DateTime endTimeEnd, int activity = 0, int location = 0)
+        {
+            // Create the result set
+            var activity_units = from au in db.activity_units
+                                 select au;
+
+            // Filter on activity
+            if (activity != 0)
+                activity_units = activity_units.Where(p => p.activity_id.Equals(activity));
+
+            // Filter on location
+            if (location != 0)
+                activity_units = activity_units.Where(p => p.location.Equals(location));
+
+            // Filter on startTimeBeg
+            activity_units = activity_units.Where(p => p.start_time > startTimeBeg.ToUniversalTime());
+
+            // Filter on startTimeEnd
+            activity_units = activity_units.Where(p => p.start_time < startTimeEnd.ToUniversalTime());
+
+            // Filter on endTimeBeg
+            activity_units = activity_units.Where(p => p.end_time > endTimeBeg.ToUniversalTime());
+
+            // Filter on endTimeEnd
+            activity_units = activity_units.Where(p => p.end_time < endTimeEnd.ToUniversalTime());
+
+            return activity_units;
         }
 
         // GET: api/activity_units/5
