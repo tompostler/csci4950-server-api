@@ -17,10 +17,48 @@ namespace Server_API.Controllers
     {
         private csci4950s15Entities db = new csci4950s15Entities();
 
-        // GET: api/locations
-        public IQueryable<location> Getlocations()
+        public class LocationResult
         {
-            return db.locations;
+            public int id { get; set; }
+            public int user { get; set; }
+            public string name { get; set; }
+            public byte type { get; set; }
+            public string content { get; set; }
+        }
+
+        // GET: api/locations
+        public IQueryable<LocationResult> Getlocations(int user=0, byte type=0, string content="")
+        {
+            // Create the result set
+            var locations = from loc in db.locations
+                            select loc;
+
+            // Filter on user
+            if (user != 0)
+                locations = locations.Where(p => p.user.Equals(user));
+
+            // Filter on type
+            if (type != 0)
+                locations = locations.Where(p => p.type.Equals(type));
+
+            // Filter on content, strict matching
+            if (!String.IsNullOrEmpty(content))
+                locations = locations.Where(p => p.content.Equals(content));
+
+            // Convert the locations to more API friendly things
+            List<LocationResult> results = new List<LocationResult>();
+            foreach (var loc in locations)
+            {
+                var locRes = new LocationResult();
+                locRes.id = loc.id;
+                locRes.user = loc.user_id;
+                locRes.name = loc.name;
+                locRes.type = loc.type;
+                locRes.content = loc.content;
+                results.Add(locRes);
+            }
+
+            return results.AsQueryable();
         }
 
         // GET: api/locations/5
