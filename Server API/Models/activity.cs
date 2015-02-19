@@ -14,12 +14,6 @@ namespace Server_API.Models
     
     public partial class activity
     {
-<<<<<<< .merge_file_a08764
-        public int id { get; set; }
-        public int user { get; set; }
-        public string name { get; set; }
-        public Nullable<byte> category { get; set; }
-=======
         public activity()
         {
             this.activity_units = new HashSet<activity_units>();
@@ -32,6 +26,5 @@ namespace Server_API.Models
     
         public virtual user user1 { get; set; }
         public virtual ICollection<activity_units> activity_units { get; set; }
->>>>>>> .merge_file_a09244
     }
 }

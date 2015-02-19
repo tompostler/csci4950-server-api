@@ -112,9 +112,9 @@ namespace Server_API.Controllers
         public async Task<IHttpActionResult> Postactivity()
         {
             activity act1 = new activity();
-            act1.id = 3;
+            //act1.id = 5;
             act1.name = "Testing the API";
-            act1.user = 2;
+            act1.user = 7;
             act1.category = 1;
 
             if (!ModelState.IsValid)
@@ -122,7 +122,6 @@ namespace Server_API.Controllers
                 return BadRequest(ModelState);
             }
 
-<<<<<<< .merge_file_a08912
             db.activities.Add(act1);
 
             try
@@ -140,10 +139,6 @@ namespace Server_API.Controllers
                     throw;
                 }
             }
-=======
-            db.activities.Add(activity);
-            await db.SaveChangesAsync();
->>>>>>> .merge_file_a10068
 
             return CreatedAtRoute("DefaultApi", new { id = act1.id }, act1);
         }
