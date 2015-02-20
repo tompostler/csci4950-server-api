@@ -70,7 +70,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activity_units
-        public IQueryable<activity_units> Getactivity_units(DateTime startTimeBeg, DateTime startTimeEnd, DateTime endTimeBeg, DateTime endTimeEnd, int activity = 0, int location = 0)
+        public IQueryable<ActivityUnitResult> Getactivity_units(DateTime startTimeBeg, DateTime startTimeEnd, DateTime endTimeBeg, DateTime endTimeEnd, int activity = 0, int location = 0)
         {
             // Create the result set
             var activity_units = from au in db.activity_units
@@ -96,7 +96,20 @@ namespace Server_API.Controllers
             // Filter on endTimeEnd
             activity_units = activity_units.Where(p => p.end_time < endTimeEnd.ToUniversalTime());
 
-            return activity_units;
+            // Convert the activity_units to more API friendly things
+            List<ActivityUnitResult> results = new List<ActivityUnitResult>();
+            foreach (var acu in activity_units)
+            {
+                var acuRes = new ActivityUnitResult();
+                acuRes.id = acu.id;
+                acuRes.activity = acu.activity_id;
+                acuRes.location = acu.location_id;
+                acuRes.stime = acu.start_time;
+                acuRes.etime = acu.end_time;
+                results.Add(acuRes);
+            }
+
+            return results.AsQueryable();
         }
 
         // PUT: api/activity_units/5
