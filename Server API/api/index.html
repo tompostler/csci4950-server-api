@@ -69,9 +69,6 @@ use is:
 When querying using the regular parameters, the result will always be a JSON list of results that
 will contain 0 or more items serialized into an appropriate JSON format.
 
-If you are requesting one item by its specific ID (using the parameter `id=##` in the request URL),
-then you will receive either nothing (an empty response) or one item serialized into JSON.
-
 
 
 ### PUT Requests
@@ -83,6 +80,8 @@ update as a subnode. For example, if you wish to update the activity with ID of 
 send a `PUT` request with a JSON body of information to update to the URL string:
 
     tenunreals-t03.cloudapp.net/api/activities/1
+
+You only need to send the information you wish to update along to the server.
 
 
 #### Response
@@ -210,9 +209,7 @@ Parameter | Description
 `email` | A maximum 50-character string for the user's email. __Uniqueness of the email is not enforced by the API.__
 `password` | A maximum 50-character string for the user's password. This is currently stored in the wonderfullness of plaintext. See [the notes](#password-storage) on this for more info.
 
-Of the above parameters, `GET` requests only support querying by `id` and `email`. Querying by `id`
-will return an empty response or one item whereas querying by `email` will return 0 or more items in
-a list.
+Of the above parameters, `GET` requests only support querying by `id` and `email`.
     
 If you wish to issue `GET` queries for `fname`, `lname`, or `password`, then we suggest you
 think about what you're doing and decide not to do it instead.
@@ -225,16 +222,13 @@ Anthony or Tom.
 
 ## Subnodes
 
-For any request type (including `GET` requests), an ID can be used to work with one item of the
+For any request type (not including `GET` requests), an ID can be used to work with one item of the
 corresponding type from a root node.
-
-For `GET` requests, this simply allows you to either get an empty response or a response containing
-serialized JSON for one element.
 
 For `PUT`, `POST`, and `DELETE` requests, this format is necessary to work with only one object at a
 time.
 
-As a reminder, the URL format for working with a subnode is:
+The URL format for working with a subnode is:
 
     tenunreals-t03.cloudapp.net/api/ROOTNODE/SUBNODE
 
@@ -250,7 +244,8 @@ Random notes and things that don't have a better place in this documentation.
 
 ### API Security
 
-This API is currently completely public with no authentication, verification, or logging whatsoever.
+This API is currently completely public with no authentication, verification, encryption,
+obfuscation, or logging whatsoever.
 
 This will be our next feature target as soon as this API is determined to be stable and good enough
 for the rest of the team.
@@ -273,7 +268,8 @@ is incredibly difficult to guess.
 Or we just support logging in with Google/Facebook/Twitter/etc.
 
 In the meantime for the wonderfullness that is quick-and-dirty, we are using plaintext storage on
-the API for passwords capped at 50 characters.
+the API for passwords capped at 50 characters. How the client handles passwords handed to the API
+will be treated as an [SEP](http://en.wikipedia.org/wiki/Somebody_Else%27s_Problem#Fiction).
 </xmp>
 
     <script src="http://ndossougbe.github.io/strapdown/dist/strapdown.js"></script>
