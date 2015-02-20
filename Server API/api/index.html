@@ -30,12 +30,6 @@ Item | Description
 `[?PARAM1=VALUE1]` | If you wish/need to supply parameters to the URL for the request type you are using, then those start after the root node URL with a `?` and then a `key=value` system.
 `[&PARAM2=VALUE2]` | Any subsequent or additional parameters that you wish/need to define for the specific HTTP URL will continue in `key=value` format and are separated from other parameters with a `&`
 
-Any Date/Time formats that are passed in via the URL or in the JSON body will be represented by the
-standard UTC format of `yyyy-mm-ddThh:mm:ssZ`.
-    
-For example, February 18th, 2014 at 9:25:07 PM CST would translate to `2015-02-19T03:25:07Z` (with
-Daylight Savings Time not in effect on that date, CST is 6 hours behind UTC).
-
 
 
 
@@ -168,6 +162,19 @@ Node | Description
 [`/locations`](#locations-node) | Corresponds to a location.
 [`/users`](#users-node) | Corresponds to a user.
 
+For `GET` requests, the root level nodes will return __all__ entries in the database corresponding
+to that node. This is a _very_ expensive operation, and will be removed as a feature once we have
+moved from the development phase into the beta testing phase.
+
+For `PUT` and `DELETE` requests, this will need to be coupled with a [subnode](#subnodes) for proper
+usage.
+
+For `POST` requests, this is all the information you need since all data to `POST` will be in the
+JSON body of your request.
+
+The following descriptions of the parameters on the nodes are used in the URL parameters of `GET`
+requests and the JSON bodies of `PUT` and `POST` requests.
+
 
 
 ### activities Node
@@ -183,7 +190,34 @@ Parameter | Description
 
 ### activity_units Node
 
-TODO
+There are two forms of the API available for `activity_units`. The first is as follows and supports
+the expected requests:
+
+Parameter | Description
+:--- | :---
+`id` | An integer ID uniquely identifying the activity work unit. This is automatically incremented on creation of a new activity work unit.
+`activity` | An integer correlating to an existing activity ID. This will link an activity work unit to a specific activity.
+`location` | An integer correlating to an existing location ID. This will link an activity work unit to a specific location.
+`startTime` | The start date and time of the activity work unit, in [UTC format](#date-time-formats).
+`endTime` | The end date and time of the activity work unit, in [UTC format](#date-time-formats).
+
+The other form of the API is strictly for `GET` requests. It allows querying of date ranges to
+return activity work units. (Hint: This may be useful for building a calendar day of events rapidly)
+
+Parameter | Required? | Description
+:--- | :---: | :---
+`startTimeBeg` | Yes | The beginning of the range for the start date and time to search, in [UTC format](#date-time-formats).
+`startTimeEnd` | Yes | The end of the range for the start date and time to search, in [UTC format](#date-time-formats).
+`endTimeBeg` | Yes | The beginning of the range for the end date and time to search, in [UTC format](#date-time-formats).
+`endTimeEnd` | Yes | The end of the range for the end date and time to search, in [UTC format](#date-time-formats).
+`activity` | No | An integer correlating to an existing activity ID. This will link an activity work unit to a specific activity.
+`location` | No | An integer correlating to an existing location ID. This will link an activity work unit to a specific location.
+
+For example, if I wanted to find all activity work units corresponding to an activity with ID of 7
+that occurred on February 19th (in CST), then I would use the following URL `GET` request to ask for
+all activities that started sometime on Feb 19 and ended some time on Feb 19 with activity ID of 7:
+
+    tenunreals-t03.cloudapp.net/api/activity_units?activity=7&startTimeBeg=2014-02-19T06:00:00Z&startTimeEnd=2014-02-20T06:00:00Z&endTimeBeg=2014-02-19T06:00:00Z&endTimeEnd=2014-02-20T06:00:00Z
 
 
 
@@ -250,12 +284,7 @@ obfuscation, or logging whatsoever.
 This will be our next feature target as soon as this API is determined to be stable and good enough
 for the rest of the team.
 
-Right now, the general idea is that we will have a long, random, and secure secret shared between
-the server and the app. The request string will have this secret appended to it and then hashed.
-If the server takes the request string, adds the secret, hashes it, and that hash matches the hash
-in the request, then the request will be accepted as valid.
-
-This is currently just an idea.
+We are researching the best way to implement security in a non-intrusive manner.
 
 
 
@@ -270,6 +299,16 @@ Or we just support logging in with Google/Facebook/Twitter/etc.
 In the meantime for the wonderfullness that is quick-and-dirty, we are using plaintext storage on
 the API for passwords capped at 50 characters. How the client handles passwords handed to the API
 will be treated as an [SEP](http://en.wikipedia.org/wiki/Somebody_Else%27s_Problem#Fiction).
+
+
+
+### Date/Time Formats
+
+Any Date/Time formats that are passed in or received via the URL or in JSON bodies will be
+represented by the standard UTC format of `yyyy-mm-ddThh:mm:ssZ`.
+    
+For example, February 18th, 2014 at 9:25:07 PM CST would translate to `2015-02-19T03:25:07Z` (with
+Daylight Savings Time not in effect on that date, CST is 6 hours behind UTC).
 </xmp>
 
     <script src="http://ndossougbe.github.io/strapdown/dist/strapdown.js"></script>
