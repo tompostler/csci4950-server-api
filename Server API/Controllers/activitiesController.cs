@@ -17,12 +17,28 @@ namespace Server_API.Controllers
     {
         private csci4950s15Entities db = new csci4950s15Entities();
 
+        /// <summary>
+        /// An ActivityResult class to trim down the information and named types that are exposed to
+        /// the web. This is better than making our schema directly available.
+        /// </summary>
+        public class ActivityResult
+        {
+            public int id { get; set; }
+            public int user { get; set; }
+            public string name { get; set; }
+            public byte category { get; set; }
+        }
+
         // GET: api/activities
-        public IQueryable<activity> Getactivities(int user=0, string name="", byte category=0)
+        public IQueryable<ActivityResult> Getactivities(int id=0, int user=0, string name="", byte category=0)
         {
             // Create the result set
             var activities = from act in db.activities
                              select act;
+
+            // Filter by id
+            if (id != 0)
+                activities = activities.Where(p => p.id.Equals(id));
 
             // Filter by user
             if (user != 0)
@@ -36,20 +52,19 @@ namespace Server_API.Controllers
             if (category != 0)
                 activities = activities.Where(p => p.category.Equals(category));
 
-            return activities;
-        }
-
-        // GET: api/activities/5
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Getactivity(int id)
-        {
-            activity activity = await db.activities.FindAsync(id);
-            if (activity == null)
+            // Convert the activities to more API friendly things
+            List<ActivityResult> results = new List<ActivityResult>();
+            foreach (var act in activities)
             {
-                return NotFound();
+                var actRes = new ActivityResult();
+                actRes.id = act.id;
+                actRes.user = act.user;
+                actRes.name = act.name;
+                actRes.category = act.category;
+                results.Add(actRes);
             }
 
-            return Ok(activity);
+            return results.AsQueryable();
         }
 
         // PUT: api/activities/5

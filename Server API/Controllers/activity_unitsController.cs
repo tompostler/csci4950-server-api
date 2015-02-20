@@ -17,12 +17,29 @@ namespace Server_API.Controllers
     {
         private csci4950s15Entities db = new csci4950s15Entities();
 
+        /// <summary>
+        /// An ActivityUnitResult class to trim down the information and named types that are
+        /// exposed to the web. This is better than making our schema directly available.
+        /// </summary>
+        public class ActivityUnitResult
+        {
+            public int id { get; set; }
+            public int activity { get; set; }
+            public int location { get; set; }
+            public DateTime stime { get; set; }
+            public DateTime etime { get; set; }
+        }
+
         // GET: api/activity_units
-        public IQueryable<activity_units> Getactivity_units(int activity=0, int location=0, DateTime? startTime=null, DateTime? endTime=null)
+        public IQueryable<ActivityUnitResult> Getactivity_units(int id=0, int activity=0, int location=0, DateTime? startTime=null, DateTime? endTime=null)
         {
             // Create the result set
             var activity_units = from au in db.activity_units
                                  select au;
+
+            // Filter on id
+            if (id != 0)
+                activity_units = activity_units.Where(p => p.id.Equals(id));
 
             // Filter on activity
             if (activity != 0)
@@ -40,11 +57,24 @@ namespace Server_API.Controllers
             if (endTime != null)
                 activity_units = activity_units.Where(p => p.end_time.Equals(endTime.Value.ToUniversalTime()));
 
-            return activity_units;
+            // Convert the activity_units to more API friendly things
+            List<ActivityUnitResult> results = new List<ActivityUnitResult>();
+            foreach (var acu in activity_units)
+            {
+                var acuRes = new ActivityUnitResult();
+                acuRes.id = acu.id;
+                acuRes.activity = acu.activity_id;
+                acuRes.location = acu.location_id;
+                acuRes.stime = acu.start_time;
+                acuRes.etime = acu.end_time;
+                results.Add(acuRes);
+            }
+
+            return results.AsQueryable();
         }
 
         // GET: api/activity_units
-        public IQueryable<activity_units> Getactivity_units(DateTime startTimeBeg, DateTime startTimeEnd, DateTime endTimeBeg, DateTime endTimeEnd, int activity = 0, int location = 0)
+        public IQueryable<ActivityUnitResult> Getactivity_units(DateTime startTimeBeg, DateTime startTimeEnd, DateTime endTimeBeg, DateTime endTimeEnd, int activity = 0, int location = 0)
         {
             // Create the result set
             var activity_units = from au in db.activity_units
@@ -70,20 +100,20 @@ namespace Server_API.Controllers
             // Filter on endTimeEnd
             activity_units = activity_units.Where(p => p.end_time < endTimeEnd.ToUniversalTime());
 
-            return activity_units;
-        }
-
-        // GET: api/activity_units/5
-        [ResponseType(typeof(activity_units))]
-        public async Task<IHttpActionResult> Getactivity_units(int id)
-        {
-            activity_units activity_units = await db.activity_units.FindAsync(id);
-            if (activity_units == null)
+            // Convert the activity_units to more API friendly things
+            List<ActivityUnitResult> results = new List<ActivityUnitResult>();
+            foreach (var acu in activity_units)
             {
-                return NotFound();
+                var acuRes = new ActivityUnitResult();
+                acuRes.id = acu.id;
+                acuRes.activity = acu.activity_id;
+                acuRes.location = acu.location_id;
+                acuRes.stime = acu.start_time;
+                acuRes.etime = acu.end_time;
+                results.Add(acuRes);
             }
 
-            return Ok(activity_units);
+            return results.AsQueryable();
         }
 
         // PUT: api/activity_units/5
