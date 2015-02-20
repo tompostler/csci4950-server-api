@@ -45,6 +45,9 @@ action detailed below:
 
 Requests will generally return data in a JSON format representing one thing or another.
 
+To send data with a request, the HTTP header `Content-Type` must be `application/json` if you are
+sending JSON in the request body. You will receive an error otherwise.
+
 
 
 ### GET Requests
