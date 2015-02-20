@@ -17,6 +17,10 @@ namespace Server_API.Controllers
     {
         private csci4950s15Entities db = new csci4950s15Entities();
 
+        /// <summary>
+        /// An ActivityUnitResult class to trim down the information and named types that are
+        /// exposed to the web. This is better than making our schema directly available.
+        /// </summary>
         public class ActivityUnitResult
         {
             public int id { get; set; }

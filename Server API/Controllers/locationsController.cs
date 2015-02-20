@@ -17,6 +17,10 @@ namespace Server_API.Controllers
     {
         private csci4950s15Entities db = new csci4950s15Entities();
 
+        /// <summary>
+        /// A LocationResult class to trim down the information and named types that are exposed to
+        /// the web. This is better than making our schema directly available.
+        /// </summary>
         public class LocationResult
         {
             public int id { get; set; }
