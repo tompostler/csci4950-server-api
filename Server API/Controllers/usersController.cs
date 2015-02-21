@@ -20,16 +20,16 @@ namespace Server_API.Controllers
         private csci4950s15Entities db = new csci4950s15Entities();
 
         /// <summary>
-        /// A UserResult class to trim down the information and named types that are exposed to the 
+        /// A User_API class to trim down the information and named types that are exposed to the 
         /// web. This is better than making our schema directly available.
         /// </summary>
         /// <remarks>
         /// The data annotations allow the ApiController to use its built-in validation techniques
         /// to validate POST and PUT data. Sweet.
         /// </remarks>
-        public class UserResult
+        public class User_API
         {
-            public UserResult(int id=0)
+            public User_API(int id=0)
             {
                 this.id = id;
             }
@@ -45,7 +45,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/users
-        public async Task<IQueryable<UserResult>> Getusers(int id=0, string email="")
+        public async Task<IQueryable<User_API>> Getusers(int id=0, string email="")
         {
             // Create the result set
             IQueryable<user> users = from u in db.users
@@ -64,11 +64,11 @@ namespace Server_API.Controllers
             //  connected by the FKs which fails horribly for some reason.
             // Ideally, we'd have a way to prevent that from being queried in
             //  the first place, but oh well for now.
-            List<UserResult> results = new List<UserResult>();
+            List<User_API> results = new List<User_API>();
             List<user> userlist = await users.ToListAsync();
             foreach (user usr in userlist)
             {
-                var usrRes = new UserResult(usr.id);
+                var usrRes = new User_API(usr.id);
                 usrRes.fname = usr.first_name;
                 usrRes.lname = usr.last_name;
                 usrRes.email = usr.email;
@@ -115,7 +115,7 @@ namespace Server_API.Controllers
         }
 
         // POST: api/users
-        public async Task<HttpResponseMessage> Postuser(UserResult post)
+        public async Task<HttpResponseMessage> Postuser(User_API post)
         {
             if (!ModelState.IsValid)
                 return failMsg(desc: JsonConvert.SerializeObject(ModelState));
