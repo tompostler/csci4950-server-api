@@ -33,7 +33,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activity_units
-        public IQueryable<ActivityUnit_API> Getactivity_units(int id=0, int activity=0, int location=0, DateTime? startTime=null, DateTime? endTime=null)
+        public IQueryable<ActivityUnit_API> Getactivity_units(int id = 0, int activity = 0, int location = 0, DateTime? startTime = null, DateTime? endTime = null)
         {
             // Create the result set
             var activity_units = from au in db.activity_units

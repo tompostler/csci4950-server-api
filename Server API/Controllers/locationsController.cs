@@ -33,7 +33,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/locations
-        public IQueryable<Location_API> Getlocations(int id=0, int user=0, byte type=0, string content="")
+        public IQueryable<Location_API> Getlocations(int id = 0, int user = 0, byte type = 0, string content = "")
         {
             // Create the result set
             var locations = from loc in db.locations
