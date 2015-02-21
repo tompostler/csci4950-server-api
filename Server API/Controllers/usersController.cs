@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using Server_API.Models;
+using System.Text;
 
 namespace Server_API.Controllers
 {
@@ -101,18 +102,58 @@ namespace Server_API.Controllers
         }
 
         // POST: api/users
-        [ResponseType(typeof(user))]
-        public async Task<IHttpActionResult> Postuser(user user)
+        public HttpResponseMessage Postuser([FromBody]dynamic body)
         {
             if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+                return failMsg("Bad Model State");
 
-            db.users.Add(user);
-            await db.SaveChangesAsync();
+            if (body == null)
+                return failMsg("must have POST body");
 
-            return CreatedAtRoute("DefaultApi", new { id = user.id }, user);
+            // Check to make sure they're not providing an ID
+            int? id = body.Value<int?>("id");
+            if (id.HasValue)
+                return failMsg("cannot supply id in POST");
+
+            // Grab all values out of POST
+            string fname = body.Value<string>("fname");
+            string lname = body.Value<string>("lname");
+            string email = body.Value<string>("email");
+            string password = body.Value<string>("password");
+
+            // Validate fname
+            if (String.IsNullOrEmpty(fname))
+                return failMsg("must have fname");
+            else if (fname.Length > 50)
+                return failMsg("fname must be <50 characters");
+
+            // Validate lname
+            if (String.IsNullOrEmpty(lname))
+                return failMsg("must have lname");
+            else if (lname.Length > 50)
+                return failMsg("lname must be <50 characters");
+
+            // Validate email
+            if (String.IsNullOrEmpty(email))
+                return failMsg("must have email");
+            else if (email.Length > 50)
+                return failMsg("email must be <50 characters");
+
+            // Validate password
+            if (String.IsNullOrEmpty(password))
+                return failMsg("must have password");
+            else if (password.Length > 50)
+                return failMsg("password must be <50 characters");
+
+            user usr = new user();
+            usr.first_name = fname;
+            usr.last_name = lname;
+            usr.email = email;
+            usr.password = password;
+            db.users.Add(usr);
+            db.SaveChanges();
+
+            return goodMsg(usr.id);
         }
 
         // DELETE: api/users/5
@@ -129,6 +170,25 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             return Ok(user);
+        }
+
+        protected HttpResponseMessage failMsg(string msg = null)
+        {
+            string json = "\"success\":false";
+            if (!String.IsNullOrEmpty(msg))
+                json += String.Format(",\"message\":\"{0}\"", msg.Replace("\"", "\"\""));
+            json = "{" + json + "}";
+            var response = this.Request.CreateResponse(HttpStatusCode.Forbidden);
+            response.Content = new StringContent(json, Encoding.UTF8, "application/json");
+            return response;
+        }
+
+        protected HttpResponseMessage goodMsg(int id)
+        {
+            string json = "{\"success\":true,\"id\":" + id.ToString() + "}";
+            var response = this.Request.CreateResponse(HttpStatusCode.Created);
+            response.Content = new StringContent(json, Encoding.UTF8, "application/json");
+            return response;
         }
 
         protected override void Dispose(bool disposing)
