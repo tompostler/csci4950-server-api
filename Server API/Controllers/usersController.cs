@@ -31,11 +31,11 @@ namespace Server_API.Controllers
         }
 
         // GET: api/users
-        public IQueryable<UserResult> Getusers(int id=0, string email="")
+        public async Task<IQueryable<UserResult>> Getusers(int id=0, string email="")
         {
             // Create the result set
-            var users = from u in db.users
-                        select u;
+            IQueryable<user> users = from u in db.users
+                                     select u;
 
             // Filter by id
             if (id != 0)
@@ -51,7 +51,8 @@ namespace Server_API.Controllers
             // Ideally, we'd have a way to prevent that from being queried in
             //  the first place, but oh well for now.
             List<UserResult> results = new List<UserResult>();
-            foreach (var usr in users)
+            List<user> userlist = await users.ToListAsync();
+            foreach (user usr in userlist)
             {
                 var usrRes = new UserResult();
                 usrRes.id = usr.id;
@@ -101,7 +102,7 @@ namespace Server_API.Controllers
         }
 
         // POST: api/users
-        public HttpResponseMessage Postuser([FromBody]dynamic body)
+        public async Task<HttpResponseMessage> Postuser([FromBody]dynamic body)
         {
             if (!ModelState.IsValid)
                 return failMsg("Bad Model State");
@@ -150,7 +151,7 @@ namespace Server_API.Controllers
             usr.email = email;
             usr.password = password;
             db.users.Add(usr);
-            db.SaveChanges();
+            await db.SaveChangesAsync();
 
             return goodMsg(usr.id);
         }
