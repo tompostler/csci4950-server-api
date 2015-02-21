@@ -16,12 +16,12 @@ namespace Server_API.Controllers
         private csci4950s15Entities db = new csci4950s15Entities();
 
         /// <summary>
-        /// A LocationResult class to trim down the information and named types that are exposed to
+        /// A Location_API class to trim down the information and named types that are exposed to
         /// the web. This is better than making our schema directly available.
         /// </summary>
-        public class LocationResult
+        public class Location_API
         {
-            public LocationResult(int id = 0)
+            public Location_API(int id = 0)
             {
                 this.id = id;
             }
@@ -33,7 +33,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/locations
-        public IQueryable<LocationResult> Getlocations(int id=0, int user=0, byte type=0, string content="")
+        public IQueryable<Location_API> Getlocations(int id=0, int user=0, byte type=0, string content="")
         {
             // Create the result set
             var locations = from loc in db.locations
@@ -56,10 +56,10 @@ namespace Server_API.Controllers
                 locations = locations.Where(p => p.content.Equals(content));
 
             // Convert the locations to more API friendly things
-            List<LocationResult> results = new List<LocationResult>();
+            List<Location_API> results = new List<Location_API>();
             foreach (var loc in locations)
             {
-                var locRes = new LocationResult(loc.id);
+                var locRes = new Location_API(loc.id);
                 locRes.user = loc.user_id;
                 locRes.name = loc.name;
                 locRes.type = loc.type;

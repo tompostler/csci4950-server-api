@@ -16,12 +16,12 @@ namespace Server_API.Controllers
         private csci4950s15Entities db = new csci4950s15Entities();
 
         /// <summary>
-        /// An ActivityResult class to trim down the information and named types that are exposed to
+        /// An Activity_API class to trim down the information and named types that are exposed to
         /// the web. This is better than making our schema directly available.
         /// </summary>
-        public class ActivityResult
+        public class Activity_API
         {
-            public ActivityResult(int id=0)
+            public Activity_API(int id=0)
             {
                 this.id = id;
             }
@@ -32,7 +32,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activities
-        public IQueryable<ActivityResult> Getactivities(int id=0, int user=0, string name="", byte category=0)
+        public IQueryable<Activity_API> Getactivities(int id=0, int user=0, string name="", byte category=0)
         {
             // Create the result set
             var activities = from act in db.activities
@@ -55,10 +55,10 @@ namespace Server_API.Controllers
                 activities = activities.Where(p => p.category.Equals(category));
 
             // Convert the activities to more API friendly things
-            List<ActivityResult> results = new List<ActivityResult>();
+            List<Activity_API> results = new List<Activity_API>();
             foreach (var act in activities)
             {
-                var actRes = new ActivityResult(act.id);
+                var actRes = new Activity_API(act.id);
                 actRes.user = act.user;
                 actRes.name = act.name;
                 actRes.category = act.category;

@@ -16,12 +16,12 @@ namespace Server_API.Controllers
         private csci4950s15Entities db = new csci4950s15Entities();
 
         /// <summary>
-        /// An ActivityUnitResult class to trim down the information and named types that are
+        /// An ActivityUnit_API class to trim down the information and named types that are
         /// exposed to the web. This is better than making our schema directly available.
         /// </summary>
-        public class ActivityUnitResult
+        public class ActivityUnit_API
         {
-            public ActivityUnitResult(int id = 0)
+            public ActivityUnit_API(int id = 0)
             {
                 this.id = id;
             }
@@ -33,7 +33,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activity_units
-        public IQueryable<ActivityUnitResult> Getactivity_units(int id=0, int activity=0, int location=0, DateTime? startTime=null, DateTime? endTime=null)
+        public IQueryable<ActivityUnit_API> Getactivity_units(int id=0, int activity=0, int location=0, DateTime? startTime=null, DateTime? endTime=null)
         {
             // Create the result set
             var activity_units = from au in db.activity_units
@@ -60,10 +60,10 @@ namespace Server_API.Controllers
                 activity_units = activity_units.Where(p => p.end_time.Equals(endTime.Value.ToUniversalTime()));
 
             // Convert the activity_units to more API friendly things
-            List<ActivityUnitResult> results = new List<ActivityUnitResult>();
+            List<ActivityUnit_API> results = new List<ActivityUnit_API>();
             foreach (var acu in activity_units)
             {
-                var acuRes = new ActivityUnitResult(acu.id);
+                var acuRes = new ActivityUnit_API(acu.id);
                 acuRes.activity = acu.activity_id;
                 acuRes.location = acu.location_id;
                 acuRes.stime = acu.start_time;
@@ -75,7 +75,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activity_units
-        public IQueryable<ActivityUnitResult> Getactivity_units(DateTime startTimeBeg, DateTime startTimeEnd, DateTime endTimeBeg, DateTime endTimeEnd, int activity = 0, int location = 0)
+        public IQueryable<ActivityUnit_API> Getactivity_units(DateTime startTimeBeg, DateTime startTimeEnd, DateTime endTimeBeg, DateTime endTimeEnd, int activity = 0, int location = 0)
         {
             // Create the result set
             var activity_units = from au in db.activity_units
@@ -102,11 +102,10 @@ namespace Server_API.Controllers
             activity_units = activity_units.Where(p => p.end_time < endTimeEnd.ToUniversalTime());
 
             // Convert the activity_units to more API friendly things
-            List<ActivityUnitResult> results = new List<ActivityUnitResult>();
+            List<ActivityUnit_API> results = new List<ActivityUnit_API>();
             foreach (var acu in activity_units)
             {
-                var acuRes = new ActivityUnitResult();
-                acuRes.id = acu.id;
+                var acuRes = new ActivityUnit_API(acu.id);
                 acuRes.activity = acu.activity_id;
                 acuRes.location = acu.location_id;
                 acuRes.stime = acu.start_time;
