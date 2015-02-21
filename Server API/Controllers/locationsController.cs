@@ -21,7 +21,11 @@ namespace Server_API.Controllers
         /// </summary>
         public class LocationResult
         {
-            public int id { get; set; }
+            public LocationResult(int id = 0)
+            {
+                this.id = id;
+            }
+            public int id { get; private set; }
             public int user { get; set; }
             public string name { get; set; }
             public byte type { get; set; }
@@ -55,8 +59,7 @@ namespace Server_API.Controllers
             List<LocationResult> results = new List<LocationResult>();
             foreach (var loc in locations)
             {
-                var locRes = new LocationResult();
-                locRes.id = loc.id;
+                var locRes = new LocationResult(loc.id);
                 locRes.user = loc.user_id;
                 locRes.name = loc.name;
                 locRes.type = loc.type;

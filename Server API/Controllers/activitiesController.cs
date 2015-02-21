@@ -21,7 +21,11 @@ namespace Server_API.Controllers
         /// </summary>
         public class ActivityResult
         {
-            public int id { get; set; }
+            public ActivityResult(int id=0)
+            {
+                this.id = id;
+            }
+            public int id { get; private set; }
             public int user { get; set; }
             public string name { get; set; }
             public byte category { get; set; }
@@ -54,8 +58,7 @@ namespace Server_API.Controllers
             List<ActivityResult> results = new List<ActivityResult>();
             foreach (var act in activities)
             {
-                var actRes = new ActivityResult();
-                actRes.id = act.id;
+                var actRes = new ActivityResult(act.id);
                 actRes.user = act.user;
                 actRes.name = act.name;
                 actRes.category = act.category;

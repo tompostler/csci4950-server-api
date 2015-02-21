@@ -21,7 +21,11 @@ namespace Server_API.Controllers
         /// </summary>
         public class ActivityUnitResult
         {
-            public int id { get; set; }
+            public ActivityUnitResult(int id = 0)
+            {
+                this.id = id;
+            }
+            public int id { get; private set; }
             public int activity { get; set; }
             public int location { get; set; }
             public DateTime stime { get; set; }
@@ -59,8 +63,7 @@ namespace Server_API.Controllers
             List<ActivityUnitResult> results = new List<ActivityUnitResult>();
             foreach (var acu in activity_units)
             {
-                var acuRes = new ActivityUnitResult();
-                acuRes.id = acu.id;
+                var acuRes = new ActivityUnitResult(acu.id);
                 acuRes.activity = acu.activity_id;
                 acuRes.location = acu.location_id;
                 acuRes.stime = acu.start_time;
