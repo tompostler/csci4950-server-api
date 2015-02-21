@@ -1,6 +1,8 @@
-﻿using Server_API.Models;
+﻿using Newtonsoft.Json;
+using Server_API.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
@@ -21,12 +23,24 @@ namespace Server_API.Controllers
         /// A UserResult class to trim down the information and named types that are exposed to the 
         /// web. This is better than making our schema directly available.
         /// </summary>
+        /// <remarks>
+        /// The data annotations allow the ApiController to use its built-in validation techniques
+        /// to validate POST and PUT data. Sweet.
+        /// </remarks>
         public class UserResult
         {
-            public int id { get; set; }
+            public UserResult(int id=0)
+            {
+                this.id = id;
+            }
+            public int id { get; private set; }
+            [Required, MaxLength(50)]
             public string fname { get; set; }
+            [Required, MaxLength(50)]
             public string lname { get; set; }
+            [Required, MaxLength(50)]
             public string email { get; set; }
+            [Required, MaxLength(50)]
             public string password { get; set; }
         }
 
@@ -54,8 +68,7 @@ namespace Server_API.Controllers
             List<user> userlist = await users.ToListAsync();
             foreach (user usr in userlist)
             {
-                var usrRes = new UserResult();
-                usrRes.id = usr.id;
+                var usrRes = new UserResult(usr.id);
                 usrRes.fname = usr.first_name;
                 usrRes.lname = usr.last_name;
                 usrRes.email = usr.email;
@@ -102,54 +115,17 @@ namespace Server_API.Controllers
         }
 
         // POST: api/users
-        public async Task<HttpResponseMessage> Postuser([FromBody]dynamic body)
+        public async Task<HttpResponseMessage> Postuser(UserResult post)
         {
             if (!ModelState.IsValid)
-                return failMsg("Bad Model State");
+                return failMsg(desc: JsonConvert.SerializeObject(ModelState));
 
-            if (body == null)
-                return failMsg("must have POST body");
-
-            // Check to make sure they're not providing an ID
-            int? id = body.Value<int?>("id");
-            if (id.HasValue)
-                return failMsg("cannot supply id in POST");
-
-            // Grab all values out of POST
-            string fname = body.Value<string>("fname");
-            string lname = body.Value<string>("lname");
-            string email = body.Value<string>("email");
-            string password = body.Value<string>("password");
-
-            // Validate fname
-            if (String.IsNullOrEmpty(fname))
-                return failMsg("must have fname");
-            else if (fname.Length > 50)
-                return failMsg("fname must be <50 characters");
-
-            // Validate lname
-            if (String.IsNullOrEmpty(lname))
-                return failMsg("must have lname");
-            else if (lname.Length > 50)
-                return failMsg("lname must be <50 characters");
-
-            // Validate email
-            if (String.IsNullOrEmpty(email))
-                return failMsg("must have email");
-            else if (email.Length > 50)
-                return failMsg("email must be <50 characters");
-
-            // Validate password
-            if (String.IsNullOrEmpty(password))
-                return failMsg("must have password");
-            else if (password.Length > 50)
-                return failMsg("password must be <50 characters");
-
+            // Convert our API type into the representing Model
             user usr = new user();
-            usr.first_name = fname;
-            usr.last_name = lname;
-            usr.email = email;
-            usr.password = password;
+            usr.first_name = post.fname;
+            usr.last_name = post.lname;
+            usr.email = post.email;
+            usr.password = post.password;
             db.users.Add(usr);
             await db.SaveChangesAsync();
 
@@ -172,11 +148,13 @@ namespace Server_API.Controllers
             return Ok(user);
         }
 
-        protected HttpResponseMessage failMsg(string msg = null)
+        protected HttpResponseMessage failMsg(string msg = null, string desc = null)
         {
             string json = "\"success\":false";
             if (!String.IsNullOrEmpty(msg))
                 json += String.Format(",\"message\":\"{0}\"", msg.Replace("\"", "\"\""));
+            if (!String.IsNullOrEmpty(desc))
+                json += String.Format(",\"description\":{0}", desc);
             json = "{" + json + "}";
             var response = this.Request.CreateResponse(HttpStatusCode.Forbidden);
             response.Content = new StringContent(json, Encoding.UTF8, "application/json");
