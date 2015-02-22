@@ -32,7 +32,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activities
-        public IQueryable<Activity_API> Getactivities(int id = 0, int user = 0, string name = "", byte category = 0)
+        public async Task<IQueryable<Activity_API>> Getactivities(int id = 0, int user = 0, string name = "", byte category = 0)
         {
             // Create the result set
             var activities = from act in db.activities
@@ -56,7 +56,8 @@ namespace Server_API.Controllers
 
             // Convert the activities to more API friendly things
             List<Activity_API> results = new List<Activity_API>();
-            foreach (var act in activities)
+            List<activity> activitylist = await activities.ToListAsync();
+            foreach (var act in activitylist)
             {
                 var actRes = new Activity_API(act.id);
                 actRes.user = act.user;
