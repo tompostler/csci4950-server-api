@@ -1,6 +1,7 @@
 using Server_API.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
@@ -26,8 +27,11 @@ namespace Server_API.Controllers
                 this.id = id;
             }
             public int id { get; private set; }
+            [Required]
             public int user { get; set; }
+            [Required, MaxLength(50)]
             public string name { get; set; }
+            [Required]
             public byte category { get; set; }
         }
 

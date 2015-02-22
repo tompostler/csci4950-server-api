@@ -1,6 +1,7 @@
 ﻿using Server_API.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
@@ -26,9 +27,13 @@ namespace Server_API.Controllers
                 this.id = id;
             }
             public int id { get; private set; }
+            [Required]
             public int activity { get; set; }
+            [Required]
             public int location { get; set; }
+            [Required]
             public DateTime stime { get; set; }
+            [Required]
             public DateTime etime { get; set; }
         }
 

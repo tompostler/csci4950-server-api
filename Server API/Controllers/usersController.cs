@@ -38,7 +38,7 @@ namespace Server_API.Controllers
             public string fname { get; set; }
             [Required, MaxLength(50)]
             public string lname { get; set; }
-            [Required, MaxLength(50)]
+            [Required, MaxLength(50), EmailAddress]
             public string email { get; set; }
             [Required, MaxLength(50)]
             public string password { get; set; }
