@@ -19,7 +19,7 @@ make against the API.
 In order to make a request of any type, the request URL must be a standard HTTP URL structured as
 such:
 
-    HOST/api/ROOTNODE[?PARAM1=VALUE1][&PARAM2=VALUE2][&PARAM3=VALUE3]...
+    HOST/api/ROOTNODE[/SUBNODE][?PARAM1=VALUE1][&PARAM2=VALUE2][&PARAM3=VALUE3]...
 
 Where:
 
@@ -27,6 +27,7 @@ Item | Description
 :---: | :---
 `HOST` | The hostname that is hosting the API. Right now, that would be `tenunreals-t03.cloudapp.net`
 `ROOTNODE` | The root node on the API. This is elaborated on in the [root nodes](#root-nodes) section.
+`[/SUBNODE]` | If using a `PUT` or `DELETE`, then this is a shortcut used to handle one item.
 `[?PARAM1=VALUE1]` | If you wish/need to supply parameters to the URL for the request type you are using, then those start after the root node URL with a `?` and then a `key=value` system.
 `[&PARAM2=VALUE2]` | Any subsequent or additional parameters that you wish/need to define for the specific HTTP URL will continue in `key=value` format and are separated from other parameters with a `&`.
 
@@ -78,7 +79,7 @@ send a `PUT` request with a JSON body of information to update to the URL string
 
     tenunreals-t03.cloudapp.net/api/activities/1
 
-You only need to send the information you wish to update along to the server.
+You must send the entire item (as if you were doing a `POST` request) to the server.
 
 
 #### Response
@@ -106,7 +107,8 @@ information to the URL string:
 #### Response
 
 When using a `POST` request, the response will always be a JSON object with one boolean element
-indicating success or failure and one optional numeric element with the created ID of the object:
+indicating success or failure, one optional numeric element with the created ID of the object, and
+one optional element detailing the errors associated with an unsuccessful `POST`:
 
     {
         "success": true,
@@ -117,6 +119,8 @@ Or:
 
     {
         "success": false
+        "description":
+            TODO - Works but needs cleaning up
     }
 
 
@@ -262,8 +266,7 @@ Anthony or Tom.
 For any request type (not including `GET` requests), an ID can be used to work with one item of the
 corresponding type from a root node.
 
-For `PUT`, `POST`, and `DELETE` requests, this format is necessary to work with only one object at a
-time.
+For `PUT` and `DELETE` requests, this format is necessary to work with only one object at a time.
 
 The URL format for working with a subnode is:
 
