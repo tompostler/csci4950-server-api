@@ -1,4 +1,5 @@
-﻿using Server_API.Models;
+﻿using Newtonsoft.Json;
+using Server_API.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -114,18 +115,21 @@ namespace Server_API.Controllers
         }
 
         // POST: api/locations
-        [ResponseType(typeof(location))]
-        public async Task<IHttpActionResult> Postlocation(location location)
+        public async Task<HttpResponseMessage> Postlocation(Location_API post)
         {
             if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+                return failMsg(JsonConvert.SerializeObject(ModelState));
 
-            db.locations.Add(location);
+            // Convert our API type into the representing Model
+            location loc = new location();
+            loc.user_id = post.user;
+            loc.name = post.name;
+            loc.type = post.type;
+            loc.content = post.content;
+            db.locations.Add(loc);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = location.id }, location);
+            return goodMsg(loc.id);
         }
 
         // DELETE: api/locations/5

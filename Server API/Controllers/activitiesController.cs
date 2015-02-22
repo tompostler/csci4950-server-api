@@ -115,7 +115,7 @@ namespace Server_API.Controllers
         public async Task<HttpResponseMessage> Postactivity(Activity_API post)
         {
             if (!ModelState.IsValid)
-                return failMsg(desc: JsonConvert.SerializeObject(ModelState));
+                return failMsg(JsonConvert.SerializeObject(ModelState));
 
             // Convert our API type into the representing Model
             activity act = new activity();

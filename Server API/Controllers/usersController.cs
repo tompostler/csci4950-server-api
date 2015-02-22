@@ -118,7 +118,7 @@ namespace Server_API.Controllers
         public async Task<HttpResponseMessage> Postuser(User_API post)
         {
             if (!ModelState.IsValid)
-                return failMsg(desc: JsonConvert.SerializeObject(ModelState));
+                return failMsg(JsonConvert.SerializeObject(ModelState));
 
             // Convert our API type into the representing Model
             user usr = new user();
