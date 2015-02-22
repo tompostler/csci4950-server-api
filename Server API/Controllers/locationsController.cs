@@ -33,7 +33,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/locations
-        public IQueryable<Location_API> Getlocations(int id = 0, int user = 0, byte type = 0, string content = "")
+        public async Task<IQueryable<Location_API>> Getlocations(int id = 0, int user = 0, byte type = 0, string content = "")
         {
             // Create the result set
             var locations = from loc in db.locations
@@ -57,7 +57,8 @@ namespace Server_API.Controllers
 
             // Convert the locations to more API friendly things
             List<Location_API> results = new List<Location_API>();
-            foreach (var loc in locations)
+            List<location> locationlist = await locations.ToListAsync();
+            foreach (var loc in locationlist)
             {
                 var locRes = new Location_API(loc.id);
                 locRes.user = loc.user_id;
