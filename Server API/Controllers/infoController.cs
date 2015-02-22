@@ -8,7 +8,7 @@ namespace Server_API.Controllers
     public class infoController : ApiController
     {
         private string json = @"{
-    ""version"": 0.2,
+    ""version"": 0.3,
     ""version_date"": ""2015-02-21"",
     ""contacts"": [
         {
@@ -23,7 +23,7 @@ namespace Server_API.Controllers
         ""locations"",
         ""users""
     ],
-    ""comment"": ""GET, DELETE for all with POST for users""
+    ""comment"": ""GET, POST, DELETE for all""
 }";
 
         public HttpResponseMessage Get()
