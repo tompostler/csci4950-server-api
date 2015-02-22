@@ -148,11 +148,9 @@ namespace Server_API.Controllers
             return Ok(user);
         }
 
-        protected HttpResponseMessage failMsg(string msg = null, string desc = null)
+        protected HttpResponseMessage failMsg(string desc = null)
         {
             string json = "\"success\":false";
-            if (!String.IsNullOrEmpty(msg))
-                json += String.Format(",\"message\":\"{0}\"", msg.Replace("\"", "\"\""));
             if (!String.IsNullOrEmpty(desc))
                 json += String.Format(",\"description\":{0}", desc);
             json = "{" + json + "}";
@@ -161,9 +159,12 @@ namespace Server_API.Controllers
             return response;
         }
 
-        protected HttpResponseMessage goodMsg(int id)
+        protected HttpResponseMessage goodMsg(int id = 0)
         {
-            string json = "{\"success\":true,\"id\":" + id.ToString() + "}";
+            string json = "\"success\":true";
+            if (id != 0)
+                json += String.Format(",\"id\":{0}", id);
+            json = "{" + json + "}";
             var response = this.Request.CreateResponse(HttpStatusCode.Created);
             response.Content = new StringContent(json, Encoding.UTF8, "application/json");
             return response;
