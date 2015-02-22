@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Server_API.Models;
 using System;
 using System.Collections.Generic;
@@ -111,18 +112,20 @@ namespace Server_API.Controllers
         }
 
         // POST: api/activities
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Postactivity(activity activity)
+        public async Task<HttpResponseMessage> Postactivity(Activity_API post)
         {
             if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+                return failMsg(desc: JsonConvert.SerializeObject(ModelState));
 
-            db.activities.Add(activity);
+            // Convert our API type into the representing Model
+            activity act = new activity();
+            act.user = post.user;
+            act.name = post.name;
+            act.category = post.category;
+            db.activities.Add(act);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = activity.id }, activity);
+            return goodMsg(act.id);
         }
 
         // DELETE: api/activities/5
