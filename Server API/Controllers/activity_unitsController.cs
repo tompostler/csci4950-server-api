@@ -33,7 +33,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activity_units
-        public IQueryable<ActivityUnit_API> Getactivity_units(int id = 0, int activity = 0, int location = 0, DateTime? startTime = null, DateTime? endTime = null)
+        public async Task<IQueryable<ActivityUnit_API>> Getactivity_units(int id = 0, int activity = 0, int location = 0, DateTime? startTime = null, DateTime? endTime = null)
         {
             // Create the result set
             var activity_units = from au in db.activity_units
@@ -61,7 +61,8 @@ namespace Server_API.Controllers
 
             // Convert the activity_units to more API friendly things
             List<ActivityUnit_API> results = new List<ActivityUnit_API>();
-            foreach (var acu in activity_units)
+            List<activity_units> activity_unitslist = await activity_units.ToListAsync();
+            foreach (var acu in activity_unitslist)
             {
                 var acuRes = new ActivityUnit_API(acu.id);
                 acuRes.activity = acu.activity_id;
