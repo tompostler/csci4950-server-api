@@ -147,7 +147,7 @@
       <DependentUpon>csci4950s15Model.edmx</DependentUpon>
       <LastGenOutput>csci4950s15Model.cs</LastGenOutput>
     </Content>
-    <None Include="Properties\PublishProfiles\tenunreals-t03.pubxml" />
+    <None Include="Properties\PublishProfiles\ralphie.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
