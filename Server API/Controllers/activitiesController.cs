@@ -108,14 +108,17 @@ namespace Server_API.Controllers
                 }
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return StatusCode(HttpStatusCode.OK);
         }
 
         // POST: api/activities
         public async Task<HttpResponseMessage> Postactivity(Activity_API post)
         {
             if (!ModelState.IsValid)
-                return failMsg(JsonConvert.SerializeObject(ModelState));
+            {
+                var response = this.Request.CreateResponse(HttpStatusCode.BadRequest);
+                return response;
+            }
 
             // Convert our API type into the representing Model
             activity act = new activity();
