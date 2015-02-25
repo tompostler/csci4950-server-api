@@ -8,15 +8,15 @@ namespace Server_API.Controllers
     public class infoController : ApiController
     {
         private string json = @"{
-    ""version"": 0.3,
-    ""version_date"": ""2015-02-21"",
+    ""version"": 0.4,
+    ""version_date"": ""2015-02-23"",
     ""contacts"": [
         {
             ""name"": ""Tom Postler"",
             ""email"": ""tcp@umn.edu""
         }
     ],
-    ""hostname"": ""tenunreals-t03.cloudapp.net/api"",
+    ""hostname"": ""ralphie.cloudapp.net/api"",
     ""root_nodes"": [
         ""activities"",
         ""activity_units"",

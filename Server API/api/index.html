@@ -25,7 +25,7 @@ Where:
 
 Item | Description
 :---: | :---
-`HOST` | The hostname that is hosting the API. Right now, that would be `tenunreals-t03.cloudapp.net`
+`HOST` | The hostname that is hosting the API. Right now, that would be `ralphie.cloudapp.net`
 `ROOTNODE` | The root node on the API. This is elaborated on in the [root nodes](#root-nodes) section.
 `[/SUBNODE]` | If using a `PUT` or `DELETE`, then this is a shortcut used to handle one item.
 `[?PARAM1=VALUE1]` | If you wish/need to supply parameters to the URL for the request type you are using, then those start after the root node URL with a `?` and then a `key=value` system.
@@ -59,7 +59,7 @@ All parameters that you wish to supply are passed to the API via URL parameters.
 wish to ask for the activity associated with user ID 7 and category 4, then the URL string you would
 use is:
 
-    tenunreals-t03.cloudapp.net/api/activities?user=7&category=4
+    ralphie.cloudapp.net/api/activities?user=7&category=4
 
 
 #### Response
@@ -77,7 +77,7 @@ All parameters are passed via JSON in a `PUT` request to the appropriate root no
 update as a subnode. For example, if you wish to update the activity with ID of 1, then you would
 send a `PUT` request with a JSON body of information to update to the URL string:
 
-    tenunreals-t03.cloudapp.net/api/activities/1
+    ralphie.cloudapp.net/api/activities/1
 
 You must send the entire item (as if you were doing a `POST` request) to the server.
 
@@ -133,7 +133,7 @@ No parameters are necessary. Simply send a `DELETE` request to the appropriate r
 to delete as a subnode. For example, if you wish to delete the activity with ID of 1, then you would
 send a `DELETE` request to the URL string:
 
-    tenunreals-t03.cloudapp.net/api/activities/1
+    ralphie.cloudapp.net/api/activities/1
 
 Deleting an item that is depended upon by other items (such as deleting a user) will cascade the
 deletion to delete all dependencies.
@@ -224,7 +224,7 @@ For example, if I wanted to find all activity work units corresponding to an act
 that occurred on February 19th (in CST), then I would use the following URL `GET` request to ask for
 all activities that started sometime on Feb 19 and ended some time on Feb 19 with activity ID of 7:
 
-    tenunreals-t03.cloudapp.net/api/activity_units?activity=7&startTimeBeg=2014-02-19T06:00:00Z&startTimeEnd=2014-02-20T06:00:00Z&endTimeBeg=2014-02-19T06:00:00Z&endTimeEnd=2014-02-20T06:00:00Z
+    ralphie.cloudapp.net/api/activity_units?activity=7&startTimeBeg=2014-02-19T06:00:00Z&startTimeEnd=2014-02-20T06:00:00Z&endTimeBeg=2014-02-19T06:00:00Z&endTimeEnd=2014-02-20T06:00:00Z
 
 
 
@@ -270,7 +270,7 @@ For `PUT` and `DELETE` requests, this format is necessary to work with only one 
 
 The URL format for working with a subnode is:
 
-    tenunreals-t03.cloudapp.net/api/ROOTNODE/SUBNODE
+    ralphie.cloudapp.net/api/ROOTNODE/SUBNODE
 
 
 ----------------------------------------------------------------------------------------------------
