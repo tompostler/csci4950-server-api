@@ -108,24 +108,43 @@ namespace Server_API.Controllers
                 }
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return StatusCode(HttpStatusCode.OK);
         }
 
         // POST: api/activities
-        public async Task<HttpResponseMessage> Postactivity(Activity_API post)
+        [ResponseType(typeof(activity))]
+        public async Task<IHttpActionResult> Postactivity(activity Activity)
         {
+            //activity act1 = new activity();
+            //act1.id = 5;
+           // act1.name = "Testing the API";
+            //act1.user = 7;
+           // act1.category = 1;
+
             if (!ModelState.IsValid)
-                return failMsg(JsonConvert.SerializeObject(ModelState));
+            {
+                return BadRequest();
+            }
 
-            // Convert our API type into the representing Model
-            activity act = new activity();
-            act.user = post.user;
-            act.name = post.name;
-            act.category = post.category;
-            db.activities.Add(act);
-            await db.SaveChangesAsync();
+            db.activities.Add(Activity);
 
-            return goodMsg(act.id);
+            try
+            {
+                await db.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                if (activityExists(Activity.id))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return CreatedAtRoute("DefaultApi", new { id = Activity.id }, Activity);
         }
 
         // DELETE: api/activities/5
@@ -141,7 +160,7 @@ namespace Server_API.Controllers
             db.activities.Remove(activity);
             await db.SaveChangesAsync();
 
-            return Ok(activity);
+            return Ok();
         }
 
         protected HttpResponseMessage failMsg(string desc = null)

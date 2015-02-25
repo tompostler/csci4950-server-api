@@ -111,14 +111,14 @@ namespace Server_API.Controllers
                 }
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return StatusCode(HttpStatusCode.OK);
         }
 
         // POST: api/users
-        public async Task<HttpResponseMessage> Postuser(User_API post)
+        public async Task<IHttpActionResult> Postuser(User_API post)
         {
             if (!ModelState.IsValid)
-                return failMsg(JsonConvert.SerializeObject(ModelState));
+                return BadRequest();
 
             // Convert our API type into the representing Model
             user usr = new user();
@@ -129,7 +129,7 @@ namespace Server_API.Controllers
             db.users.Add(usr);
             await db.SaveChangesAsync();
 
-            return goodMsg(usr.id);
+            return CreatedAtRoute("DefaultApi", new { id = usr.id }, usr);
         }
 
         // DELETE: api/users/5
@@ -145,7 +145,7 @@ namespace Server_API.Controllers
             db.users.Remove(user);
             await db.SaveChangesAsync();
 
-            return Ok(user);
+            return Ok();
         }
 
         protected HttpResponseMessage failMsg(string desc = null)

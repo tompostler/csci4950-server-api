@@ -111,14 +111,14 @@ namespace Server_API.Controllers
                 }
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return StatusCode(HttpStatusCode.OK);
         }
 
         // POST: api/locations
-        public async Task<HttpResponseMessage> Postlocation(Location_API post)
+        public async Task<IHttpActionResult> Postlocation(Location_API post)
         {
             if (!ModelState.IsValid)
-                return failMsg(JsonConvert.SerializeObject(ModelState));
+                return BadRequest();
 
             // Convert our API type into the representing Model
             location loc = new location();
@@ -129,7 +129,7 @@ namespace Server_API.Controllers
             db.locations.Add(loc);
             await db.SaveChangesAsync();
 
-            return goodMsg(loc.id);
+            return CreatedAtRoute("DefaultApi", new { id = loc.id }, loc);
         }
 
         // DELETE: api/locations/5
@@ -145,7 +145,7 @@ namespace Server_API.Controllers
             db.locations.Remove(location);
             await db.SaveChangesAsync();
 
-            return Ok(location);
+            return StatusCode(HttpStatusCode.OK);
         }
 
         protected HttpResponseMessage failMsg(string desc = null)
