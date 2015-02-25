@@ -157,14 +157,14 @@ namespace Server_API.Controllers
                 }
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Ok;
         }
 
         // POST: api/activity_units
-        public async Task<HttpResponseMessage> Postactivity_units(ActivityUnit_API post)
+        public async Task<IHttpActionResult> Postactivity_units(ActivityUnit_API post)
         {
             if (!ModelState.IsValid)
-                return failMsg(JsonConvert.SerializeObject(ModelState));
+                return BadRequest();
 
             // Convert our API type into the representing Model
             activity_units acu = new activity_units();
@@ -172,10 +172,14 @@ namespace Server_API.Controllers
             acu.location_id = post.location;
             acu.start_time = post.stime;
             acu.end_time = post.etime;
+
+            if (acu.start_time > acu.end_time)
+                return BadRequest("End Time cannot be before Start Time");
+
             db.activity_units.Add(acu);
             await db.SaveChangesAsync();
 
-            return goodMsg(acu.id);
+            return CreatedAtRoute("DefaultApi", new { id = acu.id }, acu);
         }
 
         // DELETE: api/activity_units/5
@@ -191,7 +195,7 @@ namespace Server_API.Controllers
             db.activity_units.Remove(activity_units);
             await db.SaveChangesAsync();
 
-            return Ok(activity_units);
+            return Ok();
         }
 
         protected HttpResponseMessage failMsg(string desc = null)
