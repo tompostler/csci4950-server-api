@@ -113,20 +113,20 @@ namespace Server_API.Controllers
 
         // POST: api/activities
         [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Postactivity()
+        public async Task<IHttpActionResult> Postactivity(activity Activity)
         {
-            activity act1 = new activity();
+            //activity act1 = new activity();
             //act1.id = 5;
-            act1.name = "Testing the API";
-            act1.user = 7;
-            act1.category = 1;
+           // act1.name = "Testing the API";
+            //act1.user = 7;
+           // act1.category = 1;
 
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            db.activities.Add(act1);
+            db.activities.Add(Activity);
 
             try
             {
@@ -134,7 +134,7 @@ namespace Server_API.Controllers
             }
             catch (DbUpdateException)
             {
-                if (activityExists(act1.id))
+                if (activityExists(Activity.id))
                 {
                     return Conflict();
                 }
@@ -144,7 +144,7 @@ namespace Server_API.Controllers
                 }
             }
 
-            return CreatedAtRoute("DefaultApi", new { id = act1.id }, act1);
+            return CreatedAtRoute("DefaultApi", new { id = Activity.id }, Activity);
         }
 
         // DELETE: api/activities/5
@@ -160,7 +160,7 @@ namespace Server_API.Controllers
             db.activities.Remove(activity);
             await db.SaveChangesAsync();
 
-            return Ok(activity);
+            return Ok();
         }
 
         protected HttpResponseMessage failMsg(string desc = null)
