@@ -157,7 +157,7 @@ namespace Server_API.Controllers
                 }
             }
 
-            return Ok;
+            return StatusCode(HttpStatusCode.OK);
         }
 
         // POST: api/activity_units
