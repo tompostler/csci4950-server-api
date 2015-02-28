@@ -1,4 +1,5 @@
 ﻿using Server_API.Models;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
@@ -14,9 +15,9 @@ namespace Server_API.Controllers
     {
         private csci4950s15Entities db = new csci4950s15Entities();
 
-        public class Tags_API
+        public class Tag_API
         {
-            public Tags_API(int id = 0)
+            public Tag_API(int id = 0)
             {
                 this.id = id;
             }
@@ -32,22 +33,34 @@ namespace Server_API.Controllers
         }
 
         // GET: api/tags
-        public IQueryable<tag> Gettags()
+        public async Task<IQueryable<Tag_API>> Gettags(int id = 0, int user_id = 0)
         {
-            return db.tags;
-        }
+            // Create the result set
+            var tags = from tg in db.tags
+                       select tg;
 
-        // GET: api/tags/5
-        [ResponseType(typeof(tag))]
-        public async Task<IHttpActionResult> Gettag(int id)
-        {
-            tag tag = await db.tags.FindAsync(id);
-            if (tag == null)
+            // Filter by id
+            if (id != 0)
+                tags = tags.Where(p => p.id.Equals(id));
+
+            // Filter by user_id
+            if (user_id != 0)
+                tags = tags.Where(p => p.user_id.Equals(user_id));
+            
+            // Convert the tags to more API friendly things
+            List<Tag_API> results = new List<Tag_API>();
+            List<tag> taglist = await tags.ToListAsync();
+            foreach (var tg in taglist)
             {
-                return NotFound();
+                var tgRes = new Tag_API(tg.id);
+                tgRes.user_id = tg.user_id;
+                tgRes.name = tg.name;
+                tgRes.description = tg.description;
+                tgRes.color = tg.color;
+                results.Add(tgRes);
             }
 
-            return Ok(tag);
+            return results.AsQueryable();
         }
 
         // PUT: api/tags/5

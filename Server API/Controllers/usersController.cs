@@ -25,7 +25,7 @@ namespace Server_API.Controllers
         /// </summary>
         public class User_API
         {
-            public User_API(int id=0)
+            public User_API(int id = 0)
             {
                 this.id = id;
             }
@@ -41,7 +41,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/users
-        public async Task<IQueryable<User_API>> Getusers(int id=0, string email="")
+        public async Task<IQueryable<User_API>> Getusers(int id = 0, string email = "")
         {
             // Create the result set
             IQueryable<user> users = from u in db.users

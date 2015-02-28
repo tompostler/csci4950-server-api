@@ -41,7 +41,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activities
-        public async Task<IQueryable<Activity_API>> Getactivities(int id = 0, int user = 0, string name = "", byte category = 0)
+        public async Task<IQueryable<Activity_API>> Getactivities(int id = 0, int user_id = 0, string name = "", byte category = 0)
         {
             // Create the result set
             var activities = from act in db.activities
@@ -52,8 +52,8 @@ namespace Server_API.Controllers
                 activities = activities.Where(p => p.id.Equals(id));
 
             // Filter by user_id
-            if (user != 0)
-                activities = activities.Where(p => p.user.Equals(user));
+            if (user_id != 0)
+                activities = activities.Where(p => p.user.Equals(user_id));
 
             // Filter by name, strict matching
             if (!String.IsNullOrEmpty(name))
@@ -72,6 +72,8 @@ namespace Server_API.Controllers
                 actRes.user_id = act.user;
                 actRes.name = act.name;
                 actRes.category = act.category;
+                // Magic to get just the IDs out of tag objects
+                actRes.tag_ids = act.tags.Select(p => p.id).ToList();
                 results.Add(actRes);
             }
 
@@ -119,9 +121,9 @@ namespace Server_API.Controllers
         {
             //activity_id act1 = new activity_id();
             //act1.id = 5;
-           // act1.name = "Testing the API";
+            // act1.name = "Testing the API";
             //act1.user_id = 7;
-           // act1.category = 1;
+            // act1.category = 1;
 
             if (!ModelState.IsValid)
             {
