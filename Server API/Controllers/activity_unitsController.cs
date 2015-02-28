@@ -25,10 +25,13 @@ namespace Server_API.Controllers
         /// </summary>
         public class ActivityUnit_API
         {
-            public ActivityUnit_API(int id = 0)
+            public ActivityUnit_API()
+            {
+                tag_ids = new List<int>();
+            }
+            public void SetID(int id)
             {
                 this.id = id;
-                tag_ids = new List<int>();
             }
             public int id { get; private set; }
             [Required]
@@ -74,7 +77,8 @@ namespace Server_API.Controllers
             List<activity_units> activity_unitslist = await activity_units.ToListAsync();
             foreach (var acu in activity_unitslist)
             {
-                var acuRes = new ActivityUnit_API(acu.id);
+                var acuRes = new ActivityUnit_API();
+                acuRes.SetID(acu.id);
                 acuRes.activity_id = acu.activity_id;
                 acuRes.location_id = acu.location_id;
                 acuRes.stime = acu.start_time;
@@ -118,7 +122,8 @@ namespace Server_API.Controllers
             List<ActivityUnit_API> results = new List<ActivityUnit_API>();
             foreach (var acu in activity_units)
             {
-                var acuRes = new ActivityUnit_API(acu.id);
+                var acuRes = new ActivityUnit_API();
+                acuRes.SetID(acu.id);
                 acuRes.activity_id = acu.activity_id;
                 acuRes.location_id = acu.location_id;
                 acuRes.stime = acu.start_time;

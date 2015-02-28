@@ -25,7 +25,7 @@ namespace Server_API.Controllers
         /// </summary>
         public class Location_API
         {
-            public Location_API(int id = 0)
+            public void SetID(int id)
             {
                 this.id = id;
             }
@@ -68,7 +68,8 @@ namespace Server_API.Controllers
             List<location> locationlist = await locations.ToListAsync();
             foreach (var loc in locationlist)
             {
-                var locRes = new Location_API(loc.id);
+                var locRes = new Location_API();
+                locRes.SetID(loc.id);
                 locRes.user_id = loc.user_id;
                 locRes.name = loc.name;
                 locRes.type = loc.type;

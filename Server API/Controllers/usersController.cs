@@ -25,7 +25,8 @@ namespace Server_API.Controllers
         /// </summary>
         public class User_API
         {
-            public User_API(int id = 0)
+
+            public void SetID(int id)
             {
                 this.id = id;
             }
@@ -64,7 +65,8 @@ namespace Server_API.Controllers
             List<user> userlist = await users.ToListAsync();
             foreach (user usr in userlist)
             {
-                var usrRes = new User_API(usr.id);
+                var usrRes = new User_API();
+                usrRes.SetID(usr.id);
                 usrRes.fname = usr.first_name;
                 usrRes.lname = usr.last_name;
                 usrRes.email = usr.email;

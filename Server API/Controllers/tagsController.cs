@@ -17,7 +17,8 @@ namespace Server_API.Controllers
 
         public class Tag_API
         {
-            public Tag_API(int id = 0)
+
+            public void SetID(int id)
             {
                 this.id = id;
             }
@@ -52,7 +53,8 @@ namespace Server_API.Controllers
             List<tag> taglist = await tags.ToListAsync();
             foreach (var tg in taglist)
             {
-                var tgRes = new Tag_API(tg.id);
+                var tgRes = new Tag_API();
+                tgRes.SetID(tg.id);
                 tgRes.user_id = tg.user_id;
                 tgRes.name = tg.name;
                 tgRes.description = tg.description;
