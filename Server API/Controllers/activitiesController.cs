@@ -28,14 +28,16 @@ namespace Server_API.Controllers
             public Activity_API(int id = 0)
             {
                 this.id = id;
+                tag_ids = new List<int>();
             }
             public int id { get; private set; }
             [Required]
-            public int user { get; set; }
+            public int user_id { get; set; }
             [Required, MaxLength(50)]
             public string name { get; set; }
             [Required]
             public byte category { get; set; }
+            public List<int> tag_ids { get; set; }
         }
 
         // GET: api/activities
@@ -49,7 +51,7 @@ namespace Server_API.Controllers
             if (id != 0)
                 activities = activities.Where(p => p.id.Equals(id));
 
-            // Filter by user
+            // Filter by user_id
             if (user != 0)
                 activities = activities.Where(p => p.user.Equals(user));
 
@@ -67,7 +69,7 @@ namespace Server_API.Controllers
             foreach (var act in activitylist)
             {
                 var actRes = new Activity_API(act.id);
-                actRes.user = act.user;
+                actRes.user_id = act.user;
                 actRes.name = act.name;
                 actRes.category = act.category;
                 results.Add(actRes);
@@ -115,10 +117,10 @@ namespace Server_API.Controllers
         [ResponseType(typeof(activity))]
         public async Task<IHttpActionResult> Postactivity(activity Activity)
         {
-            //activity act1 = new activity();
+            //activity_id act1 = new activity_id();
             //act1.id = 5;
            // act1.name = "Testing the API";
-            //act1.user = 7;
+            //act1.user_id = 7;
            // act1.category = 1;
 
             if (!ModelState.IsValid)

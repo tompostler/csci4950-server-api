@@ -22,11 +22,11 @@ namespace Server_API.Controllers
             }
             public int id { get; private set; }
             [Required]
-            public int user { get; set; }
+            public int user_id { get; set; }
             [MaxLength(20)]
             public string name { get; set; }
             [MaxLength(100)]
-            public string desc { get; set; }
+            public string description { get; set; }
             [MaxLength(6)]
             public string color { get; set; }
         }

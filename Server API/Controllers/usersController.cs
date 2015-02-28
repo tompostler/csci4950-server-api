@@ -23,10 +23,6 @@ namespace Server_API.Controllers
         /// A User_API class to trim down the information and named types that are exposed to the 
         /// web. This is better than making our schema directly available.
         /// </summary>
-        /// <remarks>
-        /// The data annotations allow the ApiController to use its built-in validation techniques
-        /// to validate POST and PUT data. Sweet.
-        /// </remarks>
         public class User_API
         {
             public User_API(int id=0)

@@ -28,16 +28,18 @@ namespace Server_API.Controllers
             public ActivityUnit_API(int id = 0)
             {
                 this.id = id;
+                tag_ids = new List<int>();
             }
             public int id { get; private set; }
             [Required]
-            public int activity { get; set; }
+            public int activity_id { get; set; }
             [Required]
-            public int location { get; set; }
+            public int location_id { get; set; }
             [Required]
             public DateTime stime { get; set; }
             [Required]
             public DateTime etime { get; set; }
+            public List<int> tag_ids { get; set; }
         }
 
         // GET: api/activity_units
@@ -51,11 +53,11 @@ namespace Server_API.Controllers
             if (id != 0)
                 activity_units = activity_units.Where(p => p.id.Equals(id));
 
-            // Filter on activity
+            // Filter on activity_id
             if (activity != 0)
                 activity_units = activity_units.Where(p => p.activity_id.Equals(activity));
 
-            // Filter on location
+            // Filter on location_id
             if (location != 0)
                 activity_units = activity_units.Where(p => p.location.Equals(location));
 
@@ -73,8 +75,8 @@ namespace Server_API.Controllers
             foreach (var acu in activity_unitslist)
             {
                 var acuRes = new ActivityUnit_API(acu.id);
-                acuRes.activity = acu.activity_id;
-                acuRes.location = acu.location_id;
+                acuRes.activity_id = acu.activity_id;
+                acuRes.location_id = acu.location_id;
                 acuRes.stime = acu.start_time;
                 acuRes.etime = acu.end_time;
                 results.Add(acuRes);
@@ -90,11 +92,11 @@ namespace Server_API.Controllers
             var activity_units = from au in db.activity_units
                                  select au;
 
-            // Filter on activity
+            // Filter on activity_id
             if (activity != 0)
                 activity_units = activity_units.Where(p => p.activity_id.Equals(activity));
 
-            // Filter on location
+            // Filter on location_id
             if (location != 0)
                 activity_units = activity_units.Where(p => p.location.Equals(location));
 
@@ -115,8 +117,8 @@ namespace Server_API.Controllers
             foreach (var acu in activity_units)
             {
                 var acuRes = new ActivityUnit_API(acu.id);
-                acuRes.activity = acu.activity_id;
-                acuRes.location = acu.location_id;
+                acuRes.activity_id = acu.activity_id;
+                acuRes.location_id = acu.location_id;
                 acuRes.stime = acu.start_time;
                 acuRes.etime = acu.end_time;
                 results.Add(acuRes);
@@ -168,8 +170,8 @@ namespace Server_API.Controllers
 
             // Convert our API type into the representing Model
             activity_units acu = new activity_units();
-            acu.activity_id = post.activity;
-            acu.location_id = post.location;
+            acu.activity_id = post.activity_id;
+            acu.location_id = post.location_id;
             acu.start_time = post.stime;
             acu.end_time = post.etime;
 
