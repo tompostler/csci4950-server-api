@@ -8,12 +8,16 @@ namespace Server_API.Controllers
     public class infoController : ApiController
     {
         private string json = @"{
-    ""version"": 0.4,
-    ""version_date"": ""2015-02-23"",
+    ""version"": 0.5,
+    ""version_date"": ""2015-02-28"",
     ""contacts"": [
         {
             ""name"": ""Tom Postler"",
             ""email"": ""tcp@umn.edu""
+        },
+        {
+            ""name"": ""Anthony Nixon"",
+            ""email"": ""nixon069@umn.edu""
         }
     ],
     ""hostname"": ""ralphie.cloudapp.net/api"",
@@ -21,6 +25,7 @@ namespace Server_API.Controllers
         ""activities"",
         ""activity_units"",
         ""locations"",
+        ""tags"",
         ""users""
     ],
     ""comment"": ""GET, POST, DELETE for all""
