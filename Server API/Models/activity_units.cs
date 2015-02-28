@@ -14,6 +14,11 @@ namespace Server_API.Models
     
     public partial class activity_units
     {
+        public activity_units()
+        {
+            this.tags = new HashSet<tag>();
+        }
+    
         public int id { get; set; }
         public int activity_id { get; set; }
         public int location_id { get; set; }
@@ -22,5 +27,6 @@ namespace Server_API.Models
     
         public virtual activity activity { get; set; }
         public virtual location location { get; set; }
+        public virtual ICollection<tag> tags { get; set; }
     }
 }

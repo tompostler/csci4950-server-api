@@ -12,23 +12,22 @@ namespace Server_API.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class user
+    public partial class tag
     {
-        public user()
+        public tag()
         {
             this.activities = new HashSet<activity>();
-            this.locations = new HashSet<location>();
-            this.tags = new HashSet<tag>();
+            this.activity_units = new HashSet<activity_units>();
         }
     
         public int id { get; set; }
-        public string first_name { get; set; }
-        public string last_name { get; set; }
-        public string email { get; set; }
-        public string password { get; set; }
+        public int user_id { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public string color { get; set; }
     
+        public virtual user user { get; set; }
         public virtual ICollection<activity> activities { get; set; }
-        public virtual ICollection<location> locations { get; set; }
-        public virtual ICollection<tag> tags { get; set; }
+        public virtual ICollection<activity_units> activity_units { get; set; }
     }
 }

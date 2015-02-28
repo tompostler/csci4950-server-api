@@ -96,6 +96,7 @@
     <Compile Include="Controllers\ErrorCodes.cs" />
     <Compile Include="Controllers\infoController.cs" />
     <Compile Include="Controllers\locationsController.cs" />
+    <Compile Include="Controllers\tagsController.cs" />
     <Compile Include="Controllers\usersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -122,6 +123,9 @@
       <DependentUpon>csci4950s15Model.edmx</DependentUpon>
     </Compile>
     <Compile Include="Models\location.cs">
+      <DependentUpon>csci4950s15Model.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\tag.cs">
       <DependentUpon>csci4950s15Model.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\user.cs">
