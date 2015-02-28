@@ -23,13 +23,10 @@ namespace Server_API.Controllers
         /// A User_API class to trim down the information and named types that are exposed to the 
         /// web. This is better than making our schema directly available.
         /// </summary>
-        /// <remarks>
-        /// The data annotations allow the ApiController to use its built-in validation techniques
-        /// to validate POST and PUT data. Sweet.
-        /// </remarks>
         public class User_API
         {
-            public User_API(int id=0)
+
+            public void SetID(int id)
             {
                 this.id = id;
             }
@@ -45,7 +42,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/users
-        public async Task<IQueryable<User_API>> Getusers(int id=0, string email="")
+        public async Task<IQueryable<User_API>> Getusers(int id = 0, string email = "")
         {
             // Create the result set
             IQueryable<user> users = from u in db.users
@@ -68,7 +65,8 @@ namespace Server_API.Controllers
             List<user> userlist = await users.ToListAsync();
             foreach (user usr in userlist)
             {
-                var usrRes = new User_API(usr.id);
+                var usrRes = new User_API();
+                usrRes.SetID(usr.id);
                 usrRes.fname = usr.first_name;
                 usrRes.lname = usr.last_name;
                 usrRes.email = usr.email;

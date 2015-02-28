@@ -25,13 +25,13 @@ namespace Server_API.Controllers
         /// </summary>
         public class Location_API
         {
-            public Location_API(int id = 0)
+            public void SetID(int id)
             {
                 this.id = id;
             }
             public int id { get; private set; }
             [Required]
-            public int user { get; set; }
+            public int user_id { get; set; }
             [Required, MaxLength(50)]
             public string name { get; set; }
             [Required]
@@ -51,7 +51,7 @@ namespace Server_API.Controllers
             if (id != 0)
                 locations = locations.Where(p => p.id.Equals(id));
 
-            // Filter on user
+            // Filter on user_id
             if (user != 0)
                 locations = locations.Where(p => p.user.Equals(user));
 
@@ -68,8 +68,9 @@ namespace Server_API.Controllers
             List<location> locationlist = await locations.ToListAsync();
             foreach (var loc in locationlist)
             {
-                var locRes = new Location_API(loc.id);
-                locRes.user = loc.user_id;
+                var locRes = new Location_API();
+                locRes.SetID(loc.id);
+                locRes.user_id = loc.user_id;
                 locRes.name = loc.name;
                 locRes.type = loc.type;
                 locRes.content = loc.content;
@@ -122,7 +123,7 @@ namespace Server_API.Controllers
 
             // Convert our API type into the representing Model
             location loc = new location();
-            loc.user_id = post.user;
+            loc.user_id = post.user_id;
             loc.name = post.name;
             loc.type = post.type;
             loc.content = post.content;

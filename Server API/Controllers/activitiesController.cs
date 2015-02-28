@@ -1,3 +1,4 @@
+using Binbin.Linq;
 using Newtonsoft.Json;
 using Server_API.Models;
 using System;
@@ -25,21 +26,26 @@ namespace Server_API.Controllers
         /// </summary>
         public class Activity_API
         {
-            public Activity_API(int id = 0)
+            public Activity_API()
+            {
+                tag_ids = new List<int>();
+            }
+            public void SetID(int id)
             {
                 this.id = id;
             }
             public int id { get; private set; }
             [Required]
-            public int user { get; set; }
+            public int user_id { get; set; }
             [Required, MaxLength(50)]
             public string name { get; set; }
             [Required]
             public byte category { get; set; }
+            public List<int> tag_ids { get; set; }
         }
 
         // GET: api/activities
-        public async Task<IQueryable<Activity_API>> Getactivities(int id = 0, int user = 0, string name = "", byte category = 0)
+        public async Task<IQueryable<Activity_API>> Getactivities(int id = 0, int user_id = 0, string name = "", byte category = 0)
         {
             // Create the result set
             var activities = from act in db.activities
@@ -49,9 +55,9 @@ namespace Server_API.Controllers
             if (id != 0)
                 activities = activities.Where(p => p.id.Equals(id));
 
-            // Filter by user
-            if (user != 0)
-                activities = activities.Where(p => p.user.Equals(user));
+            // Filter by user_id
+            if (user_id != 0)
+                activities = activities.Where(p => p.user.Equals(user_id));
 
             // Filter by name, strict matching
             if (!String.IsNullOrEmpty(name))
@@ -66,10 +72,13 @@ namespace Server_API.Controllers
             List<activity> activitylist = await activities.ToListAsync();
             foreach (var act in activitylist)
             {
-                var actRes = new Activity_API(act.id);
-                actRes.user = act.user;
+                var actRes = new Activity_API();
+                actRes.SetID(act.id);
+                actRes.user_id = act.user;
                 actRes.name = act.name;
                 actRes.category = act.category;
+                // Magic to get just the IDs out of tag objects
+                actRes.tag_ids = act.tags.Select(p => p.id).ToList();
                 results.Add(actRes);
             }
 
@@ -112,37 +121,34 @@ namespace Server_API.Controllers
         }
 
         // POST: api/activities
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Postactivity(activity Activity)
+        [ResponseType(typeof(Activity_API))]
+        public async Task<IHttpActionResult> Postactivity(Activity_API Activity)
         {
-            //activity act1 = new activity();
-            //act1.id = 5;
-           // act1.name = "Testing the API";
-            //act1.user = 7;
-           // act1.category = 1;
-
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            db.activities.Add(Activity);
+            // Get the tags referenced by this activity
+            // http://stackoverflow.com/a/2101561
+            var tags = from tg in db.tags
+                       select tg;
+            var tagsPredicate = PredicateBuilder.False<tag>();
+            foreach (int id in Activity.tag_ids)
+                tagsPredicate = tagsPredicate.Or(p => p.id.Equals(id));
+            tags = tags.Where(tagsPredicate);
 
-            try
-            {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (activityExists(Activity.id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            // Convert the Activity_API to the EntityModel activity
+            activity act = new activity();
+            act.user = Activity.user_id;
+            act.name = Activity.name;
+            act.category = Activity.category;
+            act.tags = await tags.ToListAsync();
+
+            db.activities.Add(act);
+            await db.SaveChangesAsync();
+
+            Activity.SetID(act.id);
 
             return CreatedAtRoute("DefaultApi", new { id = Activity.id }, Activity);
         }
