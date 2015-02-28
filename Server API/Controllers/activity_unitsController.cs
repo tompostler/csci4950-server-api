@@ -92,7 +92,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activity_units
-        public IQueryable<ActivityUnit_API> Getactivity_units(DateTime startTimeBeg, DateTime startTimeEnd, DateTime endTimeBeg, DateTime endTimeEnd, int activity = 0, int location = 0)
+        public async Task<IQueryable<ActivityUnit_API>> Getactivity_units(DateTime btime, DateTime etime, int activity = 0, int location = 0)
         {
             // Create the result set
             var activity_units = from au in db.activity_units
@@ -106,21 +106,18 @@ namespace Server_API.Controllers
             if (location != 0)
                 activity_units = activity_units.Where(p => p.location.Equals(location));
 
-            // Filter on startTimeBeg
-            activity_units = activity_units.Where(p => p.start_time > startTimeBeg.ToUniversalTime());
+            // Filter on btime
+            activity_units = activity_units.Where(p => p.start_time > btime.ToUniversalTime());
+            activity_units = activity_units.Where(p => p.end_time > btime.ToUniversalTime());
 
-            // Filter on startTimeEnd
-            activity_units = activity_units.Where(p => p.start_time < startTimeEnd.ToUniversalTime());
-
-            // Filter on endTimeBeg
-            activity_units = activity_units.Where(p => p.end_time > endTimeBeg.ToUniversalTime());
-
-            // Filter on endTimeEnd
-            activity_units = activity_units.Where(p => p.end_time < endTimeEnd.ToUniversalTime());
+            // Filter on etime
+            activity_units = activity_units.Where(p => p.end_time < etime.ToUniversalTime());
+            activity_units = activity_units.Where(p => p.end_time < etime.ToUniversalTime());
 
             // Convert the activity_units to more API friendly things
             List<ActivityUnit_API> results = new List<ActivityUnit_API>();
-            foreach (var acu in activity_units)
+            List<activity_units> activity_unitslist = await activity_units.ToListAsync();
+            foreach (var acu in activity_unitslist)
             {
                 var acuRes = new ActivityUnit_API();
                 acuRes.SetID(acu.id);
@@ -128,6 +125,8 @@ namespace Server_API.Controllers
                 acuRes.location_id = acu.location_id;
                 acuRes.stime = acu.start_time;
                 acuRes.etime = acu.end_time;
+                // Magic to get just the IDs out of tag objects
+                acuRes.tag_ids = acu.tags.Select(p => p.id).ToList();
                 results.Add(acuRes);
             }
 
