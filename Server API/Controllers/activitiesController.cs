@@ -1,3 +1,4 @@
+using Binbin.Linq;
 using Newtonsoft.Json;
 using Server_API.Models;
 using System;
@@ -25,10 +26,13 @@ namespace Server_API.Controllers
         /// </summary>
         public class Activity_API
         {
-            public Activity_API(int id = 0)
+            public Activity_API()
+            {
+                tag_ids = new List<int>();
+            }
+            public void SetID(int id)
             {
                 this.id = id;
-                tag_ids = new List<int>();
             }
             public int id { get; private set; }
             [Required]
@@ -68,7 +72,8 @@ namespace Server_API.Controllers
             List<activity> activitylist = await activities.ToListAsync();
             foreach (var act in activitylist)
             {
-                var actRes = new Activity_API(act.id);
+                var actRes = new Activity_API();
+                actRes.SetID(act.id);
                 actRes.user_id = act.user;
                 actRes.name = act.name;
                 actRes.category = act.category;
@@ -116,37 +121,34 @@ namespace Server_API.Controllers
         }
 
         // POST: api/activities
-        [ResponseType(typeof(activity))]
-        public async Task<IHttpActionResult> Postactivity(activity Activity)
+        [ResponseType(typeof(Activity_API))]
+        public async Task<IHttpActionResult> Postactivity(Activity_API Activity)
         {
-            //activity_id act1 = new activity_id();
-            //act1.id = 5;
-            // act1.name = "Testing the API";
-            //act1.user_id = 7;
-            // act1.category = 1;
-
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            db.activities.Add(Activity);
+            // Get the tags referenced by this activity
+            // http://stackoverflow.com/a/2101561
+            var tags = from tg in db.tags
+                       select tg;
+            var tagsPredicate = PredicateBuilder.False<tag>();
+            foreach (int id in Activity.tag_ids)
+                tagsPredicate = tagsPredicate.Or(p => p.id.Equals(id));
+            tags = tags.Where(tagsPredicate);
 
-            try
-            {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (activityExists(Activity.id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            // Convert the Activity_API to the EntityModel activity
+            activity act = new activity();
+            act.user = Activity.user_id;
+            act.name = Activity.name;
+            act.category = Activity.category;
+            act.tags = await tags.ToListAsync();
+
+            db.activities.Add(act);
+            await db.SaveChangesAsync();
+
+            Activity.SetID(act.id);
 
             return CreatedAtRoute("DefaultApi", new { id = Activity.id }, Activity);
         }
