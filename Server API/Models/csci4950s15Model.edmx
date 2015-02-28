@@ -17,6 +17,7 @@
         <EntityType Name="activity_tags">
           <Key>
             <PropertyRef Name="tag_id" />
+            <PropertyRef Name="activity_id" />
           </Key>
           <Property Name="tag_id" Type="int" Nullable="false" />
           <Property Name="activity_id" Type="int" Nullable="false" />
@@ -24,6 +25,7 @@
         <EntityType Name="activity_unit_tags">
           <Key>
             <PropertyRef Name="tag_id" />
+            <PropertyRef Name="activity_unit_id" />
           </Key>
           <Property Name="tag_id" Type="int" Nullable="false" />
           <Property Name="activity_unit_id" Type="int" Nullable="false" />
@@ -54,9 +56,9 @@
           </Key>
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="user_id" Type="int" Nullable="false" />
-          <Property Name="name" Type="nvarchar" MaxLength="20" Nullable="false" />
-          <Property Name="description" Type="nvarchar" MaxLength="100" Nullable="false" />
-          <Property Name="color" Type="nvarchar" MaxLength="6" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="20" />
+          <Property Name="description" Type="nvarchar" MaxLength="100" />
+          <Property Name="color" Type="nvarchar" MaxLength="6" />
         </EntityType>
         <EntityType Name="users">
           <Key>
@@ -84,7 +86,7 @@
         </Association>
         <Association Name="FK_activity_tags_0">
           <End Role="tags" Type="Self.tags" Multiplicity="1" />
-          <End Role="activity_tags" Type="Self.activity_tags" Multiplicity="0..1" />
+          <End Role="activity_tags" Type="Self.activity_tags" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="tags">
               <PropertyRef Name="id" />
@@ -108,7 +110,7 @@
         </Association>
         <Association Name="FK_activity_unit_tags_0">
           <End Role="tags" Type="Self.tags" Multiplicity="1" />
-          <End Role="activity_unit_tags" Type="Self.activity_unit_tags" Multiplicity="0..1" />
+          <End Role="activity_unit_tags" Type="Self.activity_unit_tags" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="tags">
               <PropertyRef Name="id" />
@@ -275,11 +277,11 @@
           </Key>
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="user_id" Type="Int32" Nullable="false" />
-          <Property Name="name" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="description" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="color" Type="String" MaxLength="6" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="name" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="description" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="color" Type="String" MaxLength="6" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="user" Relationship="Self.FK_tags_0" FromRole="tags" ToRole="users" />
-          <NavigationProperty Name="activity" Relationship="Self.activity_tags" FromRole="tags" ToRole="activities" />
+          <NavigationProperty Name="activities" Relationship="Self.activity_tags" FromRole="tags" ToRole="activities" />
           <NavigationProperty Name="activity_units" Relationship="Self.activity_unit_tags" FromRole="tags" ToRole="activity_units" />
         </EntityType>
         <EntityType Name="user">
@@ -363,11 +365,11 @@
         </Association>
         <Association Name="activity_tags">
           <End Role="tags" Type="Self.tag" Multiplicity="*" />
-          <End Role="activities" Type="Self.activity" Multiplicity="0..1" />
+          <End Role="activities" Type="Self.activity" Multiplicity="*" />
         </Association>
         <Association Name="activity_unit_tags">
           <End Role="tags" Type="Self.tag" Multiplicity="*" />
-          <End Role="activity_units" Type="Self.activity_units" Multiplicity="0..1" />
+          <End Role="activity_units" Type="Self.activity_units" Multiplicity="*" />
         </Association>
         <EntityContainer Name="csci4950s15Entities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="activities" EntityType="Self.activity" />

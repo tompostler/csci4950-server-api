@@ -14,6 +14,12 @@ namespace Server_API.Models
     
     public partial class tag
     {
+        public tag()
+        {
+            this.activities = new HashSet<activity>();
+            this.activity_units = new HashSet<activity_units>();
+        }
+    
         public int id { get; set; }
         public int user_id { get; set; }
         public string name { get; set; }
@@ -21,7 +27,7 @@ namespace Server_API.Models
         public string color { get; set; }
     
         public virtual user user { get; set; }
-        public virtual activity activity { get; set; }
-        public virtual activity_units activity_units { get; set; }
+        public virtual ICollection<activity> activities { get; set; }
+        public virtual ICollection<activity_units> activity_units { get; set; }
     }
 }
