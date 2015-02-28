@@ -28,6 +28,7 @@ namespace Server_API.Models
         public virtual DbSet<activity> activities { get; set; }
         public virtual DbSet<activity_units> activity_units { get; set; }
         public virtual DbSet<location> locations { get; set; }
+        public virtual DbSet<tag> tags { get; set; }
         public virtual DbSet<user> users { get; set; }
     }
 }

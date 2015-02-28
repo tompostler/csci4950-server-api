@@ -18,6 +18,7 @@ namespace Server_API.Models
         {
             this.activities = new HashSet<activity>();
             this.locations = new HashSet<location>();
+            this.tags = new HashSet<tag>();
         }
     
         public int id { get; set; }
@@ -28,5 +29,6 @@ namespace Server_API.Models
     
         public virtual ICollection<activity> activities { get; set; }
         public virtual ICollection<location> locations { get; set; }
+        public virtual ICollection<tag> tags { get; set; }
     }
 }

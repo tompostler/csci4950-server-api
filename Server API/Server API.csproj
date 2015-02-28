@@ -124,6 +124,9 @@
     <Compile Include="Models\location.cs">
       <DependentUpon>csci4950s15Model.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\tag.cs">
+      <DependentUpon>csci4950s15Model.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\user.cs">
       <DependentUpon>csci4950s15Model.tt</DependentUpon>
     </Compile>
