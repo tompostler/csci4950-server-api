@@ -113,21 +113,25 @@ namespace Server_API.Controllers
         }
 
         // POST: api/users
-        public async Task<IHttpActionResult> Postuser(User_API post)
+        [ResponseType(typeof(User_API))]
+        public async Task<IHttpActionResult> Postuser(User_API User)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(ModelState);
 
             // Convert our API type into the representing Model
             user usr = new user();
-            usr.first_name = post.fname;
-            usr.last_name = post.lname;
-            usr.email = post.email;
-            usr.password = post.password;
+            usr.first_name = User.fname;
+            usr.last_name = User.lname;
+            usr.email = User.email;
+            usr.password = User.password;
+
             db.users.Add(usr);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = usr.id }, usr);
+            User.SetID(usr.id);
+
+            return CreatedAtRoute("DefaultApi", new { id = User.id }, User);
         }
 
         // DELETE: api/users/5
