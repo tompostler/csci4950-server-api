@@ -125,9 +125,16 @@ namespace Server_API.Controllers
         public async Task<IHttpActionResult> Postactivity(Activity_API Activity)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
+
+            // Verify UserID exists
+            if (await db.users.CountAsync(p => p.id.Equals(Activity.user_id)) != 1)
+                return BadRequest("user_id does not exist");
+
+            // Verify TagIDs exist
+            foreach (int id in Activity.tag_ids)
+                if (await db.tags.CountAsync(p => p.id.Equals(id)) != 1)
+                    return BadRequest("Tag with id " + id.ToString() + " does not exist");
 
             // Get the tags referenced by this activity
             // http://stackoverflow.com/a/2101561

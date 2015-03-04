@@ -181,16 +181,16 @@ namespace Server_API.Controllers
                 return BadRequest("etime cannot be before stime");
 
             // Verify ActivityID exists
-            if (db.activities.Count(p => p.id.Equals(ActivityUnit.activity_id)) != 1)
+            if (await db.activities.CountAsync(p => p.id.Equals(ActivityUnit.activity_id)) != 1)
                 return BadRequest("activity_id does not exist");
 
             // Verify LocationID exists
-            if (db.locations.Count(p => p.id.Equals(ActivityUnit.location_id)) != 1)
+            if (await db.locations.CountAsync(p => p.id.Equals(ActivityUnit.location_id)) != 1)
                 return BadRequest("location_id does not exist");
 
             // Verify TagIDs exist
             foreach (int id in ActivityUnit.tag_ids)
-                if (db.tags.Count(p => p.id.Equals(id)) != 1)
+                if (await db.tags.CountAsync(p => p.id.Equals(id)) != 1)
                     return BadRequest("Tag with id " + id.ToString() + " does not exist");
 
             // Get the tags referenced by this activity to do a proper insertion with the WebAPI
