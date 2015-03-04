@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Binbin.Linq;
+using Newtonsoft.Json;
 using Server_API.Models;
 using System;
 using System.Collections.Generic;
@@ -169,25 +170,52 @@ namespace Server_API.Controllers
         }
 
         // POST: api/activity_units
-        public async Task<IHttpActionResult> Postactivity_units(ActivityUnit_API post)
+        [ResponseType(typeof(ActivityUnit_API))]
+        public async Task<IHttpActionResult> Postactivity_units(ActivityUnit_API ActivityUnit)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(ModelState);
+
+            // Start times have to be after end times
+            if (ActivityUnit.stime > ActivityUnit.etime)
+                return BadRequest("etime cannot be before stime");
+
+            // Verify ActivityID exists
+            if (await db.activities.CountAsync(p => p.id.Equals(ActivityUnit.activity_id)) != 1)
+                return BadRequest("activity_id does not exist");
+
+            // Verify LocationID exists
+            if (await db.locations.CountAsync(p => p.id.Equals(ActivityUnit.location_id)) != 1)
+                return BadRequest("location_id does not exist");
+
+            // Verify TagIDs exist
+            foreach (int id in ActivityUnit.tag_ids)
+                if (await db.tags.CountAsync(p => p.id.Equals(id)) != 1)
+                    return BadRequest("Tag with id " + id.ToString() + " does not exist");
+
+            // Get the tags referenced by this activity to do a proper insertion with the WebAPI
+            // http://stackoverflow.com/a/2101561
+            var tags = from tg in db.tags
+                       select tg;
+            var tagsPredicate = PredicateBuilder.False<tag>();
+            foreach (int id in ActivityUnit.tag_ids)
+                tagsPredicate = tagsPredicate.Or(p => p.id.Equals(id));
+            tags = tags.Where(tagsPredicate);
 
             // Convert our API type into the representing Model
             activity_units acu = new activity_units();
-            acu.activity_id = post.activity_id;
-            acu.location_id = post.location_id;
-            acu.start_time = post.stime;
-            acu.end_time = post.etime;
-
-            if (acu.start_time > acu.end_time)
-                return BadRequest("End Time cannot be before Start Time");
+            acu.activity_id = ActivityUnit.activity_id;
+            acu.location_id = ActivityUnit.location_id;
+            acu.start_time = ActivityUnit.stime;
+            acu.end_time = ActivityUnit.etime;
+            acu.tags = await tags.ToListAsync();
 
             db.activity_units.Add(acu);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = acu.id }, acu);
+            ActivityUnit.SetID(acu.id);
+
+            return CreatedAtRoute("DefaultApi", new { id = ActivityUnit.id }, ActivityUnit);
         }
 
         // DELETE: api/activity_units/5

@@ -116,21 +116,29 @@ namespace Server_API.Controllers
         }
 
         // POST: api/locations
-        public async Task<IHttpActionResult> Postlocation(Location_API post)
+        [ResponseType(typeof(Location_API))]
+        public async Task<IHttpActionResult> Postlocation(Location_API Location)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(ModelState);
+
+            // Verify UserID exists
+            if (await db.users.CountAsync(p => p.id.Equals(Location.user_id)) != 1)
+                return BadRequest("user_id does not exist");
 
             // Convert our API type into the representing Model
             location loc = new location();
-            loc.user_id = post.user_id;
-            loc.name = post.name;
-            loc.type = post.type;
-            loc.content = post.content;
+            loc.user_id = Location.user_id;
+            loc.name = Location.name;
+            loc.type = Location.type;
+            loc.content = Location.content;
+
             db.locations.Add(loc);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = loc.id }, loc);
+            Location.SetID(loc.id);
+
+            return CreatedAtRoute("DefaultApi", new { id = Location.id }, Location);
         }
 
         // DELETE: api/locations/5

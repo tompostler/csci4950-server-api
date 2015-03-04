@@ -101,18 +101,29 @@ namespace Server_API.Controllers
         }
 
         // POST: api/tags
-        [ResponseType(typeof(tag))]
-        public async Task<IHttpActionResult> Posttag(tag tag)
+        [ResponseType(typeof(Tag_API))]
+        public async Task<IHttpActionResult> Posttag(Tag_API Tag)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            db.tags.Add(tag);
+            // Verify UserID exists
+            if (await db.users.CountAsync(p => p.id.Equals(Tag.user_id)) != 1)
+                return BadRequest("user_id does not exist");
+
+            // Convert the Tag_API to the EntityModel tag
+            tag tg = new tag();
+            tg.user_id = Tag.user_id;
+            tg.name = Tag.name;
+            tg.description = Tag.description;
+            tg.color = Tag.color;
+
+            db.tags.Add(tg);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = tag.id }, tag);
+            Tag.SetID(tg.id);
+
+            return CreatedAtRoute("DefaultApi", new { id = Tag.id }, Tag);
         }
 
         // DELETE: api/tags/5
