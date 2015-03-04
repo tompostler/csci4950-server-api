@@ -135,7 +135,7 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/users/5
-        [ResponseType(typeof(user))]
+        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Deleteuser(int id)
         {
             user user = await db.users.FindAsync(id);
@@ -147,7 +147,8 @@ namespace Server_API.Controllers
             db.users.Remove(user);
             await db.SaveChangesAsync();
 
-            return Ok();
+            return StatusCode(HttpStatusCode.NoContent);
+
         }
 
         protected override void Dispose(bool disposing)
