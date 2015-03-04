@@ -127,7 +127,7 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/tags/5
-        [ResponseType(typeof(tag))]
+        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Deletetag(int id)
         {
             tag tag = await db.tags.FindAsync(id);
@@ -139,7 +139,7 @@ namespace Server_API.Controllers
             db.tags.Remove(tag);
             await db.SaveChangesAsync();
 
-            return Ok(tag);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         protected override void Dispose(bool disposing)
