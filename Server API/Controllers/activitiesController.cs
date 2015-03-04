@@ -161,7 +161,7 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/activities/5
-        [ResponseType(typeof(activity))]
+        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Deleteactivity(int id)
         {
             activity activity = await db.activities.FindAsync(id);
@@ -173,7 +173,7 @@ namespace Server_API.Controllers
             db.activities.Remove(activity);
             await db.SaveChangesAsync();
 
-            return Ok();
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         protected HttpResponseMessage failMsg(string desc = null)
