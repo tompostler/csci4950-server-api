@@ -87,37 +87,28 @@ namespace Server_API.Controllers
 
         // PUT: api/activities/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putactivity(int id, activity activity)
+        public async Task<IHttpActionResult> Putactivity(int id, Activity_API Activity)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != activity.id)
-            {
-                return BadRequest();
-            }
+            // Verify the Activity
+            var verification = await VerifyActivityAndID(Activity);
+            if (verification != null)
+                return verification;
 
-            db.Entry(activity).State = EntityState.Modified;
+            // Verify request ID
+            if (id != Activity.id)
+                return BadRequest("PUT URL and ID in the activity do not match");
+            
+            // Convert the Activity_API to the EntityModel activity
+            activity act = await ConvertActivityApiToActivity(Activity);
 
-            try
-            {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!activityExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            // Update the activity
+            db.Entry(act).State = EntityState.Modified;
+            await db.SaveChangesAsync();
 
-            return StatusCode(HttpStatusCode.OK);
+            return Ok(Activity);
         }
 
         // POST: api/activities
@@ -127,34 +118,19 @@ namespace Server_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Verify UserID exists
-            if (await db.users.CountAsync(p => p.id.Equals(Activity.user_id)) != 1)
-                return BadRequest("user_id does not exist");
-
-            // Verify TagIDs exist
-            foreach (int id in Activity.tag_ids)
-                if (await db.tags.CountAsync(p => p.id.Equals(id)) != 1)
-                    return BadRequest("Tag with id " + id.ToString() + " does not exist");
-
-            // Get the tags referenced by this activity
-            // http://stackoverflow.com/a/2101561
-            var tags = from tg in db.tags
-                       select tg;
-            var tagsPredicate = PredicateBuilder.False<tag>();
-            foreach (int id in Activity.tag_ids)
-                tagsPredicate = tagsPredicate.Or(p => p.id.Equals(id));
-            tags = tags.Where(tagsPredicate);
+            // Verify the Activity
+            var verification = await VerifyActivity(Activity);
+            if (verification != null)
+                return verification;
 
             // Convert the Activity_API to the EntityModel activity
-            activity act = new activity();
-            act.user = Activity.user_id;
-            act.name = Activity.name;
-            act.category = Activity.category;
-            act.tags = await tags.ToListAsync();
+            activity act = await ConvertActivityApiToActivity(Activity);
 
+            // Add the activity to the DB
             db.activities.Add(act);
             await db.SaveChangesAsync();
 
+            // Update the ID with the one that was auto-assigned
             Activity.SetID(act.id);
 
             return CreatedAtRoute("DefaultApi", new { id = Activity.id }, Activity);
@@ -176,26 +152,75 @@ namespace Server_API.Controllers
             return Ok();
         }
 
-        protected HttpResponseMessage failMsg(string desc = null)
+        public HttpResponseMessage Options()
         {
-            string json = "\"success\":false";
-            if (!String.IsNullOrEmpty(desc))
-                json += String.Format(",\"description\":{0}", desc);
-            json = "{" + json + "}";
-            var response = this.Request.CreateResponse(HttpStatusCode.Forbidden);
-            response.Content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = new HttpResponseMessage();
+            response.StatusCode = HttpStatusCode.OK;
             return response;
         }
 
-        protected HttpResponseMessage goodMsg(int id = 0)
+        /// <summary>
+        /// Converts an Activity_API to an EntityModel activity.
+        /// </summary>
+        /// <param name="Activity">The Activity_API to convert.</param>
+        /// <returns>An EntityModel activity corresponding to the Activity_API.</returns>
+        private async Task<activity> ConvertActivityApiToActivity(Activity_API Activity)
         {
-            string json = "\"success\":true";
-            if (id != 0)
-                json += String.Format(",\"id\":{0}", id);
-            json = "{" + json + "}";
-            var response = this.Request.CreateResponse(HttpStatusCode.Created);
-            response.Content = new StringContent(json, Encoding.UTF8, "application/json");
-            return response;
+            // Get the tags referenced by this activity
+            // http://stackoverflow.com/a/2101561
+            var tags = from tg in db.tags
+                       select tg;
+            var tagsPredicate = PredicateBuilder.False<tag>();
+            foreach (int id in Activity.tag_ids)
+                tagsPredicate = tagsPredicate.Or(p => p.id.Equals(id));
+            tags = tags.Where(tagsPredicate);
+
+            // Convert the Activity_API to the EntityModel activity
+            activity act = new activity();
+            act.user = Activity.user_id;
+            act.name = Activity.name;
+            act.category = Activity.category;
+            act.tags = await tags.ToListAsync();
+
+            return act;
+        }
+
+        /// <summary>
+        /// Verifies the activity by checking that the UserID and TagIDs exist.
+        /// </summary>
+        /// <param name="Activity">The activity to verify.</param>
+        /// <param name="VerifyID">If set to <c>true</c> then will also verify the ID exists.</param>
+        /// <returns>
+        /// Null for success. The appropriate IHttpActionResult on failure.
+        /// </returns>
+        private async Task<IHttpActionResult> VerifyActivity(Activity_API Activity)
+        {
+            // Verify UserID exists
+            if (await db.users.CountAsync(p => p.id.Equals(Activity.user_id)) != 1)
+                return BadRequest("user_id does not exist");
+
+            // Verify TagIDs exist
+            foreach (int id in Activity.tag_ids)
+                if (await db.tags.CountAsync(p => p.id.Equals(id)) != 1)
+                    return BadRequest("Tag with id " + id.ToString() + " does not exist");
+
+            return null;
+        }
+
+        /// <summary>
+        /// Verifies the activity and the ID for the activity. This is more useful in PUT requests.
+        /// </summary>
+        /// <param name="Activity">The activity.</param>
+        /// <returns>
+        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
+        /// </returns>
+        private async Task<IHttpActionResult> VerifyActivityAndID(Activity_API Activity)
+        {
+            // Verify ID. Returns a 404 if not valid
+            if (await db.activities.CountAsync(p => p.id.Equals(Activity.id)) != 1)
+                return StatusCode(HttpStatusCode.NotFound);
+
+            return await VerifyActivity(Activity);
         }
 
         protected override void Dispose(bool disposing)
@@ -205,11 +230,6 @@ namespace Server_API.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool activityExists(int id)
-        {
-            return db.activities.Count(e => e.id == id) > 0;
         }
     }
 }
