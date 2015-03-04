@@ -142,7 +142,7 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/locations/5
-        [ResponseType(typeof(location))]
+        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Deletelocation(int id)
         {
             location location = await db.locations.FindAsync(id);
@@ -154,7 +154,7 @@ namespace Server_API.Controllers
             db.locations.Remove(location);
             await db.SaveChangesAsync();
 
-            return StatusCode(HttpStatusCode.OK);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         protected override void Dispose(bool disposing)

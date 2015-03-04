@@ -219,7 +219,7 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/activity_units/5
-        [ResponseType(typeof(activity_units))]
+        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Deleteactivity_units(int id)
         {
             activity_units activity_units = await db.activity_units.FindAsync(id);
@@ -231,7 +231,7 @@ namespace Server_API.Controllers
             db.activity_units.Remove(activity_units);
             await db.SaveChangesAsync();
 
-            return Ok();
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         protected override void Dispose(bool disposing)
