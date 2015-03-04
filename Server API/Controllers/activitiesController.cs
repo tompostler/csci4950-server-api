@@ -152,6 +152,13 @@ namespace Server_API.Controllers
             return Ok();
         }
 
+        public HttpResponseMessage Options()
+        {
+            var response = new HttpResponseMessage();
+            response.StatusCode = HttpStatusCode.OK;
+            return response;
+        }
+
         /// <summary>
         /// Converts an Activity_API to an EntityModel activity.
         /// </summary>
