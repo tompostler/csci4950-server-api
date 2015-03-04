@@ -150,28 +150,6 @@ namespace Server_API.Controllers
             return Ok();
         }
 
-        protected HttpResponseMessage failMsg(string desc = null)
-        {
-            string json = "\"success\":false";
-            if (!String.IsNullOrEmpty(desc))
-                json += String.Format(",\"description\":{0}", desc);
-            json = "{" + json + "}";
-            var response = this.Request.CreateResponse(HttpStatusCode.Forbidden);
-            response.Content = new StringContent(json, Encoding.UTF8, "application/json");
-            return response;
-        }
-
-        protected HttpResponseMessage goodMsg(int id = 0)
-        {
-            string json = "\"success\":true";
-            if (id != 0)
-                json += String.Format(",\"id\":{0}", id);
-            json = "{" + json + "}";
-            var response = this.Request.CreateResponse(HttpStatusCode.Created);
-            response.Content = new StringContent(json, Encoding.UTF8, "application/json");
-            return response;
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)
