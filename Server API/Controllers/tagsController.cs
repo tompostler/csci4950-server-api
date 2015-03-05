@@ -67,37 +67,28 @@ namespace Server_API.Controllers
 
         // PUT: api/tags/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Puttag(int id, tag tag)
+        public async Task<IHttpActionResult> Puttag(int id, Tag_API Tag)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != tag.id)
-            {
-                return BadRequest();
-            }
+            // Verify the Tag
+            var verification = await VerifyTagAndID(Tag);
+            if (verification != null)
+                return verification;
 
-            db.Entry(tag).State = EntityState.Modified;
+            // Verify request ID
+            if (id != Tag.id)
+                return BadRequest("PUT URL and ID in the tag do not match");
 
-            try
-            {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!tagExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            // Convert the Tag_API to the EntityModel tag
+            tag tg = ConvertTagApiToTag(Tag);
 
-            return StatusCode(HttpStatusCode.NoContent);
+            // Update the location
+            db.Entry(tg).State = EntityState.Modified;
+            await db.SaveChangesAsync();
+
+            return Ok(Tag);
         }
 
         // POST: api/tags
@@ -107,20 +98,19 @@ namespace Server_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Verify UserID exists
-            if (await db.users.CountAsync(p => p.id.Equals(Tag.user_id)) != 1)
-                return BadRequest("user_id does not exist");
+            // Verify the Tag
+            var verification = await VerifyTag(Tag);
+            if (verification != null)
+                return verification;
 
             // Convert the Tag_API to the EntityModel tag
-            tag tg = new tag();
-            tg.user_id = Tag.user_id;
-            tg.name = Tag.name;
-            tg.description = Tag.description;
-            tg.color = Tag.color;
+            tag tg = ConvertTagApiToTag(Tag);
 
+            // Add the tag to the DB
             db.tags.Add(tg);
             await db.SaveChangesAsync();
 
+            // Update the ID with the one that was auto-assigned
             Tag.SetID(tg.id);
 
             return CreatedAtRoute("DefaultApi", new { id = Tag.id }, Tag);
@@ -140,6 +130,56 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
+        /// Converts a Tag_API to and EntitiyModel tag.
+        /// </summary>
+        /// <param name="Tag">The Tag_API to convert.</param>
+        /// <returns>An EntityModel tag corresponding to the Tag_API.</returns>
+        private static tag ConvertTagApiToTag(Tag_API Tag)
+        {
+            // Convert the Tag_API to the EntityModel tag
+            tag tg = new tag();
+            tg.id = Tag.id;
+            tg.user_id = Tag.user_id;
+            tg.name = Tag.name;
+            tg.description = Tag.description;
+            tg.color = Tag.color;
+
+            return tg;
+        }
+
+        /// <summary>
+        /// Verifies the tag by checking that the UserID exists.
+        /// </summary>
+        /// <param name="Tag">The tag to verify.</param>
+        /// <returns>
+        /// Null for success. The appropriate IHttpActionResult on failure.
+        /// </returns>
+        private async Task<IHttpActionResult> VerifyTag(Tag_API Tag)
+        {
+            // Verify the UserID exists
+            if (await db.users.FindAsync(Tag.user_id) == null)
+                return BadRequest("user_id does not exist");
+
+            return null;
+        }
+
+        /// <summary>
+        /// Verifies the tag and the ID for the tag. This is more useful in PUT requests.
+        /// </summary>
+        /// <param name="Tag">The tag.</param>
+        /// <returns>
+        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
+        /// </returns>
+        private async Task<IHttpActionResult> VerifyTagAndID(Tag_API Tag)
+        {
+            // Verify ID. Returns a 404 if not valid
+            if (await db.tags.FindAsync(Tag.id) == null)
+                return StatusCode(HttpStatusCode.NotFound);
+
+            return await VerifyTag(Tag);
         }
 
         protected override void Dispose(bool disposing)
