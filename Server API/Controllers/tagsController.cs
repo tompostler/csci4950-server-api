@@ -34,35 +34,36 @@ namespace Server_API.Controllers
         }
 
         // GET: api/tags
-        public async Task<IQueryable<Tag_API>> Gettags(int id = 0, int user_id = 0)
+        public async Task<IHttpActionResult> Gettags(int id = 0, int user_id = 0)
         {
-            // Create the result set
-            var tags = from tg in db.tags
-                       select tg;
-
-            // Filter by id
+            // If we have an ID to search by, handle it
             if (id != 0)
-                tags = tags.Where(p => p.id.Equals(id));
+            {
+                tag tg = await db.tags.FindAsync(id);
+                if (tg == null)
+                    return StatusCode(HttpStatusCode.NotFound);
+                else
+                    return Ok(ConvertTagToTagApi(tg));
+            }
+
+            // Create the result set
+            IQueryable<tag> tags = from tg in db.tags
+                                   select tg;
 
             // Filter by user_id
             if (user_id != 0)
                 tags = tags.Where(p => p.user_id.Equals(user_id));
-            
+
             // Convert the tags to more API friendly things
             List<Tag_API> results = new List<Tag_API>();
             List<tag> taglist = await tags.ToListAsync();
             foreach (var tg in taglist)
-            {
-                var tgRes = new Tag_API();
-                tgRes.SetID(tg.id);
-                tgRes.user_id = tg.user_id;
-                tgRes.name = tg.name;
-                tgRes.description = tg.description;
-                tgRes.color = tg.color;
-                results.Add(tgRes);
-            }
+                results.Add(ConvertTagToTagApi(tg));
 
-            return results.AsQueryable();
+            if (results.Count == 0)
+                return StatusCode(HttpStatusCode.NotFound);
+            else
+                return Ok(results);
         }
 
         // PUT: api/tags/5
@@ -133,7 +134,7 @@ namespace Server_API.Controllers
         }
 
         /// <summary>
-        /// Converts a Tag_API to and EntitiyModel tag.
+        /// Converts a Tag_API to an EntitiyModel tag.
         /// </summary>
         /// <param name="Tag">The Tag_API to convert.</param>
         /// <returns>An EntityModel tag corresponding to the Tag_API.</returns>
@@ -142,6 +143,24 @@ namespace Server_API.Controllers
             // Convert the Tag_API to the EntityModel tag
             tag tg = new tag();
             tg.id = Tag.id;
+            tg.user_id = Tag.user_id;
+            tg.name = Tag.name;
+            tg.description = Tag.description;
+            tg.color = Tag.color;
+
+            return tg;
+        }
+
+        /// <summary>
+        /// Converts an EntitiyModel tag to a Tag_API.
+        /// </summary>
+        /// <param name="Tag">The EntitiyModel tag to convert.</param>
+        /// <returns>A Tag_API corresponding to the EntitiyModel tag.</returns>
+        private static Tag_API ConvertTagToTagApi(tag Tag)
+        {
+            // Convert the EntityModel tag to the Tag_API
+            Tag_API tg = new Tag_API();
+            tg.SetID(Tag.id);
             tg.user_id = Tag.user_id;
             tg.name = Tag.name;
             tg.description = Tag.description;
