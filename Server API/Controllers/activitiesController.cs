@@ -45,15 +45,21 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activities
-        public async Task<IQueryable<Activity_API>> Getactivities(int id = 0, int user_id = 0, string name = "", byte category = 0)
+        public async Task<IHttpActionResult> Getactivities(int id = 0, int user_id = 0, string name = "", byte category = 0)
         {
-            // Create the result set
-            var activities = from act in db.activities
-                             select act;
-
-            // Filter by id
+            // If we have an ID to search by, handle it
             if (id != 0)
-                activities = activities.Where(p => p.id.Equals(id));
+            {
+                activity act = await db.activities.FindAsync(id);
+                if (act == null)
+                    return StatusCode(HttpStatusCode.NotFound);
+                else
+                    return Ok(ConvertActivityToActivityApi(act));
+            }
+
+            // Create the result set
+            IQueryable<activity> activities = from act in db.activities
+                                              select act;
 
             // Filter by user_id
             if (user_id != 0)
@@ -71,18 +77,12 @@ namespace Server_API.Controllers
             List<Activity_API> results = new List<Activity_API>();
             List<activity> activitylist = await activities.ToListAsync();
             foreach (var act in activitylist)
-            {
-                var actRes = new Activity_API();
-                actRes.SetID(act.id);
-                actRes.user_id = act.user;
-                actRes.name = act.name;
-                actRes.category = act.category;
-                // Magic to get just the IDs out of tag objects
-                actRes.tag_ids = act.tags.Select(p => p.id).ToList();
-                results.Add(actRes);
-            }
+                results.Add(ConvertActivityToActivityApi(act));
 
-            return results.AsQueryable();
+            if (results.Count == 0)
+                return StatusCode(HttpStatusCode.NotFound);
+            else
+                return Ok(results);
         }
 
         // PUT: api/activities/5
@@ -100,7 +100,7 @@ namespace Server_API.Controllers
             // Verify request ID
             if (id != Activity.id)
                 return BadRequest("PUT URL and ID in the activity do not match");
-            
+
             // Convert the Activity_API to the EntityModel activity
             activity act = await ConvertActivityApiToActivity(Activity);
 
@@ -182,6 +182,25 @@ namespace Server_API.Controllers
             act.name = Activity.name;
             act.category = Activity.category;
             act.tags = await tags.ToListAsync();
+
+            return act;
+        }
+
+        /// <summary>
+        /// Converts an EntityModel activity to an Activity_API.
+        /// </summary>
+        /// <param name="Activity">The EntityModel activity to convert.</param>
+        /// <returns>An Activity_API corresponding to the EntityModel activity.</returns>
+        private Activity_API ConvertActivityToActivityApi(activity Activity)
+        {
+            // Convert the EntityModel type to our API type
+            Activity_API act = new Activity_API();
+            act.SetID(Activity.id);
+            act.user_id = Activity.user;
+            act.name = Activity.name;
+            act.category = Activity.category;
+            // Magic to get just the IDs out of tag objects
+            act.tag_ids = Activity.tags.Select(p => p.id).ToList();
 
             return act;
         }

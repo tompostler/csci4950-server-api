@@ -41,15 +41,21 @@ namespace Server_API.Controllers
         }
 
         // GET: api/locations
-        public async Task<IQueryable<Location_API>> Getlocations(int id = 0, int user = 0, byte type = 0, string content = "")
+        public async Task<IHttpActionResult> Getlocations(int id = 0, int user = 0, byte type = 0, string content = "")
         {
-            // Create the result set
-            var locations = from loc in db.locations
-                            select loc;
-
-            // Filter on id
+            // If we have an ID to search by, handle it
             if (id != 0)
-                locations = locations.Where(p => p.id.Equals(id));
+            {
+                location loc = await db.locations.FindAsync(id);
+                if (loc == null)
+                    return StatusCode(HttpStatusCode.NotFound);
+                else
+                    return Ok(ConvertLocationToLocationApi(loc));
+            }
+
+            // Create the result set
+            IQueryable<location> locations = from loc in db.locations
+                                             select loc;
 
             // Filter on user_id
             if (user != 0)
@@ -67,17 +73,12 @@ namespace Server_API.Controllers
             List<Location_API> results = new List<Location_API>();
             List<location> locationlist = await locations.ToListAsync();
             foreach (var loc in locationlist)
-            {
-                var locRes = new Location_API();
-                locRes.SetID(loc.id);
-                locRes.user_id = loc.user_id;
-                locRes.name = loc.name;
-                locRes.type = loc.type;
-                locRes.content = loc.content;
-                results.Add(locRes);
-            }
+                results.Add(ConvertLocationToLocationApi(loc));
 
-            return results.AsQueryable();
+            if (results.Count == 0)
+                return StatusCode(HttpStatusCode.NotFound);
+            else
+                return Ok(results);
         }
 
         // PUT: api/locations/5
@@ -157,6 +158,24 @@ namespace Server_API.Controllers
             // Convert the Location_API to the EntityModel location
             location loc = new location();
             loc.id = Location.id;
+            loc.user_id = Location.user_id;
+            loc.name = Location.name;
+            loc.type = Location.type;
+            loc.content = Location.content;
+
+            return loc;
+        }
+
+        /// <summary>
+        /// Converts an EntityModel location to a Location_API.
+        /// </summary>
+        /// <param name="Location">The EntityModel location to convert.</param>
+        /// <returns>A Location_API corresponding to the EntityModel location.</returns>
+        private Location_API ConvertLocationToLocationApi(location Location)
+        {
+            // Convert the EntityModel location to the Location_API
+            Location_API loc = new Location_API();
+            loc.SetID(Location.id);
             loc.user_id = Location.user_id;
             loc.name = Location.name;
             loc.type = Location.type;
