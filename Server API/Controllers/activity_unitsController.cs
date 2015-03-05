@@ -220,6 +220,7 @@ namespace Server_API.Controllers
 
             // Convert our API type into the representing Model
             activity_units acu = new activity_units();
+            acu.id = ActivityUnit.id;
             acu.activity_id = ActivityUnit.activity_id;
             acu.location_id = ActivityUnit.location_id;
             acu.start_time = ActivityUnit.stime;

@@ -177,6 +177,7 @@ namespace Server_API.Controllers
 
             // Convert the Activity_API to the EntityModel activity
             activity act = new activity();
+            act.id = Activity.id;
             act.user = Activity.user_id;
             act.name = Activity.name;
             act.category = Activity.category;
