@@ -189,7 +189,6 @@ namespace Server_API.Controllers
         /// Verifies the activity by checking that the UserID and TagIDs exist.
         /// </summary>
         /// <param name="Activity">The activity to verify.</param>
-        /// <param name="VerifyID">If set to <c>true</c> then will also verify the ID exists.</param>
         /// <returns>
         /// Null for success. The appropriate IHttpActionResult on failure.
         /// </returns>
