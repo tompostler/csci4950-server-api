@@ -54,7 +54,7 @@ namespace Server_API.Controllers
             {
                 activity_units acu = await db.activity_units.FindAsync(id);
                 if (acu == null)
-                    return StatusCode(HttpStatusCode.NotFound);
+                    return NotFound();
                 else
                     return Ok(ConvertActivityUnitToActivityUnitApi(acu));
             }
@@ -86,13 +86,13 @@ namespace Server_API.Controllers
                 results.Add(ConvertActivityUnitToActivityUnitApi(acu));
 
             if (results.Count == 0)
-                return StatusCode(HttpStatusCode.NotFound);
+                return NotFound();
             else
                 return Ok(results);
         }
 
         // GET: api/activity_units
-        public async Task<IQueryable<ActivityUnit_API>> Getactivity_units(DateTime btime, DateTime etime, int activity = 0, int location = 0)
+        public async Task<IHttpActionResult> Getactivity_units(DateTime btime, DateTime etime, int activity = 0, int location = 0)
         {
             // Create the result set
             var activity_units = from au in db.activity_units
@@ -118,19 +118,12 @@ namespace Server_API.Controllers
             List<ActivityUnit_API> results = new List<ActivityUnit_API>();
             List<activity_units> activity_unitslist = await activity_units.ToListAsync();
             foreach (var acu in activity_unitslist)
-            {
-                var acuRes = new ActivityUnit_API();
-                acuRes.SetID(acu.id);
-                acuRes.activity_id = acu.activity_id;
-                acuRes.location_id = acu.location_id;
-                acuRes.stime = acu.start_time;
-                acuRes.etime = acu.end_time;
-                // Magic to get just the IDs out of tag objects
-                acuRes.tag_ids = acu.tags.Select(p => p.id).ToList();
-                results.Add(acuRes);
-            }
+                results.Add(ConvertActivityUnitToActivityUnitApi(acu));
 
-            return results.AsQueryable();
+            if (results.Count == 0)
+                return NotFound();
+            else
+                return Ok(results);
         }
 
         // PUT: api/activity_units/5
@@ -197,7 +190,7 @@ namespace Server_API.Controllers
             db.activity_units.Remove(activity_units);
             await db.SaveChangesAsync();
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Ok();
         }
 
 
@@ -292,7 +285,7 @@ namespace Server_API.Controllers
         {
             // Verify ID. Returns a 404 if not valid
             if (await db.activity_units.FindAsync(ActivityUnit.id) == null)
-                return StatusCode(HttpStatusCode.NotFound);
+                return NotFound();
 
             return await VerifyActivityUnit(ActivityUnit);
         }

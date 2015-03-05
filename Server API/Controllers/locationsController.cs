@@ -48,7 +48,7 @@ namespace Server_API.Controllers
             {
                 location loc = await db.locations.FindAsync(id);
                 if (loc == null)
-                    return StatusCode(HttpStatusCode.NotFound);
+                    return NotFound();
                 else
                     return Ok(ConvertLocationToLocationApi(loc));
             }
@@ -76,7 +76,7 @@ namespace Server_API.Controllers
                 results.Add(ConvertLocationToLocationApi(loc));
 
             if (results.Count == 0)
-                return StatusCode(HttpStatusCode.NotFound);
+                return NotFound();
             else
                 return Ok(results);
         }
@@ -145,7 +145,7 @@ namespace Server_API.Controllers
             db.locations.Remove(location);
             await db.SaveChangesAsync();
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Ok();
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace Server_API.Controllers
         {
             // Verify ID. Returns a 404 if not valid
             if (await db.locations.FindAsync(Location.id) == null)
-                return StatusCode(HttpStatusCode.NotFound);
+                return NotFound();
 
             return await VerifyLocation(Location);
         }

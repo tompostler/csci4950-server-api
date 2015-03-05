@@ -19,7 +19,7 @@ make against the API.
 In order to make a request of any type, the request URL must be a standard HTTP URL structured as
 such:
 
-    HOST/api/ROOTNODE[/SUBNODE][?PARAM1=VALUE1][&PARAM2=VALUE2][&PARAM3=VALUE3]...
+    http://HOST/api/ROOTNODE[/SUBNODE][?PARAM1=VALUE1][&PARAM2=VALUE2][&PARAM3=VALUE3]...
 
 Where:
 
@@ -44,7 +44,7 @@ action detailed below:
 * `POST`
 * `DELETE`
 
-Requests will generally return data in a JSON format representing one thing or another.
+Requests will always have a status code representing what happend, with optionally including JSON.
 
 To send data with a request, the HTTP header `Content-Type` must be `application/json` if you are
 sending JSON in the request body. You will receive an error otherwise.
@@ -59,13 +59,7 @@ All parameters that you wish to supply are passed to the API via URL parameters.
 wish to ask for the activity associated with user ID 7 and category 4, then the URL string you would
 use is:
 
-    ralphie.cloudapp.net/api/activities?user=7&category=4
-
-
-#### Response
-
-When querying using the regular parameters, the result will always be a JSON list of results that
-will contain 0 or more items serialized into an appropriate JSON format.
+    http://ralphie.cloudapp.net/api/activities?user=7&category=4
 
 
 
@@ -82,16 +76,6 @@ send a `PUT` request with a JSON body of information to update to the URL string
 You must send the entire item (as if you were doing a `POST` request) to the server.
 
 
-#### Response
-
-When using a `PUT` request, the response will always be a JSON object with one boolean element
-indicating success or failure:
-
-    {
-        "success": true
-    }
-
-
 
 ### POST Requests
 
@@ -102,26 +86,6 @@ you wanted to create a new activity, then you would send a `POST` request with a
 information to the URL string:
 
     tneunreals-t03.cloudapp.net/api/activities
-
-
-#### Response
-
-When using a `POST` request, the response will always be a JSON object with one boolean element
-indicating success or failure, one optional numeric element with the created ID of the object, and
-one optional element detailing the errors associated with an unsuccessful `POST`:
-
-    {
-        "success": true,
-        "id": 1234
-    }
-
-Or:
-
-    {
-        "success": false
-        "description":
-            TODO - Works but needs cleaning up
-    }
 
 
 
@@ -139,14 +103,50 @@ Deleting an item that is depended upon by other items (such as deleting a user) 
 deletion to delete all dependencies.
 
 
-#### Response
 
-When using a `DELETE` request, the response will always be a JSON object with one boolean element
-indicating success or failure:
 
-    {
-        "success": true
-    }
+## Response Types
+
+There are different responses for each type of request sent to the server.
+
+__Notes:__
+    
+- In all cases below, if there is no valid match to the query or action, then a status of `404 Not
+Found` is returned to the caller, regardless of what it says are possible return results.
+- In all cases below, if some action causes an error, then a generic status of `400 Bad Request` is
+returned to the caller, regardless of what it says are possible return results.
+
+
+
+### GET Requests
+
+When any `GET` requests are issued with an ID specified, the result will be the one corresponding
+item with a `200 OK` status.
+
+All other `GET` requests will return a list containing one or more matching items with a `200 OK`
+status.
+
+
+
+### PUT Requests
+
+Upon successful `PUT`, will return the updated data with a `200 OK` status.
+
+This may be changed to return a `204 No Content` status on a successful `PUT` in the future. This
+will be determined by the volume of complaints from you guys.
+
+
+
+### POST Requests
+
+Upon successful `POST` will return the new item with a `201 Created` status and the `Location`
+header set to a link for the new item.
+
+
+
+### DELETE Requests
+
+Upon successful `DELETE`, will return a `200 OK` status.
 
 
 ----------------------------------------------------------------------------------------------------
@@ -154,8 +154,8 @@ indicating success or failure:
 
 # Nodes
 
-There are currently 4 root nodes, each with several optional and/or required subnodes for basic GET
-querying.
+There are currently 5 root nodes, each with several optional and/or required subnodes for basic
+`GET` querying (along with `PUT` and `POST` operations).
 
 
 
@@ -167,20 +167,21 @@ Node | Description
 [`/activities`](#activities-node) | Corresponds to an activity.
 [`/activity_units`](#activity_units-node) | Corresponds to an activity work unit.
 [`/locations`](#locations-node) | Corresponds to a location.
+[`/tags`](#tags-node) | Corresponds to a user-defined tag.
 [`/users`](#users-node) | Corresponds to a user.
 
 For `GET` requests, the root level nodes will return __all__ entries in the database corresponding
-to that node. This is a _very_ expensive operation, and will be removed as a feature once we have
+to that node. This is a _very_ expensive operation, and will be removed as a "feature" once we have
 moved from the development phase into the beta testing phase.
 
 For `PUT` and `DELETE` requests, this will need to be coupled with a [subnode](#subnodes) for proper
 usage.
 
 For `POST` requests, this is all the information you need since all data to `POST` will be in the
-JSON body of your request.
+body of your request.
 
 The following descriptions of the parameters on the nodes are used in the URL parameters of `GET`
-requests and the JSON bodies of `PUT` and `POST` requests.
+requests and the bodies of `PUT` and `POST` requests.
 
 
 
@@ -189,9 +190,10 @@ requests and the JSON bodies of `PUT` and `POST` requests.
 Parameter | Description
 :--- | :---
 `id` | An integer ID uniquely identifying the activity. This is automatically incremented on creation of a new activity.
-`user` | An integer correlating to an existing user ID. This will link an activity to a specific user.
+`user_id` | An integer correlating to an existing user ID. This will link an activity to a specific user.
 `name` | A maximum 50-character string for the user-defined name of an activity.
 `category` | A tinyint (range -128 to 127) matching one of the predefined categories. The categories are TBD, but will be linked from here in the future.
+`tag_ids` | A list of integers correlating to existing tag IDs.
 
 
 
@@ -203,28 +205,28 @@ the expected requests:
 Parameter | Description
 :--- | :---
 `id` | An integer ID uniquely identifying the activity work unit. This is automatically incremented on creation of a new activity work unit.
-`activity` | An integer correlating to an existing activity ID. This will link an activity work unit to a specific activity.
-`location` | An integer correlating to an existing location ID. This will link an activity work unit to a specific location.
-`startTime` | The start date and time of the activity work unit, in [UTC format](#date-time-formats).
-`endTime` | The end date and time of the activity work unit, in [UTC format](#date-time-formats).
+`activity_id` | An integer correlating to an existing activity ID. This will link an activity work unit to a specific activity.
+`location_id` | An integer correlating to an existing location ID. This will link an activity work unit to a specific location.
+`stime` | The start date and time of the activity work unit, in [UTC format](#date-time-formats).
+`etime` | The end date and time of the activity work unit, in [UTC format](#date-time-formats).
+`tag_ids` | A list of integers correlating to existing tag IDs.
 
 The other form of the API is strictly for `GET` requests. It allows querying of date ranges to
 return activity work units. (Hint: This may be useful for building a calendar day of events rapidly)
 
 Parameter | Required? | Description
 :--- | :---: | :---
-`startTimeBeg` | Yes | The beginning of the range for the start date and time to search, in [UTC format](#date-time-formats).
-`startTimeEnd` | Yes | The end of the range for the start date and time to search, in [UTC format](#date-time-formats).
-`endTimeBeg` | Yes | The beginning of the range for the end date and time to search, in [UTC format](#date-time-formats).
-`endTimeEnd` | Yes | The end of the range for the end date and time to search, in [UTC format](#date-time-formats).
+`btime` | Yes | The beginning of the range for the date and time to search, in [UTC format](#date-time-formats).
+`etime` | Yes | The end of the range for the date and time to search, in [UTC format](#date-time-formats).
 `activity` | No | An integer correlating to an existing activity ID. This will link an activity work unit to a specific activity.
 `location` | No | An integer correlating to an existing location ID. This will link an activity work unit to a specific location.
 
 For example, if I wanted to find all activity work units corresponding to an activity with ID of 7
-that occurred on February 19th (in CST), then I would use the following URL `GET` request to ask for
-all activities that started sometime on Feb 19 and ended some time on Feb 19 with activity ID of 7:
+that occurred on February 19th (in CST), then I would use the following HTTP `GET` request to ask
+for all activity units that started sometime on Feb 19 and ended sometime on Feb 19 with activity ID
+of 7:
 
-    ralphie.cloudapp.net/api/activity_units?activity=7&startTimeBeg=2014-02-19T06:00:00Z&startTimeEnd=2014-02-20T06:00:00Z&endTimeBeg=2014-02-19T06:00:00Z&endTimeEnd=2014-02-20T06:00:00Z
+    ralphie.cloudapp.net/api/activity_units?activity=7&btime=2014-02-19T06:00:00Z&etime=2014-02-20T06:00:00Z
 
 
 
@@ -233,10 +235,22 @@ all activities that started sometime on Feb 19 and ended some time on Feb 19 wit
 Parameter | Description
 :--- | :---
 `id` | An integer uniquely identifying the location. This is automatically incremented on creation of a new location.
-`user` | An integer correlating to an existing user ID. This will link a location to a specific user.
+`user_id` | An integer correlating to an existing user ID. This will link a location to a specific user.
 `name` | A maximum 50-character string for the user-defined (or potentially suggested) name of a location.
 `type` | A tinyint (range -128 to 127) matching one of the predefined location types. The types are TBD, but will be linked from here in the future.
 `content` | A maximum 100-character string for storing location data. This can be a lat-long, an address, or whatever.
+
+
+
+### tags Node
+
+Parameter | Description
+:--- | :---
+`id` | An integer uniquely identifying the tag. This is automatically incremented on creation of a new tag.
+`user_id` | An integer correlating to an existing user ID. This will link a tag to a specific user.
+`name` | A maximum 20-character string for the user-defined (or potentially suggested) name of a tag.
+`description` | A maximum 100-character string for storing the user-defined (or potentially suggested) description of a tag.
+`color` | A maximum 6-character string for storing color data. This should be represented in hex, but this is currently not verified server-side.
 
 
 
@@ -253,10 +267,7 @@ Parameter | Description
 Of the above parameters, `GET` requests only support querying by `id` and `email`.
     
 If you wish to issue `GET` queries for `fname`, `lname`, or `password`, then we suggest you
-think about what you're doing and decide not to do it instead.
-
-If 50 characters are not deemed enough, this limit can be upped quite painlessly with a request to
-Anthony or Tom.
+think about what you are doing and decide not to do it instead.
 
 
 
@@ -266,11 +277,23 @@ Anthony or Tom.
 For any request type (not including `GET` requests), an ID can be used to work with one item of the
 corresponding type from a root node.
 
-For `PUT` and `DELETE` requests, this format is necessary to work with only one object at a time.
+For `PUT` and `DELETE` requests, this format is necessary to work with only one item at a time.
 
 The URL format for working with a subnode is:
 
-    ralphie.cloudapp.net/api/ROOTNODE/SUBNODE
+    http://ralphie.cloudapp.net/api/ROOTNODE/SUBNODE
+
+
+----------------------------------------------------------------------------------------------------
+
+
+# Examples
+
+TBW (To Be Written)
+
+Languages to write examples for:
+
+- JavaScript
 
 
 ----------------------------------------------------------------------------------------------------
@@ -292,6 +315,9 @@ for the rest of the team.
 
 We are researching the best way to implement security in a non-intrusive manner.
 
+Setting up HTTPS sucks, but that is our first step. HTTP requests will not be accepted (if this is
+possible).
+
 
 
 ### Password Storage
@@ -300,7 +326,8 @@ Ideally, a user's password will be salted and hashed before being sent to the se
 server will salt and hash the password again so that no part of the chain knows the password and it
 is incredibly difficult to guess.
 
-Or we just support logging in with Google/Facebook/Twitter/etc.
+Or we just support logging in with Google/Facebook/Twitter/etc and we at the API store the OAuth
+token for you.
 
 In the meantime for the wonderfullness that is quick-and-dirty, we are using plaintext storage on
 the API for passwords capped at 50 characters. How the client handles passwords handed to the API

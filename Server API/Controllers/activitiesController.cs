@@ -52,7 +52,7 @@ namespace Server_API.Controllers
             {
                 activity act = await db.activities.FindAsync(id);
                 if (act == null)
-                    return StatusCode(HttpStatusCode.NotFound);
+                    return NotFound();
                 else
                     return Ok(ConvertActivityToActivityApi(act));
             }
@@ -80,7 +80,7 @@ namespace Server_API.Controllers
                 results.Add(ConvertActivityToActivityApi(act));
 
             if (results.Count == 0)
-                return StatusCode(HttpStatusCode.NotFound);
+                return NotFound();
             else
                 return Ok(results);
         }
@@ -149,7 +149,7 @@ namespace Server_API.Controllers
             db.activities.Remove(activity);
             await db.SaveChangesAsync();
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Ok();
         }
 
         public HttpResponseMessage Options()
@@ -237,7 +237,7 @@ namespace Server_API.Controllers
         {
             // Verify ID. Returns a 404 if not valid
             if (await db.activities.FindAsync(Activity.id) == null)
-                return StatusCode(HttpStatusCode.NotFound);
+                return NotFound();
 
             return await VerifyActivity(Activity);
         }

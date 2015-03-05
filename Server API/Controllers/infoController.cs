@@ -8,8 +8,8 @@ namespace Server_API.Controllers
     public class infoController : ApiController
     {
         private string json = @"{
-    ""version"": 0.5,
-    ""version_date"": ""2015-02-28"",
+    ""version"": 1.00.0000,
+    ""version_date"": ""2015-03-05"",
     ""contacts"": [
         {
             ""name"": ""Tom Postler"",
@@ -28,7 +28,8 @@ namespace Server_API.Controllers
         ""tags"",
         ""users""
     ],
-    ""comment"": ""GET, POST, DELETE for all""
+    ""comment"": ""Read the documentation"",
+    ""fun_fact"":""At the peak of its popularity, the number of Farmville players outnumbered real farmers 60 to 1.""
 }";
 
         public HttpResponseMessage Get()

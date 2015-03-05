@@ -41,7 +41,7 @@ namespace Server_API.Controllers
             {
                 tag tg = await db.tags.FindAsync(id);
                 if (tg == null)
-                    return StatusCode(HttpStatusCode.NotFound);
+                    return NotFound();
                 else
                     return Ok(ConvertTagToTagApi(tg));
             }
@@ -61,7 +61,7 @@ namespace Server_API.Controllers
                 results.Add(ConvertTagToTagApi(tg));
 
             if (results.Count == 0)
-                return StatusCode(HttpStatusCode.NotFound);
+                return NotFound();
             else
                 return Ok(results);
         }
@@ -130,7 +130,7 @@ namespace Server_API.Controllers
             db.tags.Remove(tag);
             await db.SaveChangesAsync();
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Ok();
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Server_API.Controllers
         {
             // Verify ID. Returns a 404 if not valid
             if (await db.tags.FindAsync(Tag.id) == null)
-                return StatusCode(HttpStatusCode.NotFound);
+                return NotFound();
 
             return await VerifyTag(Tag);
         }

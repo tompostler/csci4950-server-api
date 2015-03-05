@@ -49,7 +49,7 @@ namespace Server_API.Controllers
             {
                 user usr = await db.users.FindAsync(id);
                 if (usr == null)
-                    return StatusCode(HttpStatusCode.NotFound);
+                    return NotFound();
                 else
                     return Ok(ConvertUserToUserApi(usr));
             }
@@ -69,7 +69,7 @@ namespace Server_API.Controllers
                 results.Add(ConvertUserToUserApi(usr));
 
             if (results.Count == 0)
-                return StatusCode(HttpStatusCode.NotFound);
+                return NotFound();
             else
                 return Ok(results);
         }
@@ -133,7 +133,7 @@ namespace Server_API.Controllers
             db.users.Remove(user);
             await db.SaveChangesAsync();
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Ok();
 
         }
 
@@ -184,7 +184,7 @@ namespace Server_API.Controllers
         {
             // Verify ID. Returns a 404 if not valid
             if (await db.users.FindAsync(User.id) == null)
-                return StatusCode(HttpStatusCode.NotFound);
+                return NotFound();
 
             return null;
         }
