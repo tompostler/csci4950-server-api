@@ -177,6 +177,7 @@ namespace Server_API.Controllers
 
             // Convert the Activity_API to the EntityModel activity
             activity act = new activity();
+            act.id = Activity.id;
             act.user = Activity.user_id;
             act.name = Activity.name;
             act.category = Activity.category;
@@ -189,19 +190,18 @@ namespace Server_API.Controllers
         /// Verifies the activity by checking that the UserID and TagIDs exist.
         /// </summary>
         /// <param name="Activity">The activity to verify.</param>
-        /// <param name="VerifyID">If set to <c>true</c> then will also verify the ID exists.</param>
         /// <returns>
         /// Null for success. The appropriate IHttpActionResult on failure.
         /// </returns>
         private async Task<IHttpActionResult> VerifyActivity(Activity_API Activity)
         {
             // Verify UserID exists
-            if (await db.users.CountAsync(p => p.id.Equals(Activity.user_id)) != 1)
+            if (await db.users.FindAsync(Activity.user_id) == null)
                 return BadRequest("user_id does not exist");
 
             // Verify TagIDs exist
             foreach (int id in Activity.tag_ids)
-                if (await db.tags.CountAsync(p => p.id.Equals(id)) != 1)
+                if (await db.tags.FindAsync(id) == null)
                     return BadRequest("Tag with id " + id.ToString() + " does not exist");
 
             return null;
@@ -217,7 +217,7 @@ namespace Server_API.Controllers
         private async Task<IHttpActionResult> VerifyActivityAndID(Activity_API Activity)
         {
             // Verify ID. Returns a 404 if not valid
-            if (await db.activities.CountAsync(p => p.id.Equals(Activity.id)) != 1)
+            if (await db.activities.FindAsync(Activity.id) == null)
                 return StatusCode(HttpStatusCode.NotFound);
 
             return await VerifyActivity(Activity);

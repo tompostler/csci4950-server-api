@@ -136,37 +136,28 @@ namespace Server_API.Controllers
 
         // PUT: api/activity_units/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putactivity_units(int id, activity_units activity_units)
+        public async Task<IHttpActionResult> Putactivity_units(int id, ActivityUnit_API ActivityUnit)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != activity_units.id)
-            {
-                return BadRequest();
-            }
+            // Verify the Activity Unit
+            var verification = await VerifyActivityUnitAndID(ActivityUnit);
+            if (verification != null)
+                return verification;
 
-            db.Entry(activity_units).State = EntityState.Modified;
+            // Verify request ID
+            if (id != ActivityUnit.id)
+                return BadRequest("PUT URL and ID in the activity unit do not match");
 
-            try
-            {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!activity_unitsExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            // Convert the ActivityUnit_API to the EntityModel activity_units
+            activity_units acu = await ConvertActivityUnitApiToActivityUnit(ActivityUnit);
 
-            return StatusCode(HttpStatusCode.OK);
+            // Update the activity unit
+            db.Entry(acu).State = EntityState.Modified;
+            await db.SaveChangesAsync();
+            
+            return Ok(ActivityUnit);
         }
 
         // POST: api/activity_units
@@ -176,43 +167,19 @@ namespace Server_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Start times have to be after end times
-            if (ActivityUnit.stime > ActivityUnit.etime)
-                return BadRequest("etime cannot be before stime");
+            // Verify the ActivityUnit
+            var verification = await VerifyActivityUnit(ActivityUnit);
+            if (verification != null)
+                return verification;
 
-            // Verify ActivityID exists
-            if (await db.activities.CountAsync(p => p.id.Equals(ActivityUnit.activity_id)) != 1)
-                return BadRequest("activity_id does not exist");
+            // Convert the ActivityUnit_API to the EntityModel activity_units
+            activity_units acu = await ConvertActivityUnitApiToActivityUnit(ActivityUnit);
 
-            // Verify LocationID exists
-            if (await db.locations.CountAsync(p => p.id.Equals(ActivityUnit.location_id)) != 1)
-                return BadRequest("location_id does not exist");
-
-            // Verify TagIDs exist
-            foreach (int id in ActivityUnit.tag_ids)
-                if (await db.tags.CountAsync(p => p.id.Equals(id)) != 1)
-                    return BadRequest("Tag with id " + id.ToString() + " does not exist");
-
-            // Get the tags referenced by this activity to do a proper insertion with the WebAPI
-            // http://stackoverflow.com/a/2101561
-            var tags = from tg in db.tags
-                       select tg;
-            var tagsPredicate = PredicateBuilder.False<tag>();
-            foreach (int id in ActivityUnit.tag_ids)
-                tagsPredicate = tagsPredicate.Or(p => p.id.Equals(id));
-            tags = tags.Where(tagsPredicate);
-
-            // Convert our API type into the representing Model
-            activity_units acu = new activity_units();
-            acu.activity_id = ActivityUnit.activity_id;
-            acu.location_id = ActivityUnit.location_id;
-            acu.start_time = ActivityUnit.stime;
-            acu.end_time = ActivityUnit.etime;
-            acu.tags = await tags.ToListAsync();
-
+            // Add the activity unit to the DB
             db.activity_units.Add(acu);
             await db.SaveChangesAsync();
 
+            // Update the ID with the one that was auto-assigned
             ActivityUnit.SetID(acu.id);
 
             return CreatedAtRoute("DefaultApi", new { id = ActivityUnit.id }, ActivityUnit);
@@ -232,6 +199,82 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             return StatusCode(HttpStatusCode.NoContent);
+        }
+
+
+        /// <summary>
+        /// Converts an ActivityUnit_API to and EntityModel activity_units.
+        /// </summary>
+        /// <param name="ActivityUnit">The ActivityUnit_API to convert.</param>
+        /// <returns>An EntityModel activity_units corresponding to the ActivityUnit_API.</returns>
+        private async Task<activity_units> ConvertActivityUnitApiToActivityUnit(ActivityUnit_API ActivityUnit)
+        {
+            // Get the tags referenced by this activity to do a proper insertion with the WebAPI
+            // http://stackoverflow.com/a/2101561
+            var tags = from tg in db.tags
+                       select tg;
+            var tagsPredicate = PredicateBuilder.False<tag>();
+            foreach (int id in ActivityUnit.tag_ids)
+                tagsPredicate = tagsPredicate.Or(p => p.id.Equals(id));
+            tags = tags.Where(tagsPredicate);
+
+            // Convert our API type into the representing Model
+            activity_units acu = new activity_units();
+            acu.id = ActivityUnit.id;
+            acu.activity_id = ActivityUnit.activity_id;
+            acu.location_id = ActivityUnit.location_id;
+            acu.start_time = ActivityUnit.stime;
+            acu.end_time = ActivityUnit.etime;
+            acu.tags = await tags.ToListAsync();
+
+            return acu;
+        }
+
+        /// <summary>
+        /// Verifies the activity unit by checking that the ActivityID, LocationID, and TagIDs exist
+        /// in addition to making sure stime <= etime.
+        /// </summary>
+        /// <param name="ActivityUnit">The activity unit to verify.</param>
+        /// <returns>
+        /// Null for success. The appropriate IHttpActionResult on failure.
+        /// </returns>
+        private async Task<IHttpActionResult> VerifyActivityUnit(ActivityUnit_API ActivityUnit)
+        {
+            // Verify ActivityID exists
+            if (await db.activities.FindAsync(ActivityUnit.activity_id) == null)
+                return BadRequest("activity_id does not exist");
+
+            // Verify LocationID exists
+            if (await db.locations.FindAsync(ActivityUnit.location_id) == null)
+                return BadRequest("location_id does not exist");
+
+            // Verify time range
+            if (ActivityUnit.stime >= ActivityUnit.etime)
+                return BadRequest("etime cannot be before stime");
+
+            // Verify TagIDs exist
+            foreach (int id in ActivityUnit.tag_ids)
+                if (await db.tags.FindAsync(id) == null)
+                    return BadRequest("Tag with id " + id.ToString() + " does not exist");
+
+            return null;
+        }
+
+        /// <summary>
+        /// Verifies the activity unit and the ID for the activity unit. This is more useful in PUT
+        /// requests.
+        /// </summary>
+        /// <param name="ActivityUnit">The activity unit.</param>
+        /// <returns>
+        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
+        /// </returns>
+        private async Task<IHttpActionResult> VerifyActivityUnitAndID(ActivityUnit_API ActivityUnit)
+        {
+            // Verify ID. Returns a 404 if not valid
+            if (await db.activity_units.FindAsync(ActivityUnit.id) == null)
+                return StatusCode(HttpStatusCode.NotFound);
+
+            return await VerifyActivityUnit(ActivityUnit);
         }
 
         protected override void Dispose(bool disposing)

@@ -82,37 +82,28 @@ namespace Server_API.Controllers
 
         // PUT: api/locations/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putlocation(int id, location location)
+        public async Task<IHttpActionResult> Putlocation(int id, Location_API Location)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != location.id)
-            {
-                return BadRequest();
-            }
+            // Verify the Location
+            var verification = await VerifyLocationAndID(Location);
+            if (verification != null)
+                return verification;
 
-            db.Entry(location).State = EntityState.Modified;
+            // Verify request ID
+            if (id != Location.id)
+                return BadRequest("PUT URL and ID in the location do not match");
 
-            try
-            {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!locationExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            // Convert the Location_API to the EntityModel location
+            location loc = ConvertLocationApiToLocation(Location);
 
-            return StatusCode(HttpStatusCode.OK);
+            // Update the location
+            db.Entry(loc).State = EntityState.Modified;
+            await db.SaveChangesAsync();
+
+            return Ok(Location);
         }
 
         // POST: api/locations
@@ -122,20 +113,19 @@ namespace Server_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Verify UserID exists
-            if (await db.users.CountAsync(p => p.id.Equals(Location.user_id)) != 1)
-                return BadRequest("user_id does not exist");
+            // Verify the Location
+            var verification = await VerifyLocation(Location);
+            if (verification != null)
+                return verification;
 
-            // Convert our API type into the representing Model
-            location loc = new location();
-            loc.user_id = Location.user_id;
-            loc.name = Location.name;
-            loc.type = Location.type;
-            loc.content = Location.content;
+            // Convert the Location_API to the EntityModel location
+            location loc = ConvertLocationApiToLocation(Location);
 
+            // Add the location to the DB
             db.locations.Add(loc);
             await db.SaveChangesAsync();
 
+            // Update the ID with the one that was auto-assigned
             Location.SetID(loc.id);
 
             return CreatedAtRoute("DefaultApi", new { id = Location.id }, Location);
@@ -155,6 +145,56 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
+        /// Converts a Location_API to an EntityModel location.
+        /// </summary>
+        /// <param name="Location">The Location_API to convert.</param>
+        /// <returns>An EntityModel location corresponding to the Location_API.</returns>
+        private location ConvertLocationApiToLocation(Location_API Location)
+        {
+            // Convert the Location_API to the EntityModel location
+            location loc = new location();
+            loc.id = Location.id;
+            loc.user_id = Location.user_id;
+            loc.name = Location.name;
+            loc.type = Location.type;
+            loc.content = Location.content;
+
+            return loc;
+        }
+
+        /// <summary>
+        /// Verifies the location by checking that the UserID exists.
+        /// </summary>
+        /// <param name="Location">The location to verify.</param>
+        /// <returns>
+        /// Null for success. The appropriate IHttpActionResult on failure.
+        /// </returns>
+        private async Task<IHttpActionResult> VerifyLocation(Location_API Location)
+        {
+            // Verify the UserID exists
+            if (await db.users.FindAsync(Location.user_id) == null)
+                return BadRequest("user_id does not exist");
+
+            return null;
+        }
+
+        /// <summary>
+        /// Verifies the location and the ID for the location. This is more useful in PUT requests.
+        /// </summary>
+        /// <param name="Location">The location.</param>
+        /// <returns>
+        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
+        /// </returns>
+        private async Task<IHttpActionResult> VerifyLocationAndID(Location_API Location)
+        {
+            // Verify ID. Returns a 404 if not valid
+            if (await db.locations.FindAsync(Location.id) == null)
+                return StatusCode(HttpStatusCode.NotFound);
+
+            return await VerifyLocation(Location);
         }
 
         protected override void Dispose(bool disposing)
