@@ -125,7 +125,7 @@ namespace Server_API.Controllers
             db.locations.Add(loc);
             await db.SaveChangesAsync();
 
-            // Update the ID with thte one that was auto-assigned
+            // Update the ID with the one that was auto-assigned
             Location.SetID(loc.id);
 
             return CreatedAtRoute("DefaultApi", new { id = Location.id }, Location);
