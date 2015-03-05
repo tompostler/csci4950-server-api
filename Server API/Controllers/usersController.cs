@@ -79,37 +79,28 @@ namespace Server_API.Controllers
 
         // PUT: api/users/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putuser(int id, user user)
+        public async Task<IHttpActionResult> Putuser(int id, User_API User)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != user.id)
-            {
-                return BadRequest();
-            }
+            // Verify the User
+            var verification = await VerifyUserAndID(User);
+            if (verification != null)
+                return verification;
 
-            db.Entry(user).State = EntityState.Modified;
+            // Verify request ID
+            if (id != User.id)
+                return BadRequest("PUT URL and ID in the location do not match");
 
-            try
-            {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!userExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            // Convert the User_API to the EntityModel location
+            user usr = ConvertUserApiToUser(User);
 
-            return StatusCode(HttpStatusCode.OK);
+            // Update the user
+            db.Entry(usr).State = EntityState.Modified;
+            await db.SaveChangesAsync();
+
+            return Ok(User);
         }
 
         // POST: api/users
@@ -119,16 +110,14 @@ namespace Server_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Convert our API type into the representing Model
-            user usr = new user();
-            usr.first_name = User.fname;
-            usr.last_name = User.lname;
-            usr.email = User.email;
-            usr.password = User.password;
+            // Convert the User_API to the EntityModel user
+            user usr = ConvertUserApiToUser(User);
 
+            // Add the user to the DB
             db.users.Add(usr);
             await db.SaveChangesAsync();
 
+            // Update the ID with the one that was auto-assigned
             User.SetID(usr.id);
 
             return CreatedAtRoute("DefaultApi", new { id = User.id }, User);
@@ -149,6 +138,40 @@ namespace Server_API.Controllers
 
             return StatusCode(HttpStatusCode.NoContent);
 
+        }
+
+        /// <summary>
+        /// Converts an User_API to an EntityModel user.
+        /// </summary>
+        /// <param name="User">The User_API to convert..</param>
+        /// <returns>An EntityModel user corresponding to the User_API.</returns>
+        private static user ConvertUserApiToUser(User_API User)
+        {
+            // Convert our API type into the representing Model
+            user usr = new user();
+            usr.id = User.id;
+            usr.first_name = User.fname;
+            usr.last_name = User.lname;
+            usr.email = User.email;
+            usr.password = User.password;
+
+            return usr;
+        }
+
+        /// <summary>
+        /// Verifies the user and the ID for the user. This is more useful in PUT requests.
+        /// </summary>
+        /// <param name="User">The user.</param>
+        /// <returns>
+        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
+        /// </returns>
+        private async Task<IHttpActionResult> VerifyUserAndID(User_API User)
+        {
+            // Verify ID. Returns a 404 if not valid
+            if (await db.users.FindAsync(User.id) == null)
+                return StatusCode(HttpStatusCode.NotFound);
+
+            return null;
         }
 
         protected override void Dispose(bool disposing)
