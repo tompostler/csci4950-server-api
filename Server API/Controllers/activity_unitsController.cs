@@ -136,37 +136,28 @@ namespace Server_API.Controllers
 
         // PUT: api/activity_units/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putactivity_units(int id, activity_units activity_units)
+        public async Task<IHttpActionResult> Putactivity_units(int id, ActivityUnit_API ActivityUnit)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            if (id != activity_units.id)
-            {
-                return BadRequest();
-            }
+            // Verify the Activity Unit
+            var verification = await VerifyActivityUnitAndID(ActivityUnit);
+            if (verification != null)
+                return verification;
 
-            db.Entry(activity_units).State = EntityState.Modified;
+            // Verify request ID
+            if (id != ActivityUnit.id)
+                return BadRequest("PUT URL and ID in the activity unit do not match");
 
-            try
-            {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!activity_unitsExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            // Convert the ActivityUnit_API to the EntityModel activity_units
+            activity_units acu = await ConvertActivityUnitApiToActivityUnit(ActivityUnit);
 
-            return StatusCode(HttpStatusCode.OK);
+            // Update the activity unit
+            db.Entry(acu).State = EntityState.Modified;
+            await db.SaveChangesAsync();
+            
+            return Ok(ActivityUnit);
         }
 
         // POST: api/activity_units
@@ -266,6 +257,23 @@ namespace Server_API.Controllers
                     return BadRequest("Tag with id " + id.ToString() + " does not exist");
 
             return null;
+        }
+
+        /// <summary>
+        /// Verifies the activity unit and the ID for the activity unit. This is more useful in PUT
+        /// requests.
+        /// </summary>
+        /// <param name="ActivityUnit">The activity unit.</param>
+        /// <returns>
+        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
+        /// </returns>
+        private async Task<IHttpActionResult> VerifyActivityUnitAndID(ActivityUnit_API ActivityUnit)
+        {
+            // Verify ID. Returns a 404 if not valid
+            if (await db.activities.FindAsync(ActivityUnit.id) == null)
+                return StatusCode(HttpStatusCode.NotFound);
+
+            return await VerifyActivityUnit(ActivityUnit);
         }
 
         protected override void Dispose(bool disposing)
