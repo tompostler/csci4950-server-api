@@ -271,7 +271,7 @@ namespace Server_API.Controllers
         private async Task<IHttpActionResult> VerifyActivityUnitAndID(ActivityUnit_API ActivityUnit)
         {
             // Verify ID. Returns a 404 if not valid
-            if (await db.activities.FindAsync(ActivityUnit.id) == null)
+            if (await db.activity_units.FindAsync(ActivityUnit.id) == null)
                 return StatusCode(HttpStatusCode.NotFound);
 
             return await VerifyActivityUnit(ActivityUnit);
