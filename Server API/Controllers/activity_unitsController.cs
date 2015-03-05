@@ -47,15 +47,21 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activity_units
-        public async Task<IQueryable<ActivityUnit_API>> Getactivity_units(int id = 0, int activity_id = 0, int location_id = 0, DateTime? stime = null, DateTime? etime = null)
+        public async Task<IHttpActionResult> Getactivity_units(int id = 0, int activity_id = 0, int location_id = 0, DateTime? stime = null, DateTime? etime = null)
         {
-            // Create the result set
-            var activity_units = from au in db.activity_units
-                                 select au;
-
-            // Filter on id
+            // If we have an ID to search by, handle it
             if (id != 0)
-                activity_units = activity_units.Where(p => p.id.Equals(id));
+            {
+                activity_units acu = await db.activity_units.FindAsync(id);
+                if (acu == null)
+                    return StatusCode(HttpStatusCode.NotFound);
+                else
+                    return Ok(ConvertActivityUnitToActivityUnitApi(acu));
+            }
+
+            // Create the result set
+            IQueryable<activity_units> activity_units = from au in db.activity_units
+                                                        select au;
 
             // Filter on activity_id
             if (activity_id != 0)
@@ -77,19 +83,12 @@ namespace Server_API.Controllers
             List<ActivityUnit_API> results = new List<ActivityUnit_API>();
             List<activity_units> activity_unitslist = await activity_units.ToListAsync();
             foreach (var acu in activity_unitslist)
-            {
-                var acuRes = new ActivityUnit_API();
-                acuRes.SetID(acu.id);
-                acuRes.activity_id = acu.activity_id;
-                acuRes.location_id = acu.location_id;
-                acuRes.stime = acu.start_time;
-                acuRes.etime = acu.end_time;
-                // Magic to get just the IDs out of tag objects
-                acuRes.tag_ids = acu.tags.Select(p => p.id).ToList();
-                results.Add(acuRes);
-            }
+                results.Add(ConvertActivityUnitToActivityUnitApi(acu));
 
-            return results.AsQueryable();
+            if (results.Count == 0)
+                return StatusCode(HttpStatusCode.NotFound);
+            else
+                return Ok(results);
         }
 
         // GET: api/activity_units
@@ -156,7 +155,7 @@ namespace Server_API.Controllers
             // Update the activity unit
             db.Entry(acu).State = EntityState.Modified;
             await db.SaveChangesAsync();
-            
+
             return Ok(ActivityUnit);
         }
 
@@ -203,7 +202,7 @@ namespace Server_API.Controllers
 
 
         /// <summary>
-        /// Converts an ActivityUnit_API to and EntityModel activity_units.
+        /// Converts an ActivityUnit_API to an EntityModel activity_units.
         /// </summary>
         /// <param name="ActivityUnit">The ActivityUnit_API to convert.</param>
         /// <returns>An EntityModel activity_units corresponding to the ActivityUnit_API.</returns>
@@ -226,6 +225,27 @@ namespace Server_API.Controllers
             acu.start_time = ActivityUnit.stime;
             acu.end_time = ActivityUnit.etime;
             acu.tags = await tags.ToListAsync();
+
+            return acu;
+        }
+
+
+        /// <summary>
+        /// Converts an EntityModel activity_units to an ActivityUnit_API.
+        /// </summary>
+        /// <param name="ActivityUnit">The EntityModel activity_units to convert.</param>
+        /// <returns>An ActivityUnit_API corresponding to the EntityModel activity_units.</returns>
+        private ActivityUnit_API ConvertActivityUnitToActivityUnitApi(activity_units ActivityUnit)
+        {
+            // Convert EntityModel type to our API type
+            ActivityUnit_API acu = new ActivityUnit_API();
+            acu.SetID(ActivityUnit.id);
+            acu.activity_id = ActivityUnit.activity_id;
+            acu.location_id = ActivityUnit.location_id;
+            acu.stime = ActivityUnit.start_time;
+            acu.etime = ActivityUnit.end_time;
+            // Magic to get just the IDs out of tag objects
+            acu.tag_ids = ActivityUnit.tags.Select(p => p.id).ToList();
 
             return acu;
         }
