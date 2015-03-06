@@ -50,6 +50,9 @@
       <HintPath>packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Dson">
+      <HintPath>packages\Newtonsoft.Dson.1.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Dson.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -100,6 +103,7 @@
     <Compile Include="Controllers\locationsController.cs" />
     <Compile Include="Controllers\tagsController.cs" />
     <Compile Include="Controllers\usersController.cs" />
+    <Compile Include="Formatters\DsonFormatter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
