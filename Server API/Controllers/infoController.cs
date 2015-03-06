@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Web.Http;
@@ -7,36 +8,56 @@ namespace Server_API.Controllers
 {
     public class infoController : ApiController
     {
-        private string json = @"{
-    ""version"": 1.00.0000,
-    ""version_date"": ""2015-03-05"",
-    ""contacts"": [
+        public class Info_API
         {
-            ""name"": ""Tom Postler"",
-            ""email"": ""tcp@umn.edu""
-        },
-        {
-            ""name"": ""Anthony Nixon"",
-            ""email"": ""nixon069@umn.edu""
-        }
-    ],
-    ""hostname"": ""ralphie.cloudapp.net/api"",
-    ""root_nodes"": [
-        ""activities"",
-        ""activity_units"",
-        ""locations"",
-        ""tags"",
-        ""users""
-    ],
-    ""comment"": ""Read the documentation"",
-    ""fun_fact"":""At the peak of its popularity, the number of Farmville players outnumbered real farmers 60 to 1.""
-}";
+            public class Contact
+            {
+                public string name { get; set; }
+                public string email { get; set; }
+            }
 
-        public HttpResponseMessage Get()
+            public string version { get; set; }
+            public string version_date { get; set; }
+            public List<Contact> contacts { get; set; }
+            public string hostname { get; set; }
+            public List<string> root_nodes { get; set; }
+            public string comment { get; set; }
+            public string fun_fact { get; set; }
+        }
+
+        public IHttpActionResult Get()
         {
-            var response = this.Request.CreateResponse(HttpStatusCode.OK);
-            response.Content = new StringContent(json, Encoding.UTF8, "application/json");
-            return response;
+            Info_API info = new Info_API
+            {
+                version = "1.01.0000",
+                version_date = "2015-02-06",
+                contacts = new List<Info_API.Contact>
+                {
+                    new Info_API.Contact
+                    {
+                        name = "Tom Postler",
+                        email = "tcp@umn.edu"
+                    },
+                    new Info_API.Contact
+                    {
+                        name = "Anthony Nixon",
+                        email = "nixon069@umn.edu"
+                    }
+                },
+                hostname = "ralphie.cloudapp.net/api",
+                root_nodes = new List<string>
+                {
+                    "activities",
+                    "activity_units",
+                    "locations",
+                    "tags",
+                    "users"
+                },
+                comment = "Read the documentation",
+                fun_fact = "At the peak of its popularity, the number of Farmville players outnumbered real farmers 60 to 1."
+            };
+
+            return Ok(info);
         }
     }
 }
