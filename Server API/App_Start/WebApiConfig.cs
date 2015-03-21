@@ -2,6 +2,7 @@
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace Server_API
 {
@@ -9,8 +10,9 @@ namespace Server_API
     {
         public static void Register(HttpConfiguration config)
         {
-            // CORS
-            config.EnableCors();
+            // CORS, globally
+            EnableCorsAttribute cors = new EnableCorsAttribute("*", "*", "*");
+            config.EnableCors(cors);
             
             // Make JSON the default response type
             config.Formatters.Clear();

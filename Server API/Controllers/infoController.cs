@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Web.Http;
-using System.Web.Http.Cors;
 
 namespace Server_API.Controllers
 {
-    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class infoController : ApiController
     {
         public class Info_API

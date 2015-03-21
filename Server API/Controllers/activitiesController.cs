@@ -10,12 +10,10 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Cors;
 using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
-    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class activitiesController : ApiController
     {
         private csci4950s15Entities db = new csci4950s15Entities();
