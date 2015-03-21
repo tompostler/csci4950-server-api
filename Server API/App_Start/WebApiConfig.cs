@@ -9,6 +9,9 @@ namespace Server_API
     {
         public static void Register(HttpConfiguration config)
         {
+            // CORS
+            config.EnableCors();
+            
             // Make JSON the default response type
             config.Formatters.Clear();
             config.Formatters.Add(new JsonMediaTypeFormatter());

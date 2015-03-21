@@ -5,34 +5,31 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class tagsController : ApiController
     {
         private csci4950s15Entities db = new csci4950s15Entities();
 
         public class Tag_API
         {
-
-            public void SetID(int id)
+            public void SetID(byte id)
             {
                 this.id = id;
             }
-            public int id { get; private set; }
-            [Required]
-            public int user_id { get; set; }
+            public byte id { get; private set; }
             [MaxLength(20)]
             public string name { get; set; }
-            [MaxLength(100)]
-            public string description { get; set; }
             [MaxLength(6)]
             public string color { get; set; }
         }
 
         // GET: api/tags
-        public async Task<IHttpActionResult> Gettags(int id = 0, int user_id = 0)
+        public async Task<IHttpActionResult> Gettags(int id = 0)
         {
             // If we have an ID to search by, handle it
             if (id != 0)
@@ -47,10 +44,6 @@ namespace Server_API.Controllers
             // Create the result set
             IQueryable<tag> tags = from tg in db.tags
                                    select tg;
-
-            // Filter by user_id
-            if (user_id != 0)
-                tags = tags.Where(p => p.user_id.Equals(user_id));
 
             // Convert the tags to more API friendly things
             List<Tag_API> results = new List<Tag_API>();
@@ -141,10 +134,8 @@ namespace Server_API.Controllers
             // Convert the Tag_API to the EntityModel tag
             tag tg = new tag();
             tg.id = Tag.id;
-            tg.user_id = Tag.user_id;
             tg.name = Tag.name;
-            tg.description = Tag.description;
-            tg.color = Tag.color;
+            tg.default_color = Tag.color;
 
             return tg;
         }
@@ -159,10 +150,8 @@ namespace Server_API.Controllers
             // Convert the EntityModel tag to the Tag_API
             Tag_API tg = new Tag_API();
             tg.SetID(Tag.id);
-            tg.user_id = Tag.user_id;
             tg.name = Tag.name;
-            tg.description = Tag.description;
-            tg.color = Tag.color;
+            tg.color = Tag.default_color;
 
             return tg;
         }
@@ -177,8 +166,8 @@ namespace Server_API.Controllers
         private async Task<IHttpActionResult> VerifyTag(Tag_API Tag)
         {
             // Verify the UserID exists
-            if (await db.users.FindAsync(Tag.user_id) == null)
-                return BadRequest("user_id does not exist");
+            //if (await db.users.FindAsync(Tag.user_id) == null)
+            //    return BadRequest("user_id does not exist");
 
             return null;
         }

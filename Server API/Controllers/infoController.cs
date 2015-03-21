@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace Server_API.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class infoController : ApiController
     {
         public class Info_API
@@ -26,8 +28,8 @@ namespace Server_API.Controllers
         {
             Info_API info = new Info_API
             {
-                version = "1.01.0000",
-                version_date = "2015-02-06",
+                version = "2.01.0000",
+                version_date = "2015-03-21",
                 contacts = new List<Info_API.Contact>
                 {
                     new Info_API.Contact
@@ -41,17 +43,17 @@ namespace Server_API.Controllers
                         email = "nixon069@umn.edu"
                     }
                 },
-                hostname = "ralphie.cloudapp.net/api",
+                hostname = "frizzle.cloudapp.net/api",
                 root_nodes = new List<string>
                 {
                     "activities",
-                    "activity_units",
+                    "activityunits",
                     "locations",
                     "tags",
                     "users"
                 },
                 comment = "Read the documentation",
-                fun_fact = "At the peak of its popularity, the number of Farmville players outnumbered real farmers 60 to 1."
+                fun_fact = "'Pentheraphobia' is a fear of a mother-in-law."
             };
 
             return Ok(info);

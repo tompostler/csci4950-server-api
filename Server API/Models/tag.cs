@@ -16,18 +16,19 @@ namespace Server_API.Models
     {
         public tag()
         {
+            this.tags_users = new HashSet<tags_users>();
             this.activities = new HashSet<activity>();
-            this.activity_units = new HashSet<activity_units>();
+            this.activityunits = new HashSet<activityunit>();
+            this.locations = new HashSet<location>();
         }
     
-        public int id { get; set; }
-        public int user_id { get; set; }
+        public byte id { get; set; }
         public string name { get; set; }
-        public string description { get; set; }
-        public string color { get; set; }
+        public string default_color { get; set; }
     
-        public virtual user user { get; set; }
+        public virtual ICollection<tags_users> tags_users { get; set; }
         public virtual ICollection<activity> activities { get; set; }
-        public virtual ICollection<activity_units> activity_units { get; set; }
+        public virtual ICollection<activityunit> activityunits { get; set; }
+        public virtual ICollection<location> locations { get; set; }
     }
 }

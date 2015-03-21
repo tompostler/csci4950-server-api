@@ -8,11 +8,13 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
-    public class activity_unitsController : ApiController
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
+    public class activityunitsController : ApiController
     {
         private csci4950s15Entities db = new csci4950s15Entities();
 
@@ -26,11 +28,11 @@ namespace Server_API.Controllers
             {
                 tag_ids = new List<int>();
             }
-            public void SetID(int id)
+            public void SetID(long id)
             {
                 this.id = id;
             }
-            public int id { get; private set; }
+            public long id { get; private set; }
             [Required]
             public int activity_id { get; set; }
             [Required]
@@ -42,13 +44,13 @@ namespace Server_API.Controllers
             public List<int> tag_ids { get; set; }
         }
 
-        // GET: api/activity_units
-        public async Task<IHttpActionResult> Getactivity_units(int id = 0, int activity_id = 0, int location_id = 0, DateTime? stime = null, DateTime? etime = null)
+        // GET: api/activityunit
+        public async Task<IHttpActionResult> Getactivityunit(int id = 0, int activity_id = 0, int location_id = 0, DateTime? stime = null, DateTime? etime = null)
         {
             // If we have an ID to search by, handle it
             if (id != 0)
             {
-                activity_units acu = await db.activity_units.FindAsync(id);
+                activityunit acu = await db.activityunits.FindAsync(id);
                 if (acu == null)
                     return NotFound();
                 else
@@ -56,29 +58,29 @@ namespace Server_API.Controllers
             }
 
             // Create the result set
-            IQueryable<activity_units> activity_units = from au in db.activity_units
+            IQueryable<activityunit> activityunit = from au in db.activityunits
                                                         select au;
 
             // Filter on activity_id
             if (activity_id != 0)
-                activity_units = activity_units.Where(p => p.activity_id.Equals(activity_id));
+                activityunit = activityunit.Where(p => p.activity_id.Equals(activity_id));
 
             // Filter on location_id
             if (location_id != 0)
-                activity_units = activity_units.Where(p => p.location.Equals(location_id));
+                activityunit = activityunit.Where(p => p.location.Equals(location_id));
 
             // Filter on stime
             if (stime != null)
-                activity_units = activity_units.Where(p => p.start_time.Equals(stime.Value.ToUniversalTime()));
+                activityunit = activityunit.Where(p => p.stime.Equals(stime.Value.ToUniversalTime()));
 
             // Filter on etime
             if (etime != null)
-                activity_units = activity_units.Where(p => p.end_time.Equals(etime.Value.ToUniversalTime()));
+                activityunit = activityunit.Where(p => p.etime.Equals(etime.Value.ToUniversalTime()));
 
-            // Convert the activity_units to more API friendly things
+            // Convert the activityunit to more API friendly things
             List<ActivityUnit_API> results = new List<ActivityUnit_API>();
-            List<activity_units> activity_unitslist = await activity_units.ToListAsync();
-            foreach (var acu in activity_unitslist)
+            List<activityunit> activityunitlist = await activityunit.ToListAsync();
+            foreach (var acu in activityunitlist)
                 results.Add(ConvertActivityUnitToActivityUnitApi(acu));
 
             if (results.Count == 0)
@@ -87,44 +89,9 @@ namespace Server_API.Controllers
                 return Ok(results);
         }
 
-        // GET: api/activity_units
-        public async Task<IHttpActionResult> Getactivity_units(DateTime btime, DateTime etime, int activity = 0, int location = 0)
-        {
-            // Create the result set
-            var activity_units = from au in db.activity_units
-                                 select au;
-
-            // Filter on activity_id
-            if (activity != 0)
-                activity_units = activity_units.Where(p => p.activity_id.Equals(activity));
-
-            // Filter on location_id
-            if (location != 0)
-                activity_units = activity_units.Where(p => p.location.Equals(location));
-
-            // Filter on btime
-            activity_units = activity_units.Where(p => p.start_time > btime.ToUniversalTime());
-            activity_units = activity_units.Where(p => p.end_time > btime.ToUniversalTime());
-
-            // Filter on etime
-            activity_units = activity_units.Where(p => p.end_time < etime.ToUniversalTime());
-            activity_units = activity_units.Where(p => p.end_time < etime.ToUniversalTime());
-
-            // Convert the activity_units to more API friendly things
-            List<ActivityUnit_API> results = new List<ActivityUnit_API>();
-            List<activity_units> activity_unitslist = await activity_units.ToListAsync();
-            foreach (var acu in activity_unitslist)
-                results.Add(ConvertActivityUnitToActivityUnitApi(acu));
-
-            if (results.Count == 0)
-                return NotFound();
-            else
-                return Ok(results);
-        }
-
-        // PUT: api/activity_units/5
+        // PUT: api/activityunit/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putactivity_units(int id, ActivityUnit_API ActivityUnit)
+        public async Task<IHttpActionResult> Putactivityunit(int id, ActivityUnit_API ActivityUnit)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -138,8 +105,8 @@ namespace Server_API.Controllers
             if (id != ActivityUnit.id)
                 return BadRequest("PUT URL and ID in the activity unit do not match");
 
-            // Convert the ActivityUnit_API to the EntityModel activity_units
-            activity_units acu = await ConvertActivityUnitApiToActivityUnit(ActivityUnit);
+            // Convert the ActivityUnit_API to the EntityModel activityunit
+            activityunit acu = await ConvertActivityUnitApiToActivityUnit(ActivityUnit);
 
             // Update the activity unit
             db.Entry(acu).State = EntityState.Modified;
@@ -148,9 +115,9 @@ namespace Server_API.Controllers
             return Ok(ActivityUnit);
         }
 
-        // POST: api/activity_units
+        // POST: api/activityunit
         [ResponseType(typeof(ActivityUnit_API))]
-        public async Task<IHttpActionResult> Postactivity_units(ActivityUnit_API ActivityUnit)
+        public async Task<IHttpActionResult> Postactivityunit(ActivityUnit_API ActivityUnit)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -160,11 +127,11 @@ namespace Server_API.Controllers
             if (verification != null)
                 return verification;
 
-            // Convert the ActivityUnit_API to the EntityModel activity_units
-            activity_units acu = await ConvertActivityUnitApiToActivityUnit(ActivityUnit);
+            // Convert the ActivityUnit_API to the EntityModel activityunit
+            activityunit acu = await ConvertActivityUnitApiToActivityUnit(ActivityUnit);
 
             // Add the activity unit to the DB
-            db.activity_units.Add(acu);
+            db.activityunits.Add(acu);
             await db.SaveChangesAsync();
 
             // Update the ID with the one that was auto-assigned
@@ -173,17 +140,17 @@ namespace Server_API.Controllers
             return CreatedAtRoute("DefaultApi", new { id = ActivityUnit.id }, ActivityUnit);
         }
 
-        // DELETE: api/activity_units/5
+        // DELETE: api/activityunit/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Deleteactivity_units(int id)
+        public async Task<IHttpActionResult> Deleteactivityunit(int id)
         {
-            activity_units activity_units = await db.activity_units.FindAsync(id);
-            if (activity_units == null)
+            activityunit activityunit = await db.activityunits.FindAsync(id);
+            if (activityunit == null)
             {
                 return NotFound();
             }
 
-            db.activity_units.Remove(activity_units);
+            db.activityunits.Remove(activityunit);
             await db.SaveChangesAsync();
 
             return Ok();
@@ -191,11 +158,11 @@ namespace Server_API.Controllers
 
 
         /// <summary>
-        /// Converts an ActivityUnit_API to an EntityModel activity_units.
+        /// Converts an ActivityUnit_API to an EntityModel activityunit.
         /// </summary>
         /// <param name="ActivityUnit">The ActivityUnit_API to convert.</param>
-        /// <returns>An EntityModel activity_units corresponding to the ActivityUnit_API.</returns>
-        private async Task<activity_units> ConvertActivityUnitApiToActivityUnit(ActivityUnit_API ActivityUnit)
+        /// <returns>An EntityModel activityunit corresponding to the ActivityUnit_API.</returns>
+        private async Task<activityunit> ConvertActivityUnitApiToActivityUnit(ActivityUnit_API ActivityUnit)
         {
             // Get the tags referenced by this activity to do a proper insertion with the WebAPI
             // http://stackoverflow.com/a/2101561
@@ -207,12 +174,12 @@ namespace Server_API.Controllers
             tags = tags.Where(tagsPredicate);
 
             // Convert our API type into the representing Model
-            activity_units acu = new activity_units();
+            activityunit acu = new activityunit();
             acu.id = ActivityUnit.id;
             acu.activity_id = ActivityUnit.activity_id;
             acu.location_id = ActivityUnit.location_id;
-            acu.start_time = ActivityUnit.stime;
-            acu.end_time = ActivityUnit.etime;
+            acu.stime = ActivityUnit.stime;
+            acu.etime = ActivityUnit.etime;
             acu.tags = await tags.ToListAsync();
 
             return acu;
@@ -220,21 +187,21 @@ namespace Server_API.Controllers
 
 
         /// <summary>
-        /// Converts an EntityModel activity_units to an ActivityUnit_API.
+        /// Converts an EntityModel activityunit to an ActivityUnit_API.
         /// </summary>
-        /// <param name="ActivityUnit">The EntityModel activity_units to convert.</param>
-        /// <returns>An ActivityUnit_API corresponding to the EntityModel activity_units.</returns>
-        private ActivityUnit_API ConvertActivityUnitToActivityUnitApi(activity_units ActivityUnit)
+        /// <param name="ActivityUnit">The EntityModel activityunit to convert.</param>
+        /// <returns>An ActivityUnit_API corresponding to the EntityModel activityunit.</returns>
+        private ActivityUnit_API ConvertActivityUnitToActivityUnitApi(activityunit ActivityUnit)
         {
             // Convert EntityModel type to our API type
             ActivityUnit_API acu = new ActivityUnit_API();
             acu.SetID(ActivityUnit.id);
             acu.activity_id = ActivityUnit.activity_id;
             acu.location_id = ActivityUnit.location_id;
-            acu.stime = ActivityUnit.start_time;
-            acu.etime = ActivityUnit.end_time;
+            acu.stime = ActivityUnit.stime;
+            acu.etime = ActivityUnit.etime;
             // Magic to get just the IDs out of tag objects
-            acu.tag_ids = ActivityUnit.tags.Select(p => p.id).ToList();
+            acu.tag_ids = ActivityUnit.tags.Select(p => p.id).ToList().ConvertAll(x => (int)x);
 
             return acu;
         }
@@ -280,7 +247,7 @@ namespace Server_API.Controllers
         private async Task<IHttpActionResult> VerifyActivityUnitAndID(ActivityUnit_API ActivityUnit)
         {
             // Verify ID. Returns a 404 if not valid
-            if (await db.activity_units.FindAsync(ActivityUnit.id) == null)
+            if (await db.activityunits.FindAsync(ActivityUnit.id) == null)
                 return NotFound();
 
             return await VerifyActivityUnit(ActivityUnit);
@@ -295,9 +262,9 @@ namespace Server_API.Controllers
             base.Dispose(disposing);
         }
 
-        private bool activity_unitsExists(int id)
+        private bool activityunitExists(int id)
         {
-            return db.activity_units.Count(e => e.id == id) > 0;
+            return db.activityunits.Count(e => e.id == id) > 0;
         }
     }
 }

@@ -12,18 +12,20 @@ namespace Server_API.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class activity_units
+    public partial class activityunit
     {
-        public activity_units()
+        public activityunit()
         {
             this.tags = new HashSet<tag>();
         }
     
-        public int id { get; set; }
+        public long id { get; set; }
         public int activity_id { get; set; }
         public int location_id { get; set; }
-        public System.DateTime start_time { get; set; }
-        public System.DateTime end_time { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public System.DateTime stime { get; set; }
+        public System.DateTime etime { get; set; }
     
         public virtual activity activity { get; set; }
         public virtual location location { get; set; }

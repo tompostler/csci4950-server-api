@@ -18,17 +18,17 @@ namespace Server_API.Models
         {
             this.activities = new HashSet<activity>();
             this.locations = new HashSet<location>();
-            this.tags = new HashSet<tag>();
+            this.tags_users = new HashSet<tags_users>();
         }
     
         public int id { get; set; }
-        public string first_name { get; set; }
-        public string last_name { get; set; }
+        public string fname { get; set; }
+        public string lname { get; set; }
         public string email { get; set; }
         public string password { get; set; }
     
         public virtual ICollection<activity> activities { get; set; }
         public virtual ICollection<location> locations { get; set; }
-        public virtual ICollection<tag> tags { get; set; }
+        public virtual ICollection<tags_users> tags_users { get; set; }
     }
 }

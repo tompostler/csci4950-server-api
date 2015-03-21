@@ -16,17 +16,17 @@ namespace Server_API.Models
     {
         public activity()
         {
-            this.activity_units = new HashSet<activity_units>();
+            this.activityunits = new HashSet<activityunit>();
             this.tags = new HashSet<tag>();
         }
     
         public int id { get; set; }
-        public int user { get; set; }
+        public int user_id { get; set; }
         public string name { get; set; }
-        public byte category { get; set; }
+        public string description { get; set; }
     
-        public virtual user user1 { get; set; }
-        public virtual ICollection<activity_units> activity_units { get; set; }
+        public virtual user user { get; set; }
+        public virtual ICollection<activityunit> activityunits { get; set; }
         public virtual ICollection<tag> tags { get; set; }
     }
 }

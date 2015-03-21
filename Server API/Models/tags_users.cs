@@ -12,21 +12,13 @@ namespace Server_API.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class location
+    public partial class tags_users
     {
-        public location()
-        {
-            this.activityunits = new HashSet<activityunit>();
-            this.tags = new HashSet<tag>();
-        }
-    
-        public int id { get; set; }
+        public byte tag_id { get; set; }
         public int user_id { get; set; }
-        public string name { get; set; }
-        public string content { get; set; }
+        public string color { get; set; }
     
-        public virtual ICollection<activityunit> activityunits { get; set; }
+        public virtual tag tag { get; set; }
         public virtual user user { get; set; }
-        public virtual ICollection<tag> tags { get; set; }
     }
 }

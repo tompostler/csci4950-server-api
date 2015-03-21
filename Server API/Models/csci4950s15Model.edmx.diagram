@@ -4,19 +4,22 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="0dd337af8afe4d6b96f3e6da969d9679" Name="Diagram1">
-        <EntityTypeShape EntityType="csci4950s15Model.activity" Width="1.5" PointX="5.25" PointY="6.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="csci4950s15Model.activity_units" Width="1.5" PointX="7.5" PointY="7.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="csci4950s15Model.location" Width="1.5" PointX="3" PointY="6" IsExpanded="true" />
-        <EntityTypeShape EntityType="csci4950s15Model.tag" Width="1.5" PointX="3" PointY="9.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="csci4950s15Model.user" Width="1.5" PointX="0.75" PointY="4.5" IsExpanded="true" />
-        <AssociationConnector Association="csci4950s15Model.FK_activities_0" ManuallyRouted="false" />
-        <AssociationConnector Association="csci4950s15Model.FK_activity_units_0" ManuallyRouted="false" />
-        <AssociationConnector Association="csci4950s15Model.FK_activity_units_1" ManuallyRouted="false" />
-        <AssociationConnector Association="csci4950s15Model.FK_locations_0" ManuallyRouted="false" />
-        <AssociationConnector Association="csci4950s15Model.FK_tags_0" ManuallyRouted="false" />
-        <AssociationConnector Association="csci4950s15Model.activity_tags" ManuallyRouted="false" />
-        <AssociationConnector Association="csci4950s15Model.activity_unit_tags" ManuallyRouted="false" />
+      <Diagram DiagramId="61b5a8b9af58472295680145e563c57b" Name="Diagram1">
+        <EntityTypeShape EntityType="csci4950s15Model.activity" Width="1.5" PointX="3" PointY="1.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="csci4950s15Model.activityunit" Width="1.5" PointX="5.25" PointY="2.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="csci4950s15Model.location" Width="1.5" PointX="3" PointY="4.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="csci4950s15Model.tag" Width="1.5" PointX="7.5" PointY="3" IsExpanded="true" />
+        <EntityTypeShape EntityType="csci4950s15Model.tags_users" Width="1.5" PointX="9.75" PointY="3.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="csci4950s15Model.user" Width="1.5" PointX="0.75" PointY="2.875" IsExpanded="true" />
+        <AssociationConnector Association="csci4950s15Model.FK__activitie__user___32E0915F" ManuallyRouted="false" />
+        <AssociationConnector Association="csci4950s15Model.FK__activityu__activ__3A81B327" ManuallyRouted="false" />
+        <AssociationConnector Association="csci4950s15Model.FK__activityu__locat__3B75D760" ManuallyRouted="false" />
+        <AssociationConnector Association="csci4950s15Model.FK__locations__user___37A5467C" ManuallyRouted="false" />
+        <AssociationConnector Association="csci4950s15Model.FK__tags_user__tag_i__33D4B598" ManuallyRouted="false" />
+        <AssociationConnector Association="csci4950s15Model.FK__tags_user__user___34C8D9D1" ManuallyRouted="false" />
+        <AssociationConnector Association="csci4950s15Model.tags_activities" ManuallyRouted="false" />
+        <AssociationConnector Association="csci4950s15Model.tags_activityunits" ManuallyRouted="false" />
+        <AssociationConnector Association="csci4950s15Model.tags_locations" ManuallyRouted="false" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

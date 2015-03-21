@@ -7,10 +7,12 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class usersController : ApiController
     {
         private csci4950s15Entities db = new csci4950s15Entities();
@@ -33,7 +35,7 @@ namespace Server_API.Controllers
             public string lname { get; set; }
             [Required, MaxLength(50), EmailAddress]
             public string email { get; set; }
-            [Required, MaxLength(50)]
+            [Required, MaxLength(128)]
             public string password { get; set; }
         }
 
@@ -143,8 +145,8 @@ namespace Server_API.Controllers
             // Convert our API type into the representing Model
             user usr = new user();
             usr.id = User.id;
-            usr.first_name = User.fname;
-            usr.last_name = User.lname;
+            usr.fname = User.fname;
+            usr.lname = User.lname;
             usr.email = User.email;
             usr.password = User.password;
 
@@ -161,8 +163,8 @@ namespace Server_API.Controllers
             // Convert EntityModel type to our API type
             User_API usr = new User_API();
             usr.SetID(User.id);
-            usr.fname = User.first_name;
-            usr.lname = User.last_name;
+            usr.fname = User.fname;
+            usr.lname = User.lname;
             usr.email = User.email;
             usr.password = User.password;
 

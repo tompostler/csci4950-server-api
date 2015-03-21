@@ -10,10 +10,12 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class activitiesController : ApiController
     {
         private csci4950s15Entities db = new csci4950s15Entities();
@@ -37,13 +39,11 @@ namespace Server_API.Controllers
             public int user_id { get; set; }
             [Required, MaxLength(50)]
             public string name { get; set; }
-            [Required]
-            public byte category { get; set; }
             public List<int> tag_ids { get; set; }
         }
 
         // GET: api/activities
-        public async Task<IHttpActionResult> Getactivities(int id = 0, int user_id = 0, string name = "", byte category = 0)
+        public async Task<IHttpActionResult> Getactivities(int id = 0, int user_id = 0, string name = "")
         {
             // If we have an ID to search by, handle it
             if (id != 0)
@@ -66,10 +66,6 @@ namespace Server_API.Controllers
             // Filter by name, strict matching
             if (!String.IsNullOrEmpty(name))
                 activities = activities.Where(p => p.name.Equals(name));
-
-            // Filter by category
-            if (category != 0)
-                activities = activities.Where(p => p.category.Equals(category));
 
             // Convert the activities to more API friendly things
             List<Activity_API> results = new List<Activity_API>();
@@ -176,9 +172,8 @@ namespace Server_API.Controllers
             // Convert the Activity_API to the EntityModel activity
             activity act = new activity();
             act.id = Activity.id;
-            act.user = Activity.user_id;
+            act.user_id = Activity.user_id;
             act.name = Activity.name;
-            act.category = Activity.category;
             act.tags = await tags.ToListAsync();
 
             return act;
@@ -194,11 +189,10 @@ namespace Server_API.Controllers
             // Convert the EntityModel type to our API type
             Activity_API act = new Activity_API();
             act.SetID(Activity.id);
-            act.user_id = Activity.user;
+            act.user_id = Activity.user_id;
             act.name = Activity.name;
-            act.category = Activity.category;
             // Magic to get just the IDs out of tag objects
-            act.tag_ids = Activity.tags.Select(p => p.id).ToList();
+            act.tag_ids = Activity.tags.Select(p => p.id).ToList().ConvertAll(x => (int)x);
 
             return act;
         }

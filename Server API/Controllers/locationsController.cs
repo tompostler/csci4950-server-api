@@ -7,10 +7,12 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class locationsController : ApiController
     {
         private csci4950s15Entities db = new csci4950s15Entities();
@@ -30,8 +32,6 @@ namespace Server_API.Controllers
             public int user_id { get; set; }
             [Required, MaxLength(50)]
             public string name { get; set; }
-            [Required]
-            public byte type { get; set; }
             [Required, MaxLength(100)]
             public string content { get; set; }
         }
@@ -56,10 +56,6 @@ namespace Server_API.Controllers
             // Filter on user_id
             if (user != 0)
                 locations = locations.Where(p => p.user.Equals(user));
-
-            // Filter on type
-            if (type != 0)
-                locations = locations.Where(p => p.type.Equals(type));
 
             // Filter on content, strict matching
             if (!String.IsNullOrEmpty(content))
@@ -156,7 +152,6 @@ namespace Server_API.Controllers
             loc.id = Location.id;
             loc.user_id = Location.user_id;
             loc.name = Location.name;
-            loc.type = Location.type;
             loc.content = Location.content;
 
             return loc;
@@ -174,7 +169,6 @@ namespace Server_API.Controllers
             loc.SetID(Location.id);
             loc.user_id = Location.user_id;
             loc.name = Location.name;
-            loc.type = Location.type;
             loc.content = Location.content;
 
             return loc;
