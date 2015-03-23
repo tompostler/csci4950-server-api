@@ -6,22 +6,17 @@ namespace Server_API.Models
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    public partial class tags_users
+    public partial class auth
     {
         [Key]
-        [Column(Order = 0)]
-        public byte tag_id { get; set; }
-
-        [Key]
-        [Column(Order = 1)]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int user_id { get; set; }
 
         [Required]
-        [StringLength(6)]
-        public string color { get; set; }
+        [StringLength(64)]
+        public string token { get; set; }
 
-        public virtual tag tag { get; set; }
+        public DateTime expire { get; set; }
 
         public virtual user user { get; set; }
     }
