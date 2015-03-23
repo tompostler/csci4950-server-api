@@ -15,7 +15,7 @@
     <AssemblyName>Server API</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
-    <IISExpressSSLPort />
+    <IISExpressSSLPort>44301</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
@@ -103,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Auth\RequireHttpsAttribute.cs" />
     <Compile Include="Controllers\activitiesController.cs" />
     <Compile Include="Controllers\activityunitsController.cs" />
     <Compile Include="Controllers\infoController.cs" />
@@ -113,60 +114,18 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\activity.cs">
-      <DependentUpon>csci4950s15Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\activityunit.cs">
-      <DependentUpon>csci4950s15Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\csci4950s15Model.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>csci4950s15Model.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\csci4950s15Model.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>csci4950s15Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\csci4950s15Model.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>csci4950s15Model.edmx</DependentUpon>
-    </Compile>
-    <Compile Include="Models\location.cs">
-      <DependentUpon>csci4950s15Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\tag.cs">
-      <DependentUpon>csci4950s15Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\tags_users.cs">
-      <DependentUpon>csci4950s15Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\user.cs">
-      <DependentUpon>csci4950s15Model.tt</DependentUpon>
-    </Compile>
+    <Compile Include="Models\activity.cs" />
+    <Compile Include="Models\activityunit.cs" />
+    <Compile Include="Models\auth.cs" />
+    <Compile Include="Models\csci4950s15Model.cs" />
+    <Compile Include="Models\location.cs" />
+    <Compile Include="Models\tag.cs" />
+    <Compile Include="Models\tags_users.cs" />
+    <Compile Include="Models\user.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
-    <EntityDeploy Include="Models\csci4950s15Model.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>csci4950s15Model.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <Content Include="Models\csci4950s15Model.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>csci4950s15Model.edmx</DependentUpon>
-      <LastGenOutput>csci4950s15Model.Context.cs</LastGenOutput>
-    </Content>
-    <Content Include="Models\csci4950s15Model.edmx.diagram">
-      <DependentUpon>csci4950s15Model.edmx</DependentUpon>
-    </Content>
-    <Content Include="Models\csci4950s15Model.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>csci4950s15Model.edmx</DependentUpon>
-      <LastGenOutput>csci4950s15Model.cs</LastGenOutput>
-    </Content>
     <None Include="Properties\PublishProfiles\frizzle.pubxml" />
     <None Include="Properties\PublishProfiles\ralphie.pubxml" />
     <None Include="Web.Debug.config">
