@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Server_API.Auth;
 using Server_API.Models;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace Server_API.Controllers
 {
     public class usersController : ApiController
     {
-        private csci4950s15Entities db = new csci4950s15Entities();
+        private csci4950s15Model db = new csci4950s15Model();
 
         /// <summary>
         /// A User_API class to trim down the information and named types that are exposed to the 
@@ -21,23 +22,27 @@ namespace Server_API.Controllers
         /// </summary>
         public class User_API
         {
-
             public void SetID(int id)
             {
                 this.id = id;
             }
             public int id { get; private set; }
-            [Required, MaxLength(50)]
+            [Required, StringLength(50)]
             public string fname { get; set; }
-            [Required, MaxLength(50)]
+            [Required, StringLength(50)]
             public string lname { get; set; }
-            [Required, MaxLength(50), EmailAddress]
+            [Required, StringLength(50), EmailAddress]
             public string email { get; set; }
-            [Required, MaxLength(128)]
+            [Required, StringLength(128)]
             public string password { get; set; }
+
+            public List<int> activity_ids { get; set; }
+            public List<int> location_ids { get; set; }
+            public List<byte> custom_tags { get; set; }
         }
 
         // GET: api/users
+        [RequireHttps]
         public async Task<IHttpActionResult> Getusers(int id = 0, string email = "")
         {
             // If we have an ID to search by, handle it
@@ -71,6 +76,7 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/users/5
+        [RequireHttps]
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putuser(int id, User_API User)
         {
@@ -87,7 +93,7 @@ namespace Server_API.Controllers
                 return BadRequest("PUT URL and ID in the location do not match");
 
             // Convert the User_API to the EntityModel location
-            user usr = ConvertUserApiToUser(User);
+            user usr = await ConvertUserApiToUser(User);
 
             // Update the user
             db.Entry(usr).State = EntityState.Modified;
@@ -97,6 +103,7 @@ namespace Server_API.Controllers
         }
 
         // POST: api/users
+        [RequireHttps]
         [ResponseType(typeof(User_API))]
         public async Task<IHttpActionResult> Postuser(User_API User)
         {
@@ -104,7 +111,7 @@ namespace Server_API.Controllers
                 return BadRequest(ModelState);
 
             // Convert the User_API to the EntityModel user
-            user usr = ConvertUserApiToUser(User);
+            user usr = await ConvertUserApiToUser(User);
 
             // Add the user to the DB
             db.users.Add(usr);
@@ -117,6 +124,7 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/users/5
+        [RequireHttps]
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Deleteuser(int id)
         {
@@ -138,7 +146,7 @@ namespace Server_API.Controllers
         /// </summary>
         /// <param name="User">The User_API to convert.</param>
         /// <returns>An EntityModel user corresponding to the User_API.</returns>
-        private user ConvertUserApiToUser(User_API User)
+        private async Task<user> ConvertUserApiToUser(User_API User)
         {
             // Convert our API type into the representing Model
             user usr = new user();
@@ -147,6 +155,26 @@ namespace Server_API.Controllers
             usr.lname = User.lname;
             usr.email = User.email;
             usr.password = User.password;
+
+            // Get the activities referenced by this user
+            var activities = from act in db.activities
+                             select act;
+            activities = activities.Where(p => p.user_id.Equals(User.id));
+
+            // Get the locations referenced by this user
+            var locations = from loc in db.locations
+                            select loc;
+            locations = locations.Where(p => p.user_id.Equals(User.id));
+
+            // Get the custom tags referenced by this user
+            var custom_tags = from tags in db.tags_users
+                              select tags;
+            custom_tags = custom_tags.Where(p => p.user_id.Equals(User.id));
+
+            // Assemble the lists
+            usr.activities = await activities.ToListAsync();
+            usr.locations = await locations.ToListAsync();
+            usr.tags_users = await custom_tags.ToListAsync();
 
             return usr;
         }
@@ -165,6 +193,11 @@ namespace Server_API.Controllers
             usr.lname = User.lname;
             usr.email = User.email;
             usr.password = User.password;
+
+            // Get the lists of ids for the corresponding types
+            usr.activity_ids = User.activities.Select(p => p.id).ToList();
+            usr.location_ids = User.locations.Select(p => p.id).ToList();
+            usr.custom_tags = User.tags_users.Select(p => p.tag_id).ToList();
 
             return usr;
         }
