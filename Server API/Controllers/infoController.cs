@@ -56,5 +56,11 @@ namespace Server_API.Controllers
 
             return Ok(info);
         }
+
+        // OPTIONS: api/info
+        public IHttpActionResult Options()
+        {
+            return Ok();
+        }
     }
 }

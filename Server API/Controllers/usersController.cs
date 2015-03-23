@@ -143,11 +143,11 @@ namespace Server_API.Controllers
 
         }
 
-        public HttpResponseMessage Options()
+        // OPTIONS: api/users
+        [RequireHttps]
+        public IHttpActionResult Options()
         {
-            var response = new HttpResponseMessage();
-            response.StatusCode = HttpStatusCode.OK;
-            return response;
+            return Ok();
         }
 
         /// <summary>
