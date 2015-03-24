@@ -69,7 +69,6 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/locations/5
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putlocation(int id, Location_API Location)
         {
             if (!ModelState.IsValid)
@@ -90,7 +89,6 @@ namespace Server_API.Controllers
         }
 
         // POST: api/locations
-        [ResponseType(typeof(Location_API))]
         public async Task<IHttpActionResult> Postlocation(Location_API Location)
         {
             if (!ModelState.IsValid)
@@ -110,7 +108,6 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/locations/5
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Deletelocation(int id)
         {
             location location = await db.locations.FindAsync(id);

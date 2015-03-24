@@ -75,7 +75,6 @@ namespace Server_API.Controllers
 
         // PUT: api/users/5
         [RequireHttps]
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putuser(int id, User_API User)
         {
             if (!ModelState.IsValid)
@@ -97,7 +96,6 @@ namespace Server_API.Controllers
 
         // POST: api/users
         [RequireHttps]
-        [ResponseType(typeof(User_API))]
         public async Task<IHttpActionResult> Postuser(User_API User)
         {
             if (!ModelState.IsValid)
@@ -118,7 +116,6 @@ namespace Server_API.Controllers
 
         // DELETE: api/users/5
         [RequireHttps]
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Deleteuser(int id)
         {
             user user = await db.users.FindAsync(id);

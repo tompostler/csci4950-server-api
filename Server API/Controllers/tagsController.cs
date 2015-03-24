@@ -53,7 +53,6 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/tags/5
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Puttag(int id, Tag_API Tag)
         {
             if (!ModelState.IsValid)
@@ -74,7 +73,6 @@ namespace Server_API.Controllers
         }
 
         // POST: api/tags
-        [ResponseType(typeof(Tag_API))]
         public async Task<IHttpActionResult> Posttag(Tag_API Tag)
         {
             if (!ModelState.IsValid)
@@ -99,7 +97,6 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/tags/5
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Deletetag(int id)
         {
             tag tag = await db.tags.FindAsync(id);

@@ -86,7 +86,6 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/activityunit/5
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putactivityunit(int id, ActivityUnit_API ActivityUnit)
         {
             if (!ModelState.IsValid)
@@ -107,7 +106,6 @@ namespace Server_API.Controllers
         }
 
         // POST: api/activityunit
-        [ResponseType(typeof(ActivityUnit_API))]
         public async Task<IHttpActionResult> Postactivityunit(ActivityUnit_API ActivityUnit)
         {
             if (!ModelState.IsValid)
@@ -127,7 +125,6 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/activityunit/5
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Deleteactivityunit(int id)
         {
             activityunit activityunit = await db.activityunits.FindAsync(id);
