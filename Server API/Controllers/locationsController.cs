@@ -8,13 +8,13 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
+    [RequireHttps]
     public class locationsController : ApiController
     {
-        private csci4950s15Entities db = new csci4950s15Entities();
+        private csci4950s15Model db = new csci4950s15Model();
 
         /// <summary>
         /// A Location_API class to trim down the information and named types that are exposed to

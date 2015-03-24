@@ -7,13 +7,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
+    [RequireHttps]
     public class activitiesController : ApiController
     {
         private csci4950s15Model db = new csci4950s15Model();

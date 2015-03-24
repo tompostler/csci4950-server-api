@@ -7,16 +7,15 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
+    [RequireHttps]
     public class activityunitsController : ApiController
     {
-        private csci4950s15Entities db = new csci4950s15Entities();
+        private csci4950s15Model db = new csci4950s15Model();
 
         /// <summary>
         /// An ActivityUnit_API class to trim down the information and named types that are

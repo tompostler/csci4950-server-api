@@ -6,13 +6,13 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
+    [RequireHttps]
     public class tagsController : ApiController
     {
-        private csci4950s15Entities db = new csci4950s15Entities();
+        private csci4950s15Model db = new csci4950s15Model();
 
         public class Tag_API
         {

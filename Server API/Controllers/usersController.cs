@@ -6,14 +6,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
+    [RequireHttps]
     public class usersController : ApiController
     {
         private csci4950s15Model db = new csci4950s15Model();
@@ -40,7 +38,6 @@ namespace Server_API.Controllers
         }
 
         // GET: api/users
-        [RequireHttps]
         public async Task<IHttpActionResult> Getusers(int id = 0, string email = "")
         {
             // If we have an ID to search by, handle it
@@ -74,7 +71,6 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/users/5
-        [RequireHttps]
         public async Task<IHttpActionResult> Putuser(int id, User_API User)
         {
             if (!ModelState.IsValid)
@@ -95,7 +91,6 @@ namespace Server_API.Controllers
         }
 
         // POST: api/users
-        [RequireHttps]
         public async Task<IHttpActionResult> Postuser(User_API User)
         {
             if (!ModelState.IsValid)
@@ -115,7 +110,6 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/users/5
-        [RequireHttps]
         public async Task<IHttpActionResult> Deleteuser(int id)
         {
             user user = await db.users.FindAsync(id);
@@ -132,7 +126,6 @@ namespace Server_API.Controllers
         }
 
         // OPTIONS: api/users
-        [RequireHttps]
         public IHttpActionResult Options()
         {
             return Ok();
