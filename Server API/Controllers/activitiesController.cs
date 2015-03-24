@@ -16,7 +16,7 @@ namespace Server_API.Controllers
 {
     public class activitiesController : ApiController
     {
-        private csci4950s15Entities db = new csci4950s15Entities();
+        private csci4950s15Model db = new csci4950s15Model();
 
         /// <summary>
         /// An Activity_API class to trim down the information and named types that are exposed to
@@ -26,18 +26,24 @@ namespace Server_API.Controllers
         {
             public Activity_API()
             {
-                tag_ids = new List<int>();
+                tag_ids = new List<byte>();
+                activityunit_ids = new List<long>();
             }
-            public void SetID(int id)
-            {
-                this.id = id;
-            }
-            public int id { get; private set; }
+
+            public int id { get; set; }
+
             [Required]
             public int user_id { get; set; }
-            [Required, MaxLength(50)]
+
+            [Required, StringLength(50)]
             public string name { get; set; }
-            public List<int> tag_ids { get; set; }
+
+            [StringLength(100)]
+            public string description { get; set; }
+
+            public List<byte> tag_ids { get; set; }
+
+            public List<long> activityunit_ids { get; set; }
         }
 
         // GET: api/activities
@@ -123,7 +129,7 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             // Update the ID with the one that was auto-assigned
-            Activity.SetID(act.id);
+            Activity.id = act.id;
 
             return CreatedAtRoute("DefaultApi", new { id = Activity.id }, Activity);
         }
@@ -186,11 +192,11 @@ namespace Server_API.Controllers
         {
             // Convert the EntityModel type to our API type
             Activity_API act = new Activity_API();
-            act.SetID(Activity.id);
+            act.id = Activity.id;
             act.user_id = Activity.user_id;
             act.name = Activity.name;
             // Magic to get just the IDs out of tag objects
-            act.tag_ids = Activity.tags.Select(p => p.id).ToList().ConvertAll(x => (int)x);
+            act.tag_ids = Activity.tags.Select(p => p.id).ToList();
 
             return act;
         }
