@@ -99,6 +99,7 @@
     <Content Include="frizzle.jpg" />
     <Content Include="Global.asax" />
     <Content Include="index.html" />
+    <Content Include="sql\default_tags.sql" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
