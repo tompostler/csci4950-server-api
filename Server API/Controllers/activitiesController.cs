@@ -90,11 +90,6 @@ namespace Server_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Verify the Activity
-            var verification = await VerifyActivityAndID(Activity);
-            if (verification != null)
-                return verification;
-
             // Verify request ID
             if (id != Activity.id)
                 return BadRequest("PUT URL and ID in the activity do not match");
@@ -115,11 +110,6 @@ namespace Server_API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // Verify the Activity
-            var verification = await VerifyActivity(Activity);
-            if (verification != null)
-                return verification;
 
             // Convert the Activity_API to the EntityModel activity
             activity act = await ConvertActivityApiToActivity(Activity);
@@ -199,43 +189,6 @@ namespace Server_API.Controllers
             act.tag_ids = Activity.tags.Select(p => p.id).ToList();
 
             return act;
-        }
-
-        /// <summary>
-        /// Verifies the activity by checking that the UserID and TagIDs exist.
-        /// </summary>
-        /// <param name="Activity">The activity to verify.</param>
-        /// <returns>
-        /// Null for success. The appropriate IHttpActionResult on failure.
-        /// </returns>
-        private async Task<IHttpActionResult> VerifyActivity(Activity_API Activity)
-        {
-            // Verify UserID exists
-            if (await db.users.FindAsync(Activity.user_id) == null)
-                return BadRequest("user_id does not exist");
-
-            // Verify TagIDs exist
-            foreach (int id in Activity.tag_ids)
-                if (await db.tags.FindAsync(id) == null)
-                    return BadRequest("Tag with id " + id.ToString() + " does not exist");
-
-            return null;
-        }
-
-        /// <summary>
-        /// Verifies the activity and the ID for the activity. This is more useful in PUT requests.
-        /// </summary>
-        /// <param name="Activity">The activity.</param>
-        /// <returns>
-        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
-        /// </returns>
-        private async Task<IHttpActionResult> VerifyActivityAndID(Activity_API Activity)
-        {
-            // Verify ID. Returns a 404 if not valid
-            if (await db.activities.FindAsync(Activity.id) == null)
-                return NotFound();
-
-            return await VerifyActivity(Activity);
         }
 
         protected override void Dispose(bool disposing)

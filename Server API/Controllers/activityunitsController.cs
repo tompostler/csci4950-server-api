@@ -92,11 +92,6 @@ namespace Server_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Verify the Activity Unit
-            var verification = await VerifyActivityUnitAndID(ActivityUnit);
-            if (verification != null)
-                return verification;
-
             // Verify request ID
             if (id != ActivityUnit.id)
                 return BadRequest("PUT URL and ID in the activity unit do not match");
@@ -117,11 +112,6 @@ namespace Server_API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // Verify the ActivityUnit
-            var verification = await VerifyActivityUnit(ActivityUnit);
-            if (verification != null)
-                return verification;
 
             // Convert the ActivityUnit_API to the EntityModel activityunit
             activityunit acu = await ConvertActivityUnitApiToActivityUnit(ActivityUnit);
@@ -207,53 +197,6 @@ namespace Server_API.Controllers
             acu.tag_ids = ActivityUnit.tags.Select(p => p.id).ToList().ConvertAll(x => (int)x);
 
             return acu;
-        }
-
-        /// <summary>
-        /// Verifies the activity unit by checking that the ActivityID, LocationID, and TagIDs exist
-        /// in addition to making sure stime <= etime.
-        /// </summary>
-        /// <param name="ActivityUnit">The activity unit to verify.</param>
-        /// <returns>
-        /// Null for success. The appropriate IHttpActionResult on failure.
-        /// </returns>
-        private async Task<IHttpActionResult> VerifyActivityUnit(ActivityUnit_API ActivityUnit)
-        {
-            // Verify ActivityID exists
-            if (await db.activities.FindAsync(ActivityUnit.activity_id) == null)
-                return BadRequest("activity_id does not exist");
-
-            // Verify LocationID exists
-            if (await db.locations.FindAsync(ActivityUnit.location_id) == null)
-                return BadRequest("location_id does not exist");
-
-            // Verify time range
-            if (ActivityUnit.stime >= ActivityUnit.etime)
-                return BadRequest("etime cannot be before stime");
-
-            // Verify TagIDs exist
-            foreach (int id in ActivityUnit.tag_ids)
-                if (await db.tags.FindAsync(id) == null)
-                    return BadRequest("Tag with id " + id.ToString() + " does not exist");
-
-            return null;
-        }
-
-        /// <summary>
-        /// Verifies the activity unit and the ID for the activity unit. This is more useful in PUT
-        /// requests.
-        /// </summary>
-        /// <param name="ActivityUnit">The activity unit.</param>
-        /// <returns>
-        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
-        /// </returns>
-        private async Task<IHttpActionResult> VerifyActivityUnitAndID(ActivityUnit_API ActivityUnit)
-        {
-            // Verify ID. Returns a 404 if not valid
-            if (await db.activityunits.FindAsync(ActivityUnit.id) == null)
-                return NotFound();
-
-            return await VerifyActivityUnit(ActivityUnit);
         }
 
         protected override void Dispose(bool disposing)

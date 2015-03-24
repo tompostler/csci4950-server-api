@@ -59,11 +59,6 @@ namespace Server_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Verify the Tag
-            var verification = await VerifyTagAndID(Tag);
-            if (verification != null)
-                return verification;
-
             // Verify request ID
             if (id != Tag.id)
                 return BadRequest("PUT URL and ID in the tag do not match");
@@ -172,22 +167,6 @@ namespace Server_API.Controllers
             //    return BadRequest("user_id does not exist");
 
             return null;
-        }
-
-        /// <summary>
-        /// Verifies the tag and the ID for the tag. This is more useful in PUT requests.
-        /// </summary>
-        /// <param name="Tag">The tag.</param>
-        /// <returns>
-        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
-        /// </returns>
-        private async Task<IHttpActionResult> VerifyTagAndID(Tag_API Tag)
-        {
-            // Verify ID. Returns a 404 if not valid
-            if (await db.tags.FindAsync(Tag.id) == null)
-                return NotFound();
-
-            return await VerifyTag(Tag);
         }
 
         protected override void Dispose(bool disposing)

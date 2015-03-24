@@ -75,11 +75,6 @@ namespace Server_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Verify the Location
-            var verification = await VerifyLocationAndID(Location);
-            if (verification != null)
-                return verification;
-
             // Verify request ID
             if (id != Location.id)
                 return BadRequest("PUT URL and ID in the location do not match");
@@ -100,11 +95,6 @@ namespace Server_API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // Verify the Location
-            var verification = await VerifyLocation(Location);
-            if (verification != null)
-                return verification;
 
             // Convert the Location_API to the EntityModel location
             location loc = ConvertLocationApiToLocation(Location);
@@ -174,38 +164,6 @@ namespace Server_API.Controllers
             loc.content = Location.content;
 
             return loc;
-        }
-
-        /// <summary>
-        /// Verifies the location by checking that the UserID exists.
-        /// </summary>
-        /// <param name="Location">The location to verify.</param>
-        /// <returns>
-        /// Null for success. The appropriate IHttpActionResult on failure.
-        /// </returns>
-        private async Task<IHttpActionResult> VerifyLocation(Location_API Location)
-        {
-            // Verify the UserID exists
-            if (await db.users.FindAsync(Location.user_id) == null)
-                return BadRequest("user_id does not exist");
-
-            return null;
-        }
-
-        /// <summary>
-        /// Verifies the location and the ID for the location. This is more useful in PUT requests.
-        /// </summary>
-        /// <param name="Location">The location.</param>
-        /// <returns>
-        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
-        /// </returns>
-        private async Task<IHttpActionResult> VerifyLocationAndID(Location_API Location)
-        {
-            // Verify ID. Returns a 404 if not valid
-            if (await db.locations.FindAsync(Location.id) == null)
-                return NotFound();
-
-            return await VerifyLocation(Location);
         }
 
         protected override void Dispose(bool disposing)

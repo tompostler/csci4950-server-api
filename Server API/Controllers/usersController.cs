@@ -81,11 +81,6 @@ namespace Server_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Verify the User
-            var verification = await VerifyUserAndID(User);
-            if (verification != null)
-                return verification;
-
             // Verify request ID
             if (id != User.id)
                 return BadRequest("PUT URL and ID in the location do not match");
@@ -205,22 +200,6 @@ namespace Server_API.Controllers
             usr.custom_tags = User.tags_users.Select(p => p.tag_id).ToList();
 
             return usr;
-        }
-
-        /// <summary>
-        /// Verifies the user and the ID for the user. This is more useful in PUT requests.
-        /// </summary>
-        /// <param name="User">The user.</param>
-        /// <returns>
-        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
-        /// </returns>
-        private async Task<IHttpActionResult> VerifyUserAndID(User_API User)
-        {
-            // Verify ID. Returns a 404 if not valid
-            if (await db.users.FindAsync(User.id) == null)
-                return NotFound();
-
-            return null;
         }
 
         protected override void Dispose(bool disposing)
