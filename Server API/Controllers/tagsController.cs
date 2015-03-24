@@ -16,11 +16,7 @@ namespace Server_API.Controllers
 
         public class Tag_API
         {
-            public void SetID(byte id)
-            {
-                this.id = id;
-            }
-            public byte id { get; private set; }
+            public byte id { get; set; }
             [MaxLength(20)]
             public string name { get; set; }
             [MaxLength(6)]
@@ -102,7 +98,7 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             // Update the ID with the one that was auto-assigned
-            Tag.SetID(tg.id);
+            Tag.id = tg.id;
 
             return CreatedAtRoute("DefaultApi", new { id = Tag.id }, Tag);
         }
@@ -155,7 +151,7 @@ namespace Server_API.Controllers
         {
             // Convert the EntityModel tag to the Tag_API
             Tag_API tg = new Tag_API();
-            tg.SetID(Tag.id);
+            tg.id = Tag.id;
             tg.name = Tag.name;
             tg.color = Tag.default_color;
 

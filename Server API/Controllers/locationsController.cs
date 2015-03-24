@@ -22,11 +22,7 @@ namespace Server_API.Controllers
         /// </summary>
         public class Location_API
         {
-            public void SetID(int id)
-            {
-                this.id = id;
-            }
-            public int id { get; private set; }
+            public int id { get; set; }
             [Required]
             public int user_id { get; set; }
             [Required, MaxLength(50)]
@@ -118,7 +114,7 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             // Update the ID with the one that was auto-assigned
-            Location.SetID(loc.id);
+            Location.id = loc.id;
 
             return CreatedAtRoute("DefaultApi", new { id = Location.id }, Location);
         }
@@ -172,7 +168,7 @@ namespace Server_API.Controllers
         {
             // Convert the EntityModel location to the Location_API
             Location_API loc = new Location_API();
-            loc.SetID(Location.id);
+            loc.id = Location.id;
             loc.user_id = Location.user_id;
             loc.name = Location.name;
             loc.content = Location.content;

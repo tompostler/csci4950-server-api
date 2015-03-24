@@ -28,11 +28,7 @@ namespace Server_API.Controllers
             {
                 tag_ids = new List<int>();
             }
-            public void SetID(long id)
-            {
-                this.id = id;
-            }
-            public long id { get; private set; }
+            public long id { get; set; }
             [Required]
             public int activity_id { get; set; }
             [Required]
@@ -135,7 +131,7 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             // Update the ID with the one that was auto-assigned
-            ActivityUnit.SetID(acu.id);
+            ActivityUnit.id = acu.id;
 
             return CreatedAtRoute("DefaultApi", new { id = ActivityUnit.id }, ActivityUnit);
         }
@@ -202,7 +198,7 @@ namespace Server_API.Controllers
         {
             // Convert EntityModel type to our API type
             ActivityUnit_API acu = new ActivityUnit_API();
-            acu.SetID(ActivityUnit.id);
+            acu.id = ActivityUnit.id;
             acu.activity_id = ActivityUnit.activity_id;
             acu.location_id = ActivityUnit.location_id;
             acu.stime = ActivityUnit.stime;

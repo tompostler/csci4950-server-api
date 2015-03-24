@@ -24,11 +24,7 @@ namespace Server_API.Controllers
         /// </summary>
         public class User_API
         {
-            public void SetID(int id)
-            {
-                this.id = id;
-            }
-            public int id { get; private set; }
+            public int id { get; set; }
             [Required, StringLength(50)]
             public string fname { get; set; }
             [Required, StringLength(50)]
@@ -120,7 +116,7 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             // Update the ID with the one that was auto-assigned
-            User.SetID(usr.id);
+            User.id = usr.id;
 
             return CreatedAtRoute("DefaultApi", new { id = User.id }, User);
         }
@@ -197,7 +193,7 @@ namespace Server_API.Controllers
         {
             // Convert EntityModel type to our API type
             User_API usr = new User_API();
-            usr.SetID(User.id);
+            usr.id = User.id;
             usr.fname = User.fname;
             usr.lname = User.lname;
             usr.email = User.email;
