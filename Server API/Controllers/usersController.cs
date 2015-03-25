@@ -22,6 +22,13 @@ namespace Server_API.Controllers
         /// </summary>
         public class User_API
         {
+            public User_API()
+            {
+                activity_ids = new List<int>();
+                location_ids = new List<int>();
+                custom_tags = new List<byte>();
+            }
+
             public int id { get; set; }
             [Required, StringLength(50)]
             public string fname { get; set; }
