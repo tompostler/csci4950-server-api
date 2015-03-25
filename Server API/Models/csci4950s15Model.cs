@@ -54,7 +54,7 @@ namespace Server_API.Models
 
             modelBuilder.Entity<course>()
                 .HasMany(e => e.activities)
-                .WithRequired(e => e.cours)
+                .WithRequired(e => e.course)
                 .HasForeignKey(e => e.course_id)
                 .WillCascadeOnDelete(false);
 
