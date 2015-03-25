@@ -33,7 +33,7 @@ namespace Server_API.Models
 
         public DateTime mdate { get; set; }
 
-        public virtual course cours { get; set; }
+        public virtual course course { get; set; }
 
         public virtual user user { get; set; }
 
