@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -93,13 +94,13 @@ namespace Server_API.Controllers
                 return BadRequest("PUT URL and ID in the activity do not match");
 
             // Convert the Activity_API to the EntityModel activity
-            activity act = await ConvertActivityApiToActivity(Activity);
+            activity act = ConvertActivityApiToActivity(Activity);
 
             // Update the activity
             db.Entry(act).State = EntityState.Modified;
             await db.SaveChangesAsync();
 
-            return Ok(Activity);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/activities
@@ -109,7 +110,7 @@ namespace Server_API.Controllers
                 return BadRequest(ModelState);
 
             // Convert the Activity_API to the EntityModel activity
-            activity act = await ConvertActivityApiToActivity(Activity);
+            activity act = ConvertActivityApiToActivity(Activity);
 
             // Add the activity to the DB
             db.activities.Add(act);
@@ -118,7 +119,7 @@ namespace Server_API.Controllers
             // Update the ID with the one that was auto-assigned
             Activity.id = act.id;
 
-            return CreatedAtRoute("DefaultApi", new { id = Activity.id }, Activity);
+            return Ok(Activity);
         }
 
         // DELETE: api/activities/5
@@ -133,7 +134,7 @@ namespace Server_API.Controllers
             db.activities.Remove(activity);
             await db.SaveChangesAsync();
 
-            return Ok();
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // OPTIONS: api/activities
@@ -148,23 +149,14 @@ namespace Server_API.Controllers
         /// </summary>
         /// <param name="Activity">The Activity_API to convert.</param>
         /// <returns>An EntityModel activity corresponding to the Activity_API.</returns>
-        private async Task<activity> ConvertActivityApiToActivity(Activity_API Activity)
+        private activity ConvertActivityApiToActivity(Activity_API Activity)
         {
-            // Get the tags referenced by this activity
-            // http://stackoverflow.com/a/2101561
-            var tags = from tg in db.tags
-                       select tg;
-            var tagsPredicate = PredicateBuilder.False<tag>();
-            foreach (int id in Activity.tag_ids)
-                tagsPredicate = tagsPredicate.Or(p => p.id.Equals(id));
-            tags = tags.Where(tagsPredicate);
-
             // Convert the Activity_API to the EntityModel activity
             activity act = new activity();
             act.id = Activity.id;
             act.user_id = Activity.user_id;
             act.name = Activity.name;
-            act.tags = await tags.ToListAsync();
+            act.description = Activity.description;
 
             return act;
         }
@@ -181,8 +173,11 @@ namespace Server_API.Controllers
             act.id = Activity.id;
             act.user_id = Activity.user_id;
             act.name = Activity.name;
-            // Magic to get just the IDs out of tag objects
+            act.description = Activity.description;
+
+            // Magic to get just the IDs out of objects
             act.tag_ids = Activity.tags.Select(p => p.id).ToList();
+            act.activityunit_ids = Activity.activityunits.Select(p => p.id).ToList();
 
             return act;
         }

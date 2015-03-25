@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -27,15 +28,27 @@ namespace Server_API.Controllers
             {
                 tag_ids = new List<int>();
             }
+
             public long id { get; set; }
+
             [Required]
             public int activity_id { get; set; }
+
             [Required]
             public int location_id { get; set; }
+
+            [Required, StringLength(50)]
+            public string name { get; set; }
+
+            [StringLength(100)]
+            public string description { get; set; }
+
             [Required]
             public DateTime stime { get; set; }
+
             [Required]
             public DateTime etime { get; set; }
+
             public List<int> tag_ids { get; set; }
         }
 
@@ -95,13 +108,13 @@ namespace Server_API.Controllers
                 return BadRequest("PUT URL and ID in the activity unit do not match");
 
             // Convert the ActivityUnit_API to the EntityModel activityunit
-            activityunit acu = await ConvertActivityUnitApiToActivityUnit(ActivityUnit);
+            activityunit acu = ConvertActivityUnitApiToActivityUnit(ActivityUnit);
 
             // Update the activity unit
             db.Entry(acu).State = EntityState.Modified;
             await db.SaveChangesAsync();
 
-            return Ok(ActivityUnit);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/activityunit
@@ -111,7 +124,7 @@ namespace Server_API.Controllers
                 return BadRequest(ModelState);
 
             // Convert the ActivityUnit_API to the EntityModel activityunit
-            activityunit acu = await ConvertActivityUnitApiToActivityUnit(ActivityUnit);
+            activityunit acu = ConvertActivityUnitApiToActivityUnit(ActivityUnit);
 
             // Add the activity unit to the DB
             db.activityunits.Add(acu);
@@ -120,7 +133,7 @@ namespace Server_API.Controllers
             // Update the ID with the one that was auto-assigned
             ActivityUnit.id = acu.id;
 
-            return CreatedAtRoute("DefaultApi", new { id = ActivityUnit.id }, ActivityUnit);
+            return Ok(ActivityUnit);
         }
 
         // DELETE: api/activityunit/5
@@ -135,7 +148,7 @@ namespace Server_API.Controllers
             db.activityunits.Remove(activityunit);
             await db.SaveChangesAsync();
 
-            return Ok();
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // OPTIONS: api/activityunits
@@ -151,25 +164,17 @@ namespace Server_API.Controllers
         /// </summary>
         /// <param name="ActivityUnit">The ActivityUnit_API to convert.</param>
         /// <returns>An EntityModel activityunit corresponding to the ActivityUnit_API.</returns>
-        private async Task<activityunit> ConvertActivityUnitApiToActivityUnit(ActivityUnit_API ActivityUnit)
+        private activityunit ConvertActivityUnitApiToActivityUnit(ActivityUnit_API ActivityUnit)
         {
-            // Get the tags referenced by this activity to do a proper insertion with the WebAPI
-            // http://stackoverflow.com/a/2101561
-            var tags = from tg in db.tags
-                       select tg;
-            var tagsPredicate = PredicateBuilder.False<tag>();
-            foreach (int id in ActivityUnit.tag_ids)
-                tagsPredicate = tagsPredicate.Or(p => p.id.Equals(id));
-            tags = tags.Where(tagsPredicate);
-
             // Convert our API type into the representing Model
             activityunit acu = new activityunit();
             acu.id = ActivityUnit.id;
             acu.activity_id = ActivityUnit.activity_id;
             acu.location_id = ActivityUnit.location_id;
+            acu.name = ActivityUnit.name;
+            acu.description = ActivityUnit.description;
             acu.stime = ActivityUnit.stime;
             acu.etime = ActivityUnit.etime;
-            acu.tags = await tags.ToListAsync();
 
             return acu;
         }
@@ -187,6 +192,8 @@ namespace Server_API.Controllers
             acu.id = ActivityUnit.id;
             acu.activity_id = ActivityUnit.activity_id;
             acu.location_id = ActivityUnit.location_id;
+            acu.name = ActivityUnit.name;
+            acu.description = ActivityUnit.description;
             acu.stime = ActivityUnit.stime;
             acu.etime = ActivityUnit.etime;
             // Magic to get just the IDs out of tag objects

@@ -26,8 +26,8 @@ namespace Server_API.Controllers
         {
             Info_API info = new Info_API
             {
-                version = "2.01.0000",
-                version_date = "2015-03-21",
+                version = "2.02.0000",
+                version_date = "2015-03-24",
                 contacts = new List<Info_API.Contact>
                 {
                     new Info_API.Contact
@@ -41,7 +41,7 @@ namespace Server_API.Controllers
                         email = "nixon069@umn.edu"
                     }
                 },
-                hostname = "frizzle.cloudapp.net/api",
+                hostname = "msfrizzle.me/api",
                 root_nodes = new List<string>
                 {
                     "activities",
@@ -50,8 +50,8 @@ namespace Server_API.Controllers
                     "tags",
                     "users"
                 },
-                comment = "Read the documentation",
-                fun_fact = "'Pentheraphobia' is a fear of a mother-in-law."
+                comment = "Read the documentation. . . Now with HTTPS!",
+                fun_fact = "There is a volcano in Indonesia that spews blue lava."
             };
 
             return Ok(info);

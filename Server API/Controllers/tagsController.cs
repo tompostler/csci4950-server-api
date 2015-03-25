@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -17,8 +18,10 @@ namespace Server_API.Controllers
         public class DefaultTag_API
         {
             public byte id { get; set; }
+
             [MaxLength(50)]
             public string name { get; set; }
+
             [MaxLength(6)]
             public string default_color { get; set; }
         }
@@ -27,8 +30,10 @@ namespace Server_API.Controllers
         {
             [Required]
             public byte tag_id { get; set; }
+
             [Required]
             public int user_id { get; set; }
+
             [Required, StringLength(6)]
             public string color { get; set; }
         }
@@ -91,7 +96,7 @@ namespace Server_API.Controllers
             db.Entry(tgu).State = EntityState.Modified;
             await db.SaveChangesAsync();
 
-            return Ok(UserTag);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/tags
@@ -130,7 +135,7 @@ namespace Server_API.Controllers
             db.tags_users.Remove(tu);
             await db.SaveChangesAsync();
 
-            return Ok();
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // OPTIONS: api/tags

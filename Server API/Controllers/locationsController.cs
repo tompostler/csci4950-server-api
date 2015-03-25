@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -22,17 +23,30 @@ namespace Server_API.Controllers
         /// </summary>
         public class Location_API
         {
+            public Location_API()
+            {
+                tag_ids = new List<byte>();
+                activityunit_ids = new List<long>();
+            }
+
             public int id { get; set; }
+
             [Required]
             public int user_id { get; set; }
+
             [Required, MaxLength(50)]
             public string name { get; set; }
+
             [Required, MaxLength(100)]
             public string content { get; set; }
+
+            public List<byte> tag_ids { get; set; }
+
+            public List<long> activityunit_ids { get; set; }
         }
 
         // GET: api/locations
-        public async Task<IHttpActionResult> Getlocations(int id = 0, int user = 0, byte type = 0, string content = "")
+        public async Task<IHttpActionResult> Getlocations(int id = 0, int user = 0)
         {
             // If we have an ID to search by, handle it
             if (id != 0)
@@ -51,10 +65,6 @@ namespace Server_API.Controllers
             // Filter on user_id
             if (user != 0)
                 locations = locations.Where(p => p.user.Equals(user));
-
-            // Filter on content, strict matching
-            if (!String.IsNullOrEmpty(content))
-                locations = locations.Where(p => p.content.Equals(content));
 
             // Convert the locations to more API friendly things
             List<Location_API> results = new List<Location_API>();
@@ -85,7 +95,7 @@ namespace Server_API.Controllers
             db.Entry(loc).State = EntityState.Modified;
             await db.SaveChangesAsync();
 
-            return Ok(Location);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/locations
@@ -104,7 +114,7 @@ namespace Server_API.Controllers
             // Update the ID with the one that was auto-assigned
             Location.id = loc.id;
 
-            return CreatedAtRoute("DefaultApi", new { id = Location.id }, Location);
+            return Ok(Location);
         }
 
         // DELETE: api/locations/5
@@ -119,7 +129,7 @@ namespace Server_API.Controllers
             db.locations.Remove(location);
             await db.SaveChangesAsync();
 
-            return Ok();
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // OPTIONS: api/locations
@@ -159,6 +169,10 @@ namespace Server_API.Controllers
             loc.user_id = Location.user_id;
             loc.name = Location.name;
             loc.content = Location.content;
+
+            // Magic to get just the IDs out of objects
+            loc.tag_ids = Location.tags.Select(p => p.id).ToList();
+            loc.activityunit_ids = Location.activityunits.Select(p => p.id).ToList();
 
             return loc;
         }
