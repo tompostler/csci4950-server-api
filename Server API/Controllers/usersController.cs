@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -88,13 +89,13 @@ namespace Server_API.Controllers
                 return BadRequest("PUT URL and ID in the location do not match");
 
             // Convert the User_API to the EntityModel location
-            user usr = await ConvertUserApiToUser(User);
+            user usr = ConvertUserApiToUser(User);
 
             // Update the user
             db.Entry(usr).State = EntityState.Modified;
             await db.SaveChangesAsync();
 
-            return Ok(User);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/users
@@ -104,7 +105,7 @@ namespace Server_API.Controllers
                 return BadRequest(ModelState);
 
             // Convert the User_API to the EntityModel user
-            user usr = await ConvertUserApiToUser(User);
+            user usr = ConvertUserApiToUser(User);
 
             // Add the user to the DB
             db.users.Add(usr);
@@ -113,7 +114,7 @@ namespace Server_API.Controllers
             // Update the ID with the one that was auto-assigned
             User.id = usr.id;
 
-            return CreatedAtRoute("DefaultApi", new { id = User.id }, User);
+            return Ok(User);
         }
 
         // DELETE: api/users/5
@@ -128,7 +129,7 @@ namespace Server_API.Controllers
             db.users.Remove(user);
             await db.SaveChangesAsync();
 
-            return Ok();
+            return StatusCode(HttpStatusCode.NoContent);
 
         }
 
@@ -143,7 +144,7 @@ namespace Server_API.Controllers
         /// </summary>
         /// <param name="User">The User_API to convert.</param>
         /// <returns>An EntityModel user corresponding to the User_API.</returns>
-        private async Task<user> ConvertUserApiToUser(User_API User)
+        private user ConvertUserApiToUser(User_API User)
         {
             // Convert our API type into the representing Model
             user usr = new user();
@@ -152,26 +153,6 @@ namespace Server_API.Controllers
             usr.lname = User.lname;
             usr.email = User.email;
             usr.password = User.password;
-
-            // Get the activities referenced by this user
-            var activities = from act in db.activities
-                             select act;
-            activities = activities.Where(p => p.user_id.Equals(User.id));
-
-            // Get the locations referenced by this user
-            var locations = from loc in db.locations
-                            select loc;
-            locations = locations.Where(p => p.user_id.Equals(User.id));
-
-            // Get the custom tags referenced by this user
-            var custom_tags = from tags in db.tags_users
-                              select tags;
-            custom_tags = custom_tags.Where(p => p.user_id.Equals(User.id));
-
-            // Assemble the lists
-            usr.activities = await activities.ToListAsync();
-            usr.locations = await locations.ToListAsync();
-            usr.tags_users = await custom_tags.ToListAsync();
 
             return usr;
         }
