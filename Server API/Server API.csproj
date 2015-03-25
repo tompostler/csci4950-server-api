@@ -108,6 +108,7 @@
     <Compile Include="Auth\RequireHttpsAttribute.cs" />
     <Compile Include="Controllers\activitiesController.cs" />
     <Compile Include="Controllers\activityunitsController.cs" />
+    <Compile Include="Controllers\coursesController.cs" />
     <Compile Include="Controllers\infoController.cs" />
     <Compile Include="Controllers\locationsController.cs" />
     <Compile Include="Controllers\tagsController.cs" />
