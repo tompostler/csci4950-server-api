@@ -8,20 +8,25 @@ namespace Server_API.Models
     public partial class csci4950s15Model : DbContext
     {
         public csci4950s15Model()
-            : base("name=csci4950s15ModelConnection")
+            : base("name=csci4950s15Model")
         {
         }
 
         public virtual DbSet<activity> activities { get; set; }
         public virtual DbSet<activityunit> activityunits { get; set; }
         public virtual DbSet<auth> auths { get; set; }
+        public virtual DbSet<course> courses { get; set; }
         public virtual DbSet<location> locations { get; set; }
+        public virtual DbSet<setting> settings { get; set; }
         public virtual DbSet<tag> tags { get; set; }
-        public virtual DbSet<tags_users> tags_users { get; set; }
         public virtual DbSet<user> users { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<activity>()
+                .Property(e => e.course_id)
+                .IsUnicode(false);
+
             modelBuilder.Entity<activity>()
                 .HasMany(e => e.activityunits)
                 .WithRequired(e => e.activity)
@@ -43,30 +48,24 @@ namespace Server_API.Models
                 .IsFixedLength()
                 .IsUnicode(false);
 
+            modelBuilder.Entity<course>()
+                .Property(e => e.id)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<course>()
+                .HasMany(e => e.activities)
+                .WithRequired(e => e.cours)
+                .HasForeignKey(e => e.course_id)
+                .WillCascadeOnDelete(false);
+
             modelBuilder.Entity<location>()
                 .HasMany(e => e.activityunits)
                 .WithRequired(e => e.location)
                 .HasForeignKey(e => e.location_id)
                 .WillCascadeOnDelete(false);
 
-            modelBuilder.Entity<location>()
-                .HasMany(e => e.tags)
-                .WithMany(e => e.locations)
-                .Map(m => m.ToTable("tags_locations"));
-
             modelBuilder.Entity<tag>()
                 .Property(e => e.default_color)
-                .IsFixedLength()
-                .IsUnicode(false);
-
-            modelBuilder.Entity<tag>()
-                .HasMany(e => e.tags_users)
-                .WithRequired(e => e.tag)
-                .HasForeignKey(e => e.tag_id)
-                .WillCascadeOnDelete(false);
-
-            modelBuilder.Entity<tags_users>()
-                .Property(e => e.color)
                 .IsFixedLength()
                 .IsUnicode(false);
 
@@ -92,10 +91,8 @@ namespace Server_API.Models
                 .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<user>()
-                .HasMany(e => e.tags_users)
-                .WithRequired(e => e.user)
-                .HasForeignKey(e => e.user_id)
-                .WillCascadeOnDelete(false);
+                .HasOptional(e => e.setting)
+                .WithRequired(e => e.user);
         }
     }
 }

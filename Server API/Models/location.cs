@@ -11,7 +11,6 @@ namespace Server_API.Models
         public location()
         {
             activityunits = new HashSet<activityunit>();
-            tags = new HashSet<tag>();
         }
 
         public int id { get; set; }
@@ -28,7 +27,5 @@ namespace Server_API.Models
         public virtual ICollection<activityunit> activityunits { get; set; }
 
         public virtual user user { get; set; }
-
-        public virtual ICollection<tag> tags { get; set; }
     }
 }
