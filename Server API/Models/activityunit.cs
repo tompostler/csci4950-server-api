@@ -6,17 +6,18 @@ namespace Server_API.Models
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    public partial class activity
+    public partial class activityunit
     {
-        public activity()
+        public activityunit()
         {
-            activityunits = new HashSet<activityunit>();
             tags = new HashSet<tag>();
         }
 
-        public int id { get; set; }
+        public long id { get; set; }
 
-        public int user_id { get; set; }
+        public int activity_id { get; set; }
+
+        public int location_id { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -25,9 +26,13 @@ namespace Server_API.Models
         [StringLength(100)]
         public string description { get; set; }
 
-        public virtual user user { get; set; }
+        public DateTime stime { get; set; }
 
-        public virtual ICollection<activityunit> activityunits { get; set; }
+        public DateTime etime { get; set; }
+
+        public virtual activity activity { get; set; }
+
+        public virtual location location { get; set; }
 
         public virtual ICollection<tag> tags { get; set; }
     }

@@ -1,5 +1,6 @@
 using Binbin.Linq;
 using Newtonsoft.Json;
+using Server_API.Auth;
 using Server_API.Models;
 using System;
 using System.Collections.Generic;
@@ -7,16 +8,15 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
+    [RequireHttps]
     public class activitiesController : ApiController
     {
-        private csci4950s15Entities db = new csci4950s15Entities();
+        private csci4950s15Model db = new csci4950s15Model();
 
         /// <summary>
         /// An Activity_API class to trim down the information and named types that are exposed to
@@ -26,24 +26,28 @@ namespace Server_API.Controllers
         {
             public Activity_API()
             {
-                tag_ids = new List<int>();
+                tag_ids = new List<byte>();
+                activityunit_ids = new List<long>();
             }
-            public void SetID(int id)
-            {
-                this.id = id;
-            }
-            public int id { get; private set; }
+
+            public int id { get; set; }
+
             [Required]
             public int user_id { get; set; }
-            [Required, MaxLength(50)]
+
+            [Required, StringLength(50)]
             public string name { get; set; }
-            [Required]
-            public byte category { get; set; }
-            public List<int> tag_ids { get; set; }
+
+            [StringLength(100)]
+            public string description { get; set; }
+
+            public List<byte> tag_ids { get; set; }
+
+            public List<long> activityunit_ids { get; set; }
         }
 
         // GET: api/activities
-        public async Task<IHttpActionResult> Getactivities(int id = 0, int user_id = 0, string name = "", byte category = 0)
+        public async Task<IHttpActionResult> Getactivities(int id = 0, int user_id = 0, string name = "")
         {
             // If we have an ID to search by, handle it
             if (id != 0)
@@ -67,10 +71,6 @@ namespace Server_API.Controllers
             if (!String.IsNullOrEmpty(name))
                 activities = activities.Where(p => p.name.Equals(name));
 
-            // Filter by category
-            if (category != 0)
-                activities = activities.Where(p => p.category.Equals(category));
-
             // Convert the activities to more API friendly things
             List<Activity_API> results = new List<Activity_API>();
             List<activity> activitylist = await activities.ToListAsync();
@@ -84,58 +84,45 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/activities/5
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putactivity(int id, Activity_API Activity)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // Verify the Activity
-            var verification = await VerifyActivityAndID(Activity);
-            if (verification != null)
-                return verification;
 
             // Verify request ID
             if (id != Activity.id)
                 return BadRequest("PUT URL and ID in the activity do not match");
 
             // Convert the Activity_API to the EntityModel activity
-            activity act = await ConvertActivityApiToActivity(Activity);
+            activity act = ConvertActivityApiToActivity(Activity);
 
             // Update the activity
             db.Entry(act).State = EntityState.Modified;
             await db.SaveChangesAsync();
 
-            return Ok(Activity);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/activities
-        [ResponseType(typeof(Activity_API))]
         public async Task<IHttpActionResult> Postactivity(Activity_API Activity)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Verify the Activity
-            var verification = await VerifyActivity(Activity);
-            if (verification != null)
-                return verification;
-
             // Convert the Activity_API to the EntityModel activity
-            activity act = await ConvertActivityApiToActivity(Activity);
+            activity act = ConvertActivityApiToActivity(Activity);
 
             // Add the activity to the DB
             db.activities.Add(act);
             await db.SaveChangesAsync();
 
             // Update the ID with the one that was auto-assigned
-            Activity.SetID(act.id);
+            Activity.id = act.id;
 
-            return CreatedAtRoute("DefaultApi", new { id = Activity.id }, Activity);
+            return Ok(Activity);
         }
 
         // DELETE: api/activities/5
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Deleteactivity(int id)
         {
             activity activity = await db.activities.FindAsync(id);
@@ -147,14 +134,14 @@ namespace Server_API.Controllers
             db.activities.Remove(activity);
             await db.SaveChangesAsync();
 
-            return Ok();
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
-        public HttpResponseMessage Options()
+        // OPTIONS: api/activities
+        [RequireHttps]
+        public IHttpActionResult Options()
         {
-            var response = new HttpResponseMessage();
-            response.StatusCode = HttpStatusCode.OK;
-            return response;
+            return Ok();
         }
 
         /// <summary>
@@ -162,24 +149,14 @@ namespace Server_API.Controllers
         /// </summary>
         /// <param name="Activity">The Activity_API to convert.</param>
         /// <returns>An EntityModel activity corresponding to the Activity_API.</returns>
-        private async Task<activity> ConvertActivityApiToActivity(Activity_API Activity)
+        private activity ConvertActivityApiToActivity(Activity_API Activity)
         {
-            // Get the tags referenced by this activity
-            // http://stackoverflow.com/a/2101561
-            var tags = from tg in db.tags
-                       select tg;
-            var tagsPredicate = PredicateBuilder.False<tag>();
-            foreach (int id in Activity.tag_ids)
-                tagsPredicate = tagsPredicate.Or(p => p.id.Equals(id));
-            tags = tags.Where(tagsPredicate);
-
             // Convert the Activity_API to the EntityModel activity
             activity act = new activity();
             act.id = Activity.id;
-            act.user = Activity.user_id;
+            act.user_id = Activity.user_id;
             act.name = Activity.name;
-            act.category = Activity.category;
-            act.tags = await tags.ToListAsync();
+            act.description = Activity.description;
 
             return act;
         }
@@ -193,51 +170,16 @@ namespace Server_API.Controllers
         {
             // Convert the EntityModel type to our API type
             Activity_API act = new Activity_API();
-            act.SetID(Activity.id);
-            act.user_id = Activity.user;
+            act.id = Activity.id;
+            act.user_id = Activity.user_id;
             act.name = Activity.name;
-            act.category = Activity.category;
-            // Magic to get just the IDs out of tag objects
+            act.description = Activity.description;
+
+            // Magic to get just the IDs out of objects
             act.tag_ids = Activity.tags.Select(p => p.id).ToList();
+            act.activityunit_ids = Activity.activityunits.Select(p => p.id).ToList();
 
             return act;
-        }
-
-        /// <summary>
-        /// Verifies the activity by checking that the UserID and TagIDs exist.
-        /// </summary>
-        /// <param name="Activity">The activity to verify.</param>
-        /// <returns>
-        /// Null for success. The appropriate IHttpActionResult on failure.
-        /// </returns>
-        private async Task<IHttpActionResult> VerifyActivity(Activity_API Activity)
-        {
-            // Verify UserID exists
-            if (await db.users.FindAsync(Activity.user_id) == null)
-                return BadRequest("user_id does not exist");
-
-            // Verify TagIDs exist
-            foreach (int id in Activity.tag_ids)
-                if (await db.tags.FindAsync(id) == null)
-                    return BadRequest("Tag with id " + id.ToString() + " does not exist");
-
-            return null;
-        }
-
-        /// <summary>
-        /// Verifies the activity and the ID for the activity. This is more useful in PUT requests.
-        /// </summary>
-        /// <param name="Activity">The activity.</param>
-        /// <returns>
-        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
-        /// </returns>
-        private async Task<IHttpActionResult> VerifyActivityAndID(Activity_API Activity)
-        {
-            // Verify ID. Returns a 404 if not valid
-            if (await db.activities.FindAsync(Activity.id) == null)
-                return NotFound();
-
-            return await VerifyActivity(Activity);
         }
 
         protected override void Dispose(bool disposing)

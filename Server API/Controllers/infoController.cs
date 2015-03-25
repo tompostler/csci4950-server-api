@@ -26,8 +26,8 @@ namespace Server_API.Controllers
         {
             Info_API info = new Info_API
             {
-                version = "1.01.0000",
-                version_date = "2015-02-06",
+                version = "2.03.0000",
+                version_date = "2015-03-24",
                 contacts = new List<Info_API.Contact>
                 {
                     new Info_API.Contact
@@ -41,20 +41,26 @@ namespace Server_API.Controllers
                         email = "nixon069@umn.edu"
                     }
                 },
-                hostname = "ralphie.cloudapp.net/api",
+                hostname = "msfrizzle.me/api",
                 root_nodes = new List<string>
                 {
                     "activities",
-                    "activity_units",
+                    "activityunits",
                     "locations",
                     "tags",
                     "users"
                 },
-                comment = "Read the documentation",
-                fun_fact = "At the peak of its popularity, the number of Farmville players outnumbered real farmers 60 to 1."
+                comment = "Read the documentation. . . Now with HTTPS!",
+                fun_fact = "There is a volcano in Indonesia that spews blue lava."
             };
 
             return Ok(info);
+        }
+
+        // OPTIONS: api/info
+        public IHttpActionResult Options()
+        {
+            return Ok();
         }
     }
 }

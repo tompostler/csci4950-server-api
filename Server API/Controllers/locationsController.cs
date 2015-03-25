@@ -1,19 +1,21 @@
 ﻿using Newtonsoft.Json;
+using Server_API.Auth;
 using Server_API.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
+    [RequireHttps]
     public class locationsController : ApiController
     {
-        private csci4950s15Entities db = new csci4950s15Entities();
+        private csci4950s15Model db = new csci4950s15Model();
 
         /// <summary>
         /// A Location_API class to trim down the information and named types that are exposed to
@@ -21,23 +23,30 @@ namespace Server_API.Controllers
         /// </summary>
         public class Location_API
         {
-            public void SetID(int id)
+            public Location_API()
             {
-                this.id = id;
+                tag_ids = new List<byte>();
+                activityunit_ids = new List<long>();
             }
-            public int id { get; private set; }
+
+            public int id { get; set; }
+
             [Required]
             public int user_id { get; set; }
+
             [Required, MaxLength(50)]
             public string name { get; set; }
-            [Required]
-            public byte type { get; set; }
+
             [Required, MaxLength(100)]
             public string content { get; set; }
+
+            public List<byte> tag_ids { get; set; }
+
+            public List<long> activityunit_ids { get; set; }
         }
 
         // GET: api/locations
-        public async Task<IHttpActionResult> Getlocations(int id = 0, int user = 0, byte type = 0, string content = "")
+        public async Task<IHttpActionResult> Getlocations(int id = 0, int user = 0)
         {
             // If we have an ID to search by, handle it
             if (id != 0)
@@ -57,14 +66,6 @@ namespace Server_API.Controllers
             if (user != 0)
                 locations = locations.Where(p => p.user.Equals(user));
 
-            // Filter on type
-            if (type != 0)
-                locations = locations.Where(p => p.type.Equals(type));
-
-            // Filter on content, strict matching
-            if (!String.IsNullOrEmpty(content))
-                locations = locations.Where(p => p.content.Equals(content));
-
             // Convert the locations to more API friendly things
             List<Location_API> results = new List<Location_API>();
             List<location> locationlist = await locations.ToListAsync();
@@ -78,16 +79,10 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/locations/5
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putlocation(int id, Location_API Location)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // Verify the Location
-            var verification = await VerifyLocationAndID(Location);
-            if (verification != null)
-                return verification;
 
             // Verify request ID
             if (id != Location.id)
@@ -100,20 +95,14 @@ namespace Server_API.Controllers
             db.Entry(loc).State = EntityState.Modified;
             await db.SaveChangesAsync();
 
-            return Ok(Location);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/locations
-        [ResponseType(typeof(Location_API))]
         public async Task<IHttpActionResult> Postlocation(Location_API Location)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // Verify the Location
-            var verification = await VerifyLocation(Location);
-            if (verification != null)
-                return verification;
 
             // Convert the Location_API to the EntityModel location
             location loc = ConvertLocationApiToLocation(Location);
@@ -123,13 +112,12 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             // Update the ID with the one that was auto-assigned
-            Location.SetID(loc.id);
+            Location.id = loc.id;
 
-            return CreatedAtRoute("DefaultApi", new { id = Location.id }, Location);
+            return Ok(Location);
         }
 
         // DELETE: api/locations/5
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Deletelocation(int id)
         {
             location location = await db.locations.FindAsync(id);
@@ -141,6 +129,13 @@ namespace Server_API.Controllers
             db.locations.Remove(location);
             await db.SaveChangesAsync();
 
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        // OPTIONS: api/locations
+        [RequireHttps]
+        public IHttpActionResult Options()
+        {
             return Ok();
         }
 
@@ -156,7 +151,6 @@ namespace Server_API.Controllers
             loc.id = Location.id;
             loc.user_id = Location.user_id;
             loc.name = Location.name;
-            loc.type = Location.type;
             loc.content = Location.content;
 
             return loc;
@@ -171,45 +165,16 @@ namespace Server_API.Controllers
         {
             // Convert the EntityModel location to the Location_API
             Location_API loc = new Location_API();
-            loc.SetID(Location.id);
+            loc.id = Location.id;
             loc.user_id = Location.user_id;
             loc.name = Location.name;
-            loc.type = Location.type;
             loc.content = Location.content;
 
+            // Magic to get just the IDs out of objects
+            loc.tag_ids = Location.tags.Select(p => p.id).ToList();
+            loc.activityunit_ids = Location.activityunits.Select(p => p.id).ToList();
+
             return loc;
-        }
-
-        /// <summary>
-        /// Verifies the location by checking that the UserID exists.
-        /// </summary>
-        /// <param name="Location">The location to verify.</param>
-        /// <returns>
-        /// Null for success. The appropriate IHttpActionResult on failure.
-        /// </returns>
-        private async Task<IHttpActionResult> VerifyLocation(Location_API Location)
-        {
-            // Verify the UserID exists
-            if (await db.users.FindAsync(Location.user_id) == null)
-                return BadRequest("user_id does not exist");
-
-            return null;
-        }
-
-        /// <summary>
-        /// Verifies the location and the ID for the location. This is more useful in PUT requests.
-        /// </summary>
-        /// <param name="Location">The location.</param>
-        /// <returns>
-        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
-        /// </returns>
-        private async Task<IHttpActionResult> VerifyLocationAndID(Location_API Location)
-        {
-            // Verify ID. Returns a 404 if not valid
-            if (await db.locations.FindAsync(Location.id) == null)
-                return NotFound();
-
-            return await VerifyLocation(Location);
         }
 
         protected override void Dispose(bool disposing)
@@ -219,11 +184,6 @@ namespace Server_API.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool locationExists(int id)
-        {
-            return db.locations.Count(e => e.id == id) > 0;
         }
     }
 }

@@ -1,19 +1,21 @@
 ﻿using Newtonsoft.Json;
+using Server_API.Auth;
 using Server_API.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
 
 namespace Server_API.Controllers
 {
+    [RequireHttps]
     public class usersController : ApiController
     {
-        private csci4950s15Entities db = new csci4950s15Entities();
+        private csci4950s15Model db = new csci4950s15Model();
 
         /// <summary>
         /// A User_API class to trim down the information and named types that are exposed to the 
@@ -21,20 +23,26 @@ namespace Server_API.Controllers
         /// </summary>
         public class User_API
         {
-
-            public void SetID(int id)
+            public User_API()
             {
-                this.id = id;
+                activity_ids = new List<int>();
+                location_ids = new List<int>();
+                custom_tags = new List<byte>();
             }
-            public int id { get; private set; }
-            [Required, MaxLength(50)]
+
+            public int id { get; set; }
+            [Required, StringLength(50)]
             public string fname { get; set; }
-            [Required, MaxLength(50)]
+            [Required, StringLength(50)]
             public string lname { get; set; }
-            [Required, MaxLength(50), EmailAddress]
+            [Required, StringLength(50), EmailAddress]
             public string email { get; set; }
-            [Required, MaxLength(50)]
+            [Required, StringLength(128)]
             public string password { get; set; }
+
+            public List<int> activity_ids { get; set; }
+            public List<int> location_ids { get; set; }
+            public List<byte> custom_tags { get; set; }
         }
 
         // GET: api/users
@@ -71,16 +79,10 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/users/5
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putuser(int id, User_API User)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // Verify the User
-            var verification = await VerifyUserAndID(User);
-            if (verification != null)
-                return verification;
 
             // Verify request ID
             if (id != User.id)
@@ -93,11 +95,10 @@ namespace Server_API.Controllers
             db.Entry(usr).State = EntityState.Modified;
             await db.SaveChangesAsync();
 
-            return Ok(User);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/users
-        [ResponseType(typeof(User_API))]
         public async Task<IHttpActionResult> Postuser(User_API User)
         {
             if (!ModelState.IsValid)
@@ -111,13 +112,12 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             // Update the ID with the one that was auto-assigned
-            User.SetID(usr.id);
+            User.id = usr.id;
 
-            return CreatedAtRoute("DefaultApi", new { id = User.id }, User);
+            return Ok(User);
         }
 
         // DELETE: api/users/5
-        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Deleteuser(int id)
         {
             user user = await db.users.FindAsync(id);
@@ -129,8 +129,14 @@ namespace Server_API.Controllers
             db.users.Remove(user);
             await db.SaveChangesAsync();
 
-            return Ok();
+            return StatusCode(HttpStatusCode.NoContent);
 
+        }
+
+        // OPTIONS: api/users
+        public IHttpActionResult Options()
+        {
+            return Ok();
         }
 
         /// <summary>
@@ -143,8 +149,8 @@ namespace Server_API.Controllers
             // Convert our API type into the representing Model
             user usr = new user();
             usr.id = User.id;
-            usr.first_name = User.fname;
-            usr.last_name = User.lname;
+            usr.fname = User.fname;
+            usr.lname = User.lname;
             usr.email = User.email;
             usr.password = User.password;
 
@@ -160,29 +166,18 @@ namespace Server_API.Controllers
         {
             // Convert EntityModel type to our API type
             User_API usr = new User_API();
-            usr.SetID(User.id);
-            usr.fname = User.first_name;
-            usr.lname = User.last_name;
+            usr.id = User.id;
+            usr.fname = User.fname;
+            usr.lname = User.lname;
             usr.email = User.email;
             usr.password = User.password;
 
+            // Get the lists of ids for the corresponding types
+            usr.activity_ids = User.activities.Select(p => p.id).ToList();
+            usr.location_ids = User.locations.Select(p => p.id).ToList();
+            usr.custom_tags = User.tags_users.Select(p => p.tag_id).ToList();
+
             return usr;
-        }
-
-        /// <summary>
-        /// Verifies the user and the ID for the user. This is more useful in PUT requests.
-        /// </summary>
-        /// <param name="User">The user.</param>
-        /// <returns>
-        /// 404 if an ID is not found; the appropriate IHttpActionResult on failure; null on success.
-        /// </returns>
-        private async Task<IHttpActionResult> VerifyUserAndID(User_API User)
-        {
-            // Verify ID. Returns a 404 if not valid
-            if (await db.users.FindAsync(User.id) == null)
-                return NotFound();
-
-            return null;
         }
 
         protected override void Dispose(bool disposing)
@@ -192,11 +187,6 @@ namespace Server_API.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool userExists(int id)
-        {
-            return db.users.Count(e => e.id == id) > 0;
         }
     }
 }
