@@ -217,10 +217,5 @@ namespace Server_API.Controllers
             }
             base.Dispose(disposing);
         }
-
-        private bool tagExists(int id)
-        {
-            return db.tags.Count(e => e.id == id) > 0;
-        }
     }
 }

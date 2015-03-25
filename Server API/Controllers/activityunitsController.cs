@@ -210,10 +210,5 @@ namespace Server_API.Controllers
             }
             base.Dispose(disposing);
         }
-
-        private bool activityunitExists(int id)
-        {
-            return db.activityunits.Count(e => e.id == id) > 0;
-        }
     }
 }

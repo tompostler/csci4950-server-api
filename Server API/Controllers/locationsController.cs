@@ -185,10 +185,5 @@ namespace Server_API.Controllers
             }
             base.Dispose(disposing);
         }
-
-        private bool locationExists(int id)
-        {
-            return db.locations.Count(e => e.id == id) > 0;
-        }
     }
 }

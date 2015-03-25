@@ -188,10 +188,5 @@ namespace Server_API.Controllers
             }
             base.Dispose(disposing);
         }
-
-        private bool userExists(int id)
-        {
-            return db.users.Count(e => e.id == id) > 0;
-        }
     }
 }
