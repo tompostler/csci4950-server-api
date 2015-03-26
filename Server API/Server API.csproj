@@ -103,6 +103,7 @@
     <Content Include="Global.asax" />
     <Content Include="index.html" />
     <Content Include="LICENSE.txt" />
+    <Content Include="sql\courses.sql" />
     <Content Include="sql\dbcreate.sql" />
     <Content Include="sql\default_tags.sql" />
     <Content Include="Web.config" />
