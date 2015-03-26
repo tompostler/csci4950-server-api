@@ -1003,7 +1003,12 @@ VALUES
 (N'ARCH 4423', N'Gothic Architecture'),
 (N'ARCH 4424', N'Renaissance Architecture'),
 (N'ARCH 4425', N'Baroque Architecture'),
-(N'ARCH 4428', N'Byzantium/Istanbul: Crossroads of East and West'),
+(N'ARCH 4428', N'Byzantium/Istanbul: Crossroads of East and West');
+
+GO
+
+INSERT INTO [dbo].[courses] ([id], [name])
+VALUES
 (N'ARCH 4432', N'Modern Architecture'),
 (N'ARCH 4434', N'Contemporary Architecture'),
 (N'ARCH 4441', N'Minnesota: Architecture and Landscapes'),
@@ -2003,7 +2008,12 @@ VALUES
 (N'CHEM 4301', N'Applied Surface and Colloid Science'),
 (N'CHEM 4311W', N'Advanced Organic Chemistry Lab'),
 (N'CHEM 4321', N'Organic Synthesis'),
-(N'CHEM 4322', N'Advanced Organic Chemistry'),
+(N'CHEM 4322', N'Advanced Organic Chemistry');
+
+GO
+
+INSERT INTO [dbo].[courses] ([id], [name])
+VALUES
 (N'CHEM 4352', N'Physical Organic Chemistry'),
 (N'CHEM 4361', N'Interpretation of Organic Spectra'),
 (N'CHEM 4411', N'Introduction to Chemical Biology'),
@@ -3003,7 +3013,12 @@ VALUES
 (N'CSCI 8725', N'Databases for Bioinformatics'),
 (N'CSCI 8735', N'Advanced Database Systems'),
 (N'CSCI 8760', N'Plan B Project'),
-(N'CSCI 8777', N'Thesis Credits: Master''s'),
+(N'CSCI 8777', N'Thesis Credits: Master''s');
+
+GO
+
+INSERT INTO [dbo].[courses] ([id], [name])
+VALUES
 (N'CSCI 8801', N'Advanced Software Engineering'),
 (N'CSCI 8888', N'Thesis Credit: Doctoral'),
 (N'CSCI 8970', N'Computer Science Colloquium'),
@@ -4003,7 +4018,12 @@ VALUES
 (N'ECON 8706', N'Financial Economics'),
 (N'ECON 8777', N'Thesis Credits: Master''s'),
 (N'ECON 8781', N'Advanced Topics in Monetary Economics'),
-(N'ECON 8791', N'Workshop in Macroeconomics'),
+(N'ECON 8791', N'Workshop in Macroeconomics');
+
+GO
+
+INSERT INTO [dbo].[courses] ([id], [name])
+VALUES
 (N'ECON 8792', N'Workshop in Macroeconomics'),
 (N'ECON 8801', N'Public Economics'),
 (N'ECON 8802', N'Public Economics'),
@@ -5003,7 +5023,12 @@ VALUES
 (N'ESPM 5609', N'Air Pollution Impacts, Management, and Ethical Challenges'),
 (N'ESPM 5703', N'Agroforestry in Watershed Management'),
 (N'ESPM 5811', N'Environmental Interpretation'),
-(N'FDSY 2101', N'Plant Production Systems'),
+(N'FDSY 2101', N'Plant Production Systems');
+
+GO
+
+INSERT INTO [dbo].[courses] ([id], [name])
+VALUES
 (N'FDSY 2102', N'Diversity of Agricultural Production Systems'),
 (N'FDSY 4101', N'Holistic Approaches to Improving Food Systems Sustainability'),
 (N'FIN 1001', N'Beginning Finnish'),
@@ -6003,7 +6028,12 @@ VALUES
 (N'GWSS 1904', N'Freshman Seminar'),
 (N'GWSS 1905', N'Freshman Seminar'),
 (N'GWSS 1910W', N'Topics: Freshman Seminar'),
-(N'GWSS 3002V', N'Honors: Gender, Race and Class in the U.S.'),
+(N'GWSS 3002V', N'Honors: Gender, Race and Class in the U.S.');
+
+GO
+
+INSERT INTO [dbo].[courses] ([id], [name])
+VALUES
 (N'GWSS 3002W', N'Gender, Race, and Class in the U.S.'),
 (N'GWSS 3003', N'Gender and Global Politics'),
 (N'GWSS 3003H', N'Honors: Gender and Global Politics'),
@@ -7003,7 +7033,12 @@ VALUES
 (N'IBUS 6316', N'Sustainability & Cooperative Advantage in Scandinavia'),
 (N'IBUS 6500', N'Mergers and Acquisitions in a Global Context'),
 (N'IBUS 6997', N'MILI Global Valuation Lab'),
-(N'ICEL 1101', N'Intensive Modern Icelandic'),
+(N'ICEL 1101', N'Intensive Modern Icelandic');
+
+GO
+
+INSERT INTO [dbo].[courses] ([id], [name])
+VALUES
 (N'ICEL 4101', N'Intensive Modern Icelandic'),
 (N'ICP 3000', N'Career Skills in the Professional Environment'),
 (N'ICP 3093', N'Directed Study'),
@@ -8003,7 +8038,12 @@ VALUES
 (N'MATH 5651', N'Basic Theory of Probability and Statistics'),
 (N'MATH 5652', N'Introduction to Stochastic Processes'),
 (N'MATH 5654', N'Prediction and Filtering'),
-(N'MATH 5705', N'Enumerative Combinatorics'),
+(N'MATH 5705', N'Enumerative Combinatorics');
+
+GO
+
+INSERT INTO [dbo].[courses] ([id], [name])
+VALUES
 (N'MATH 5707', N'Graph Theory and Non-enumerative Combinatorics'),
 (N'MATH 5711', N'Linear Programming and Combinatorial Optimization'),
 (N'MATH 5900', N'Tutorial in Advanced Mathematics'),
@@ -9003,7 +9043,12 @@ VALUES
 (N'MUSA 1102', N'Harpsichord: Elective (non-major in music)'),
 (N'MUSA 1103', N'Organ: Elective (non-major in music)'),
 (N'MUSA 1104', N'Voice: Elective (non-major in music)'),
-(N'MUSA 1105', N'Violin: Elective (non-major in music)'),
+(N'MUSA 1105', N'Violin: Elective (non-major in music)');
+
+GO
+
+INSERT INTO [dbo].[courses] ([id], [name])
+VALUES
 (N'MUSA 1106', N'Viola: Elective (non-major in music)'),
 (N'MUSA 1107', N'Cello: Elective (non-major in music)'),
 (N'MUSA 1108', N'Double Bass: Elective (non-major in music)'),
@@ -10003,7 +10048,12 @@ VALUES
 (N'OPH 8117', N'Orbit, Plastics, and Trauma'),
 (N'OPH 8118', N'General Medical Problems'),
 (N'OPH 8119', N'Clinical Pathological Correlations in Ophthalmology'),
-(N'OPH 8120', N'Scope of Ophthalmic Pathology'),
+(N'OPH 8120', N'Scope of Ophthalmic Pathology');
+
+GO
+
+INSERT INTO [dbo].[courses] ([id], [name])
+VALUES
 (N'OPH 8125', N'Diseases of the Cornea and External Eye'),
 (N'OPH 8126', N'Diseases of the Cornea and External Eye'),
 (N'OPH 8131', N'Practical Ocular Surgery'),
@@ -11003,7 +11053,12 @@ VALUES
 (N'PMED 7418', N'Rehab Medicine at Hennepin County Medical Center'),
 (N'PMED 8200', N'Physical Medicine and Rehabilitation Service'),
 (N'PMED 8207', N'Basic and Applied Psychiatry'),
-(N'PMED 8210', N'Research in Physical Medicine'),
+(N'PMED 8210', N'Research in Physical Medicine');
+
+GO
+
+INSERT INTO [dbo].[courses] ([id], [name])
+VALUES
 (N'PMED 8212', N'Electromyography'),
 (N'PMED 8214', N'Readings in Electromyography'),
 (N'PMED 8220', N'Seminar: Physical Medicine and Rehabilitation'),
@@ -12003,7 +12058,12 @@ VALUES
 (N'REC 5981', N'Research Methodology in Kinesiology, Recreation, and Sport'),
 (N'REC 5992', N'Readings: Recreation'),
 (N'REC 5995', N'Problems in Recreation, Park, and Leisure Studies'),
-(N'RELS 1001', N'Introduction to the Religions of the World'),
+(N'RELS 1001', N'Introduction to the Religions of the World');
+
+GO
+
+INSERT INTO [dbo].[courses] ([id], [name])
+VALUES
 (N'RELS 1002', N'Introduction to the Study of Religions in America'),
 (N'RELS 1003', N'World of the Bible: Religions, Empires, and Discourses of Power'),
 (N'RELS 1011', N'Religions and American Identity in the United States from World War II to the Present'),
@@ -13003,7 +13063,12 @@ VALUES
 (N'TH 5500', N'Theatre Design Practicum'),
 (N'TH 5510', N'Drawing, Rendering, and Painting for the Theatre Designer I'),
 (N'TH 5520', N'Scene Design'),
-(N'TH 5530', N'Costume Design'),
+(N'TH 5530', N'Costume Design');
+
+GO
+
+INSERT INTO [dbo].[courses] ([id], [name])
+VALUES
 (N'TH 5540', N'Lighting Design for the Theatre'),
 (N'TH 5545', N'Stage Lighting Technology'),
 (N'TH 5554', N'Multimedia Production for Live Performance'),
@@ -13387,3 +13452,4 @@ VALUES
 (N'YOST 5974', N'The Democratic Learning Community');
 
 GO
+
