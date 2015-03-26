@@ -8,7 +8,7 @@ namespace Server_API.Models
     public partial class csci4950s15Model : DbContext
     {
         public csci4950s15Model()
-            : base("name=csci4950s15Model")
+            : base("name=csci4950s15Model1")
         {
         }
 
@@ -31,7 +31,7 @@ namespace Server_API.Models
                 .HasMany(e => e.activityunits)
                 .WithRequired(e => e.activity)
                 .HasForeignKey(e => e.activity_id)
-                .WillCascadeOnDelete(false);
+                .WillCascadeOnDelete(true);
 
             modelBuilder.Entity<activity>()
                 .HasMany(e => e.tags)
@@ -50,6 +50,10 @@ namespace Server_API.Models
 
             modelBuilder.Entity<course>()
                 .Property(e => e.id)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<course>()
+                .Property(e => e.name)
                 .IsUnicode(false);
 
             modelBuilder.Entity<course>()
@@ -78,7 +82,7 @@ namespace Server_API.Models
                 .HasMany(e => e.activities)
                 .WithRequired(e => e.user)
                 .HasForeignKey(e => e.user_id)
-                .WillCascadeOnDelete(false);
+                .WillCascadeOnDelete(true);
 
             modelBuilder.Entity<user>()
                 .HasOptional(e => e.auth)
@@ -88,7 +92,7 @@ namespace Server_API.Models
                 .HasMany(e => e.locations)
                 .WithRequired(e => e.user)
                 .HasForeignKey(e => e.user_id)
-                .WillCascadeOnDelete(false);
+                .WillCascadeOnDelete(true);
 
             modelBuilder.Entity<user>()
                 .HasOptional(e => e.setting)
