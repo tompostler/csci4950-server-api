@@ -18,7 +18,7 @@ namespace Server_API.Models
         public string id { get; set; }
 
         [Required]
-        [StringLength(32)]
+        [StringLength(100)]
         public string name { get; set; }
 
         public virtual ICollection<activity> activities { get; set; }
