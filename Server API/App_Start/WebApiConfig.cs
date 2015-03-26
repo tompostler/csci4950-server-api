@@ -19,7 +19,7 @@ namespace Server_API
             config.Formatters.Add(new JsonMediaTypeFormatter());
 
             // April Fools 2015
-            if ((DateTime.Today.Date.CompareTo(new DateTime(2015, 4, 1).Date)) > 0)
+            if (DateTime.Today.Date.Equals(new DateTime(2015, 4, 1).Date))
             {
                 config.Formatters.Clear();
                 config.Formatters.Add(new Formatters.DsonFormatter());
