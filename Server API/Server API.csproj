@@ -38,6 +38,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BCrypt.Net">
+      <HintPath>packages\BCrypt-Official.0.1.109\lib\BCrypt.Net.dll</HintPath>
+    </Reference>
     <Reference Include="Binbin.Linq.PredicateBuilder">
       <HintPath>packages\Binbin.Linq.PredicateBuilder.1.0\lib\net40\Binbin.Linq.PredicateBuilder.dll</HintPath>
     </Reference>
@@ -99,14 +102,21 @@
     <Content Include="frizzle.jpg" />
     <Content Include="Global.asax" />
     <Content Include="index.html" />
+    <Content Include="LICENSE.txt" />
+    <Content Include="sql\courses.sql" />
+    <Content Include="sql\dbcreate.sql" />
     <Content Include="sql\default_tags.sql" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Auth\AuthorizeHeader.cs" />
+    <Compile Include="Auth\Hashing.cs" />
     <Compile Include="Auth\RequireHttpsAttribute.cs" />
     <Compile Include="Controllers\activitiesController.cs" />
     <Compile Include="Controllers\activityunitsController.cs" />
+    <Compile Include="Controllers\authController.cs" />
+    <Compile Include="Controllers\coursesController.cs" />
     <Compile Include="Controllers\infoController.cs" />
     <Compile Include="Controllers\locationsController.cs" />
     <Compile Include="Controllers\tagsController.cs" />
@@ -118,10 +128,11 @@
     <Compile Include="Models\activity.cs" />
     <Compile Include="Models\activityunit.cs" />
     <Compile Include="Models\auth.cs" />
+    <Compile Include="Models\course.cs" />
     <Compile Include="Models\csci4950s15Model.cs" />
     <Compile Include="Models\location.cs" />
+    <Compile Include="Models\setting.cs" />
     <Compile Include="Models\tag.cs" />
-    <Compile Include="Models\tags_users.cs" />
     <Compile Include="Models\user.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

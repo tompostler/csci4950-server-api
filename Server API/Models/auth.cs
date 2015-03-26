@@ -16,6 +16,7 @@ namespace Server_API.Models
         [StringLength(64)]
         public string token { get; set; }
 
+        [Column(TypeName = "datetime2")]
         public DateTime expire { get; set; }
 
         public virtual user user { get; set; }

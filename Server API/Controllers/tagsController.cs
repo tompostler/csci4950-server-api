@@ -15,7 +15,7 @@ namespace Server_API.Controllers
     {
         private csci4950s15Model db = new csci4950s15Model();
 
-        public class DefaultTag_API
+        public class Tag_API
         {
             public byte id { get; set; }
 
@@ -26,18 +26,6 @@ namespace Server_API.Controllers
             public string default_color { get; set; }
         }
 
-        public class Tag_API
-        {
-            [Required]
-            public byte tag_id { get; set; }
-
-            [Required]
-            public int user_id { get; set; }
-
-            [Required, StringLength(6)]
-            public string color { get; set; }
-        }
-
         // GET: api/tags
         public async Task<IHttpActionResult> Gettags()
         {
@@ -46,36 +34,10 @@ namespace Server_API.Controllers
                                    select tg;
 
             // Convert the tags to more API friendly things
-            List<DefaultTag_API> results = new List<DefaultTag_API>();
+            List<Tag_API> results = new List<Tag_API>();
             List<tag> taglist = await tags.ToListAsync();
             foreach (var tg in taglist)
-                results.Add(ConvertDefaultTagToDefaultTagApi(tg));
-
-            if (results.Count == 0)
-                return NotFound();
-            else
-                return Ok(results);
-        }
-
-        // GET: api/tags?user_id=##
-        public async Task<IHttpActionResult> Gettags(int user_id, int tag_id = 0)
-        {
-            // Create the result set
-            IQueryable<tags_users> tag_users = from tgu in db.tags_users
-                                               select tgu;
-
-            // Filter on user_id
-            tag_users = tag_users.Where(p => p.user_id.Equals(user_id));
-
-            // Filter on tag_id
-            if (tag_id != 0)
-                tag_users = tag_users.Where(p => p.tag_id.Equals(tag_id));
-
-            // Convert the tags_users to more API friendly things
-            List<Tag_API> results = new List<Tag_API>();
-            List<tags_users> tgulist = await tag_users.ToListAsync();
-            foreach (var tgu in tgulist)
-                results.Add(ConvertTagToTagApi(tgu));
+                results.Add(ConvertTagToTagApi(tg));
 
             if (results.Count == 0)
                 return NotFound();
@@ -84,55 +46,50 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/tags
-        public async Task<IHttpActionResult> Puttag(Tag_API UserTag)
+        public async Task<IHttpActionResult> Puttag(Tag_API Tag)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             // Convert the Tag_API to the EntityModel tags_users
-            tags_users tgu = ConvertTagApiToTag(UserTag);
+            tag tg = ConvertTagApiToTag(Tag);
 
             // Update the tags_users
-            db.Entry(tgu).State = EntityState.Modified;
+            db.Entry(tg).State = EntityState.Modified;
             await db.SaveChangesAsync();
 
             return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/tags
-        public async Task<IHttpActionResult> Posttag(Tag_API UserTag)
+        public async Task<IHttpActionResult> Posttag(Tag_API Tag)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Convert the DefaultTag_API to the EntityModel tag
-            tags_users tg = ConvertTagApiToTag(UserTag);
+            // Convert the Tag_API to the EntityModel tag
+            tag tg = ConvertTagApiToTag(Tag);
 
             // Add the tag to the DB
-            db.tags_users.Add(tg);
+            db.tags.Add(tg);
             await db.SaveChangesAsync();
 
-            return Ok(UserTag);
+            // Update the ID with the one that was auto-assigned
+            Tag.id = tg.id;
+
+            return Ok(Tag);
         }
 
-        // DELETE: api/tags?tag_id=##&user_id=##
-        public async Task<IHttpActionResult> Deletetag(int tag_id, int user_id)
+        // DELETE: api/tags/5
+        public async Task<IHttpActionResult> Deletetag(int id)
         {
-            // Create the result set
-            IQueryable<tags_users> tag_users = from tgu in db.tags_users
-                                               select tgu;
-
-            // Filter on user_id
-            tag_users = tag_users.Where(p => p.user_id.Equals(user_id));
-            tag_users = tag_users.Where(p => p.tag_id.Equals(tag_id));
-
-            // Get the one tags_users
-            tags_users tu = await tag_users.FirstOrDefaultAsync();
-            if (tu == null)
+            tag tg = await db.tags.FindAsync(id);
+            if (tg == null)
+            {
                 return NotFound();
+            }
 
-            // Remove it
-            db.tags_users.Remove(tu);
+            db.tags.Remove(tg);
             await db.SaveChangesAsync();
 
             return StatusCode(HttpStatusCode.NoContent);
@@ -146,67 +103,33 @@ namespace Server_API.Controllers
         }
 
         /// <summary>
-        /// Converts a DefaultTag_API to an EntitiyModel tag.
-        /// </summary>
-        /// <param name="Tag">The DefaultTag_API to convert.</param>
-        /// <returns>An EntityModel tag corresponding to the DefaultTag_API.</returns>
-        private static tag ConvertDefaultTagApiToDefaultTag(DefaultTag_API Tag)
-        {
-            // Convert the DefaultTag_API to the EntityModel tag
-            tag tg = new tag();
-            tg.id = Tag.id;
-            tg.name = Tag.name;
-            tg.default_color = Tag.default_color;
-
-            return tg;
-        }
-
-        /// <summary>
-        /// Converts an EntitiyModel tag to a DefaultTag_API.
-        /// </summary>
-        /// <param name="Tag">The EntitiyModel tag to convert.</param>
-        /// <returns>A DefaultTag_API corresponding to the EntitiyModel tag.</returns>
-        private static DefaultTag_API ConvertDefaultTagToDefaultTagApi(tag Tag)
-        {
-            // Convert the EntityModel tag to the DefaultTag_API
-            DefaultTag_API tg = new DefaultTag_API();
-            tg.id = Tag.id;
-            tg.name = Tag.name;
-            tg.default_color = Tag.default_color;
-
-            return tg;
-        }
-
-        /// <summary>
-        /// Converts an Tag_API to an EntitiyModel tags_users.
+        /// Converts an Tag_API to an EntitiyModel tag.
         /// </summary>
         /// <param name="Tag">The Tag_API to convert.</param>
-        /// <returns>An EntitiyModel tags_users corresponding to the Tag_API.</returns>
-        private static tags_users ConvertTagApiToTag(Tag_API Tag)
+        /// <returns>An EntitiyModel tag corresponding to the Tag_API.</returns>
+        private static tag ConvertTagApiToTag(Tag_API Tag)
         {
-            // Convert the Tag_API to the EntityModel tags_users
-            tags_users tgu = new tags_users();
-            tgu.tag_id = Tag.tag_id;
-            tgu.user_id = Tag.user_id;
-            tgu.color = Tag.color;
+            // Convert the Tag_API to the EntityModel tag
+            tag tg = new tag();
+            tg.id = Tag.id;
+            tg.default_color = Tag.default_color;
 
-            return tgu;
+            return tg;
         }
 
         /// <summary>
-        /// Converts an EntitiyModel tags_users to an Tag_API.
+        /// Converts an EntitiyModel tag to an Tag_API.
         /// </summary>
-        /// <param name="Tag">The EntitiyModel tags_users to convert.</param>
-        /// <returns>An Tag_API corresponding to the EntitiyModel tags_users.</returns>
-        private static Tag_API ConvertTagToTagApi(tags_users Tag)
+        /// <param name="Tag">The EntitiyModel tag to convert.</param>
+        /// <returns>An Tag_API corresponding to the EntitiyModel tag.</returns>
+        private static Tag_API ConvertTagToTagApi(tag Tag)
         {
-            // Convert the EntityModel tags_users to the Tag_API
-            Tag_API tgu = new Tag_API();
-            tgu.tag_id = Tag.tag_id;
-            tgu.user_id = Tag.user_id;
-            tgu.color = Tag.color;
+            // Convert the EntityModel tag to the Tag_API
+            Tag_API tg = new Tag_API();
+            tg.id = Tag.id;
+            tg.default_color = Tag.default_color;
 
-            return tgu;
+            return tg;
         }
 
         protected override void Dispose(bool disposing)

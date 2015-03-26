@@ -27,22 +27,25 @@ namespace Server_API.Controllers
             {
                 activity_ids = new List<int>();
                 location_ids = new List<int>();
-                custom_tags = new List<byte>();
             }
 
             public int id { get; set; }
+
             [Required, StringLength(50)]
             public string fname { get; set; }
+
             [Required, StringLength(50)]
             public string lname { get; set; }
+
             [Required, StringLength(50), EmailAddress]
             public string email { get; set; }
-            [Required, StringLength(128)]
+
+            [Required]
             public string password { get; set; }
 
             public List<int> activity_ids { get; set; }
+
             public List<int> location_ids { get; set; }
-            public List<byte> custom_tags { get; set; }
         }
 
         // GET: api/users
@@ -88,6 +91,11 @@ namespace Server_API.Controllers
             if (id != User.id)
                 return BadRequest("PUT URL and ID in the location do not match");
 
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
+
             // Convert the User_API to the EntityModel location
             user usr = ConvertUserApiToUser(User);
 
@@ -112,7 +120,7 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             // Update the ID with the one that was auto-assigned
-            User.id = usr.id;
+            User = ConvertUserToUserApi(usr);
 
             return Ok(User);
         }
@@ -152,7 +160,7 @@ namespace Server_API.Controllers
             usr.fname = User.fname;
             usr.lname = User.lname;
             usr.email = User.email;
-            usr.password = User.password;
+            usr.password = Hashing.HashPassword(User.password);
 
             return usr;
         }
@@ -170,12 +178,11 @@ namespace Server_API.Controllers
             usr.fname = User.fname;
             usr.lname = User.lname;
             usr.email = User.email;
-            usr.password = User.password;
+            usr.password = null;
 
             // Get the lists of ids for the corresponding types
             usr.activity_ids = User.activities.Select(p => p.id).ToList();
             usr.location_ids = User.locations.Select(p => p.id).ToList();
-            usr.custom_tags = User.tags_users.Select(p => p.tag_id).ToList();
 
             return usr;
         }

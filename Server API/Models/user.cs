@@ -12,7 +12,6 @@ namespace Server_API.Models
         {
             activities = new HashSet<activity>();
             locations = new HashSet<location>();
-            tags_users = new HashSet<tags_users>();
         }
 
         public int id { get; set; }
@@ -30,7 +29,7 @@ namespace Server_API.Models
         public string email { get; set; }
 
         [Required]
-        [StringLength(128)]
+        [StringLength(60)]
         public string password { get; set; }
 
         public virtual ICollection<activity> activities { get; set; }
@@ -39,6 +38,6 @@ namespace Server_API.Models
 
         public virtual ICollection<location> locations { get; set; }
 
-        public virtual ICollection<tags_users> tags_users { get; set; }
+        public virtual setting setting { get; set; }
     }
 }

@@ -35,11 +35,19 @@ namespace Server_API.Controllers
             [Required]
             public int user_id { get; set; }
 
+            [Required, StringLength(12)]
+            public string course_id { get; set; }
+
             [Required, StringLength(50)]
             public string name { get; set; }
 
             [StringLength(100)]
             public string description { get; set; }
+
+            public DateTime? ddate { get; set; }
+
+            [Required]
+            public DateTime mdate { get; set; }
 
             public List<byte> tag_ids { get; set; }
 
@@ -47,7 +55,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activities
-        public async Task<IHttpActionResult> Getactivities(int id = 0, int user_id = 0, string name = "")
+        public async Task<IHttpActionResult> Getactivities(int id = 0, int user_id = 0, string course_id = "", string name = "", DateTime? ddate = null)
         {
             // If we have an ID to search by, handle it
             if (id != 0)
@@ -67,9 +75,17 @@ namespace Server_API.Controllers
             if (user_id != 0)
                 activities = activities.Where(p => p.user.Equals(user_id));
 
+            // Filter by course_id
+            if (!String.IsNullOrEmpty(course_id))
+                activities = activities.Where(p => p.course_id.Equals(course_id));
+
             // Filter by name, strict matching
             if (!String.IsNullOrEmpty(name))
                 activities = activities.Where(p => p.name.Equals(name));
+
+            // Filter by ddate
+            if (ddate != null)
+                activities = activities.Where(p => p.ddate.Equals(ddate));
 
             // Convert the activities to more API friendly things
             List<Activity_API> results = new List<Activity_API>();
@@ -155,8 +171,11 @@ namespace Server_API.Controllers
             activity act = new activity();
             act.id = Activity.id;
             act.user_id = Activity.user_id;
+            act.course_id = Activity.course_id;
             act.name = Activity.name;
             act.description = Activity.description;
+            act.ddate = Activity.ddate;
+            act.mdate = DateTime.UtcNow;
 
             return act;
         }
@@ -172,8 +191,10 @@ namespace Server_API.Controllers
             Activity_API act = new Activity_API();
             act.id = Activity.id;
             act.user_id = Activity.user_id;
+            act.course_id = Activity.course_id;
             act.name = Activity.name;
             act.description = Activity.description;
+            act.ddate = Activity.ddate;
 
             // Magic to get just the IDs out of objects
             act.tag_ids = Activity.tags.Select(p => p.id).ToList();
