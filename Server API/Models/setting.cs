@@ -16,6 +16,7 @@ namespace Server_API.Models
         [Required]
         public string value { get; set; }
 
+        [Column(TypeName = "datetime2")]
         public DateTime mdate { get; set; }
 
         public virtual user user { get; set; }

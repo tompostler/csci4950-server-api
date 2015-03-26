@@ -29,8 +29,10 @@ namespace Server_API.Models
         [StringLength(100)]
         public string description { get; set; }
 
+        [Column(TypeName = "datetime2")]
         public DateTime? ddate { get; set; }
 
+        [Column(TypeName = "datetime2")]
         public DateTime mdate { get; set; }
 
         public virtual course course { get; set; }
