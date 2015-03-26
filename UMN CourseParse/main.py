@@ -4,8 +4,10 @@
 
 from urllib import request
 from bs4 import BeautifulSoup
+from sqldump import DumpToTransactSQL
 from time import sleep
 from random import randint
+from sys import argv
 
 
 
@@ -71,9 +73,11 @@ def GetAllCourses():
             print("MISMATCH for", dept, "nums={} names={}".format(len(nums),len(names)))
 
         # Sleep so we don't kill (or get blocked by) the server
-        secs = randint(5,10)
-        print("Sleeping for", secs, "secs")
-        sleep(secs)
+        # Add any parameters to the script to skip this
+        if len(argv) == 1:
+            secs = randint(5,10)
+            print("Sleeping for", secs, "secs")
+            sleep(secs)
 
     return (allnums, allnames)
 
