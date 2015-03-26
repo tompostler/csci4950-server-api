@@ -110,6 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Auth\AuthorizeHeader.cs" />
     <Compile Include="Auth\Hashing.cs" />
     <Compile Include="Auth\RequireHttpsAttribute.cs" />
     <Compile Include="Controllers\activitiesController.cs" />
