@@ -29,7 +29,7 @@ namespace Server_API.Models
         public string email { get; set; }
 
         [Required]
-        [StringLength(128)]
+        [StringLength(60)]
         public string password { get; set; }
 
         public virtual ICollection<activity> activities { get; set; }
