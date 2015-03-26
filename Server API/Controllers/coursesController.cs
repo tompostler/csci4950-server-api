@@ -3,6 +3,7 @@ using Server_API.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -29,25 +30,35 @@ namespace Server_API.Controllers
         }
 
         // GET: api/courses
-        public async Task<IHttpActionResult> Getcourses(string id = "")
+        public async Task<IHttpActionResult> Getcourses()
         {
-            // If we have an ID to search by, handle it
-            if (!String.IsNullOrEmpty(id))
-            {
-                course cou = await db.courses.FindAsync(id);
-                if (cou == null)
-                    return NotFound();
-                else
-                    return Ok(ConvertCourseToCourseApi(cou));
-            }
-
             // Create the result set
             IQueryable<course> courses = from cou in db.courses
                                          select cou;
 
             // Convert the courses to more API friendly things
             List<Course_API> results = new List<Course_API>();
-            List<course> courselist = courses.ToList();
+            List<course> courselist = await courses.ToListAsync();
+            foreach (var cou in courselist)
+                results.Add(ConvertCourseToCourseApi(cou));
+
+            // Courses is hardcoded
+            return Ok(results);
+        }
+
+        // GET: api/courses?id=CSCI
+        public async Task<IHttpActionResult> Getcourses(string id)
+        {
+            // Create the result set
+            IQueryable<course> courses = from cou in db.courses
+                                         select cou;
+
+            // Filter by id
+            courses = courses.Where(p => p.id.Contains(id));
+
+            // Convert the courses to more API friendly things
+            List<Course_API> results = new List<Course_API>();
+            List<course> courselist = await courses.ToListAsync();
             foreach (var cou in courselist)
                 results.Add(ConvertCourseToCourseApi(cou));
 
