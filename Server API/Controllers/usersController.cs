@@ -40,7 +40,7 @@ namespace Server_API.Controllers
             [Required, StringLength(50), EmailAddress]
             public string email { get; set; }
 
-            [Required, StringLength(128)]
+            [Required]
             public string password { get; set; }
 
             public List<int> activity_ids { get; set; }
@@ -115,7 +115,7 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             // Update the ID with the one that was auto-assigned
-            User.id = usr.id;
+            User = ConvertUserToUserApi(usr);
 
             return Ok(User);
         }
@@ -155,7 +155,7 @@ namespace Server_API.Controllers
             usr.fname = User.fname;
             usr.lname = User.lname;
             usr.email = User.email;
-            usr.password = User.password;
+            usr.password = Hashing.HashPassword(User.password);
 
             return usr;
         }
@@ -173,7 +173,7 @@ namespace Server_API.Controllers
             usr.fname = User.fname;
             usr.lname = User.lname;
             usr.email = User.email;
-            usr.password = User.password;
+            usr.password = null;
 
             // Get the lists of ids for the corresponding types
             usr.activity_ids = User.activities.Select(p => p.id).ToList();

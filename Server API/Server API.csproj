@@ -38,6 +38,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BCrypt.Net">
+      <HintPath>packages\BCrypt-Official.0.1.109\lib\BCrypt.Net.dll</HintPath>
+    </Reference>
     <Reference Include="Binbin.Linq.PredicateBuilder">
       <HintPath>packages\Binbin.Linq.PredicateBuilder.1.0\lib\net40\Binbin.Linq.PredicateBuilder.dll</HintPath>
     </Reference>
@@ -99,12 +102,14 @@
     <Content Include="frizzle.jpg" />
     <Content Include="Global.asax" />
     <Content Include="index.html" />
+    <Content Include="LICENSE.txt" />
     <Content Include="sql\dbcreate.sql" />
     <Content Include="sql\default_tags.sql" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Auth\Hashing.cs" />
     <Compile Include="Auth\RequireHttpsAttribute.cs" />
     <Compile Include="Controllers\activitiesController.cs" />
     <Compile Include="Controllers\activityunitsController.cs" />
