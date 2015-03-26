@@ -91,6 +91,11 @@ namespace Server_API.Controllers
             if (id != User.id)
                 return BadRequest("PUT URL and ID in the location do not match");
 
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
+
             // Convert the User_API to the EntityModel location
             user usr = ConvertUserApiToUser(User);
 
