@@ -46,6 +46,7 @@ GO
         sqlvals.append("(N'{}', N'{}')".format(nums[i], names[i].replace("'","''")))
 
     # Cleanup
+    sqltxt += ',\n'.join(sqlvals)
     sqltxt += sqlgoc
 
     # Info
