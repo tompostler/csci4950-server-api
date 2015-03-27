@@ -452,19 +452,40 @@ Random notes and things that don't have a better place in this documentation.
 
 ### API Security
 
-REFACTOR
+This API features three main security features.
+
+The first is HTTPS. All types of requests on all controllers that handle user-specific data require
+HTTPS for any action.
+
+The second security feature is token-based authentication. All `GET`, `PUT`, `POST`, and `DELETE`
+requests relating to a specific user require that a server-generated token (described further
+[below](#token-generation)) be supplied in the `Authorization` HTTP header of the request. Examples
+of how to use the token will be provided in the [examples](#examples) section.
+
+The last security feature is that the request can only request, modify, add, or delete data
+corresponding to the user that a token was generated for. This will prevent one user from modifying
+another user's password (for example).
 
 
 
 ### Password Storage
 
-REFACTOR
+Passwords will only be accepted by the API in POST requests over an HTTPS connection.
+
+Passwords are hashed with bcrypt and stored in the database. You cannot retrieve a password for a
+specific user.
 
 
 
 ### Token Generation
 
-REFACTOR
+A user must be created.
+
+Then a request is sent to the `auth` node with the user id and password.
+    
+Handed back is the base64-encoded token and the expiration time in UTC format.
+
+For more information and precise code examples, see the [examples](#examples) section.
 
 
 
