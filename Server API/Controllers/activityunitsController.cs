@@ -53,7 +53,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activityunit
-        public async Task<IHttpActionResult> Getactivityunit(int id = 0, int activity_id = 0, int location_id = 0, DateTime? stime = null, DateTime? etime = null)
+        public async Task<IHttpActionResult> Getactivityunit(int id = 0, int activity_id = 0, int location_id = 0)
         {
             // If we have an ID to search by, handle it
             if (id != 0)
@@ -76,14 +76,6 @@ namespace Server_API.Controllers
             // Filter on location_id
             if (location_id != 0)
                 activityunit = activityunit.Where(p => p.location.Equals(location_id));
-
-            // Filter on stime
-            if (stime != null)
-                activityunit = activityunit.Where(p => p.stime.Equals(stime.Value.ToUniversalTime()));
-
-            // Filter on etime
-            if (etime != null)
-                activityunit = activityunit.Where(p => p.etime.Equals(etime.Value.ToUniversalTime()));
 
             // Convert the activityunit to more API friendly things
             List<ActivityUnit_API> results = new List<ActivityUnit_API>();

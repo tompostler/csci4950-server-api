@@ -115,7 +115,7 @@ namespace Server_API.Controllers
                 return BadRequest(msg);
 
             // Convert the Activity_API to the EntityModel activity
-            activity act = ConvertActivityApiToActivity(Activity);
+            activity act = await ConvertActivityApiToActivity(Activity);
 
             // Update the activity
             db.Entry(act).State = EntityState.Modified;
@@ -136,7 +136,7 @@ namespace Server_API.Controllers
                 return BadRequest(msg);
 
             // Convert the Activity_API to the EntityModel activity
-            activity act = ConvertActivityApiToActivity(Activity);
+            activity act = await ConvertActivityApiToActivity(Activity);
 
             // Add the activity to the DB
             db.activities.Add(act);
@@ -180,8 +180,17 @@ namespace Server_API.Controllers
         /// </summary>
         /// <param name="Activity">The Activity_API to convert.</param>
         /// <returns>An EntityModel activity corresponding to the Activity_API.</returns>
-        private activity ConvertActivityApiToActivity(Activity_API Activity)
+        private async Task<activity> ConvertActivityApiToActivity(Activity_API Activity)
         {
+            // Get the tags referenced by this activity
+            // http://stackoverflow.com/a/2101561
+            var tags = from tg in db.tags
+                       select tg;
+            var tagsPredicate = PredicateBuilder.False<tag>();
+            foreach (int id in Activity.tag_ids)
+                tagsPredicate = tagsPredicate.Or(p => p.id.Equals(id));
+            tags = tags.Where(tagsPredicate);
+
             // Convert the Activity_API to the EntityModel activity
             activity act = new activity();
             act.id = Activity.id;
@@ -191,6 +200,7 @@ namespace Server_API.Controllers
             act.description = Activity.description;
             act.ddate = Activity.ddate;
             act.mdate = DateTime.UtcNow;
+            act.tags = await tags.ToListAsync();
 
             return act;
         }

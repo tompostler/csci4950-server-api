@@ -25,7 +25,7 @@ namespace Server_API.Controllers
             [Required, StringLength(12)]
             public string id { get; set; }
 
-            [Required, StringLength(32)]
+            [Required, StringLength(100)]
             public string name { get; set; }
         }
 

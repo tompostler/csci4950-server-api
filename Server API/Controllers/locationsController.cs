@@ -43,7 +43,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/locations
-        public async Task<IHttpActionResult> Getlocations(int id = 0, int user = 0)
+        public async Task<IHttpActionResult> Getlocations(int id = 0, int user_id = 0)
         {
             // If we have an ID to search by, handle it
             if (id != 0)
@@ -60,8 +60,8 @@ namespace Server_API.Controllers
                                              select loc;
 
             // Filter on user_id
-            if (user != 0)
-                locations = locations.Where(p => p.user.Equals(user));
+            if (user_id != 0)
+                locations = locations.Where(p => p.user.Equals(user_id));
 
             // Convert the locations to more API friendly things
             List<Location_API> results = new List<Location_API>();

@@ -90,5 +90,11 @@ namespace Server_API.Controllers
 
             return StatusCode(HttpStatusCode.NoContent);
         }
+
+        // OPTIONS: api/auth
+        public IHttpActionResult Options()
+        {
+            return Ok();
+        }
     }
 }
