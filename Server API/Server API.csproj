@@ -102,7 +102,6 @@
     <Content Include="frizzle.jpg" />
     <Content Include="Global.asax" />
     <Content Include="index.html" />
-    <Content Include="LICENSE.txt" />
     <Content Include="sql\courses.sql" />
     <Content Include="sql\dbcreate.sql" />
     <Content Include="sql\default_tags.sql" />
@@ -119,6 +118,7 @@
     <Compile Include="Controllers\coursesController.cs" />
     <Compile Include="Controllers\infoController.cs" />
     <Compile Include="Controllers\locationsController.cs" />
+    <Compile Include="Controllers\settingsController.cs" />
     <Compile Include="Controllers\tagsController.cs" />
     <Compile Include="Controllers\usersController.cs" />
     <Compile Include="Formatters\DsonFormatter.cs" />

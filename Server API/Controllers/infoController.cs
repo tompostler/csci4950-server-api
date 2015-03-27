@@ -26,8 +26,8 @@ namespace Server_API.Controllers
         {
             Info_API info = new Info_API
             {
-                version = "2.05.0000",
-                version_date = "2015-03-25",
+                version = "2.06.0000",
+                version_date = "2015-03-26",
                 contacts = new List<Info_API.Contact>
                 {
                     new Info_API.Contact
@@ -46,8 +46,11 @@ namespace Server_API.Controllers
                 {
                     "activities",
                     "activityunits",
+                    "auth",
                     "courses",
+                    "info",
                     "locations",
+                    "settings",
                     "tags",
                     "users"
                 },
