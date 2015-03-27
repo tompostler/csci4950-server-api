@@ -134,6 +134,11 @@ namespace Server_API.Controllers
                 return NotFound();
             }
 
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
+
             db.users.Remove(user);
             await db.SaveChangesAsync();
 

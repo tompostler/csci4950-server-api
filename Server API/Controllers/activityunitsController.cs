@@ -107,6 +107,11 @@ namespace Server_API.Controllers
             if (id != ActivityUnit.id)
                 return BadRequest("PUT URL and ID in the activity unit do not match");
 
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, (await db.activities.FindAsync(ActivityUnit.activity_id)).user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
+
             // Convert the ActivityUnit_API to the EntityModel activityunit
             activityunit acu = ConvertActivityUnitApiToActivityUnit(ActivityUnit);
 
@@ -122,6 +127,11 @@ namespace Server_API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, (await db.activities.FindAsync(ActivityUnit.activity_id)).user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
 
             // Convert the ActivityUnit_API to the EntityModel activityunit
             activityunit acu = ConvertActivityUnitApiToActivityUnit(ActivityUnit);
@@ -144,6 +154,11 @@ namespace Server_API.Controllers
             {
                 return NotFound();
             }
+
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, (await db.activities.FindAsync(activityunit.activity_id)).user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
 
             db.activityunits.Remove(activityunit);
             await db.SaveChangesAsync();
