@@ -125,12 +125,18 @@ __Notes:__
 Found` is returned to the caller, regardless of what it says are possible return results.
 - In all cases below, if some action causes an error, then a generic status of `400 Bad Request` is
 returned to the caller, regardless of what it says are possible return results.
+- In all cases below, if there is an issue with the Authorization header and the request placed,
+then the `400 Bad Request` status is returned with an error message saying what went wrong.
 
 
 
 ### GET Responses
 
-REFACTOR
+There are 2 scenarios with a `GET`:
+
+- Requesting a specifc item by its ID. This will return one item in the appropriate format.
+- Requesting items based off a query. This will return a list of items, and the list returned may be
+empty based off of the query.
 
 
 
@@ -183,18 +189,14 @@ Node | Description
 [`/tags`](#tags-node) | Corresponds to a user-defined tag.
 [`/users`](#users-node) | Corresponds to a user.
 
-REFACTOR:
-
 Unless otherwise stated, each request type has the following action:
 
-For `GET` requests, the root level nodes will return __all__ entries in the database corresponding
-to that node. This is a _very_ expensive operation, and will be removed as a "feature" once we have
-moved from the development phase into the beta testing phase. For each item in a `GET` request, all
-elements will be returned.
+For `GET` requests, you may perform queries on the data restricted to the level of access provided
+by the token used in the Authorization header.
 
-For `PUT` and `DELETE` requests, this will often need to be coupled with a [subnode](#subnodes) for
-proper usage. `PUT` requies the entire item and all of the elements, while `DELETE` does not require
-any body. You cannot change the ID or user_id in a `PUT` request
+For `PUT` and `DELETE` requests, this will need to be coupled with a [subnode](#subnodes) for proper
+usage. `PUT` requies the entire item and all of the elements, while `DELETE` does not require any
+message body. You cannot change the ID or user_id in a `PUT` request
 
 For `POST` requests, this is all the information you need since all data to `POST` will be in the
 body of your request. All elements are required for an item in the `POST` body, not counting
@@ -223,7 +225,8 @@ Parameter | Description
 
 #### GET
 
-You may only query by `id`, `user_id`, `course_id`, `name`, or `ddate`.
+You may only query by `id`, `course_id`, `name`, or `ddate`. Filtering by `user_id` is automatically applied based on
+the access token provided.
 
 
 #### PUT
@@ -335,7 +338,8 @@ Parameter | Description
 
 #### GET
 
-You may only query by `id` and `user_id`.
+You may only query by `id`. Filtering by `user_id` is automatically applied based on the access
+token provided.
 
 
 #### PUT
@@ -362,7 +366,7 @@ Parameter | Description
 
 #### GET
 
-You may only query by `user_id`.
+You do not need any parameters to search. The settings are returned based off the user token.
 
 
 #### PUT
@@ -379,7 +383,7 @@ You may only query by `user_id`.
 
 ### tags Node
 
-Currently, any person any where can modify tags. REFACTOR
+Tags are hard-coded and only `GET`table.
 
 Parameter | Description
 :--- | :---
