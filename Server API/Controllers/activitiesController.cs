@@ -55,16 +55,23 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activities
-        public async Task<IHttpActionResult> Getactivities(int id = 0, int user_id = 0, string course_id = "", string name = "", DateTime? ddate = null)
+        public async Task<IHttpActionResult> Getactivities(int id = 0, string course_id = "", string name = "", DateTime? ddate = null)
         {
+            // Verify token
+            int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
+            if (tok_id <= 0)
+                return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
+
             // If we have an ID to search by, handle it
             if (id != 0)
             {
                 activity act = await db.activities.FindAsync(id);
                 if (act == null)
                     return NotFound();
-                else
+                else if (tok_id == act.user_id)
                     return Ok(ConvertActivityToActivityApi(act));
+                else
+                    return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id, act.user_id));
             }
 
             // Create the result set
@@ -72,8 +79,7 @@ namespace Server_API.Controllers
                                               select act;
 
             // Filter by user_id
-            if (user_id != 0)
-                activities = activities.Where(p => p.user.Equals(user_id));
+            activities = activities.Where(p => p.user.Equals(tok_id));
 
             // Filter by course_id
             if (!String.IsNullOrEmpty(course_id))
@@ -109,8 +115,13 @@ namespace Server_API.Controllers
             if (id != Activity.id)
                 return BadRequest("PUT URL and ID in the activity do not match");
 
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, Activity.user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
+
             // Convert the Activity_API to the EntityModel activity
-            activity act = ConvertActivityApiToActivity(Activity);
+            activity act = await ConvertActivityApiToActivity(Activity);
 
             // Update the activity
             db.Entry(act).State = EntityState.Modified;
@@ -125,8 +136,13 @@ namespace Server_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, Activity.user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
+
             // Convert the Activity_API to the EntityModel activity
-            activity act = ConvertActivityApiToActivity(Activity);
+            activity act = await ConvertActivityApiToActivity(Activity);
 
             // Add the activity to the DB
             db.activities.Add(act);
@@ -147,6 +163,11 @@ namespace Server_API.Controllers
                 return NotFound();
             }
 
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, activity.user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
+
             db.activities.Remove(activity);
             await db.SaveChangesAsync();
 
@@ -165,8 +186,17 @@ namespace Server_API.Controllers
         /// </summary>
         /// <param name="Activity">The Activity_API to convert.</param>
         /// <returns>An EntityModel activity corresponding to the Activity_API.</returns>
-        private activity ConvertActivityApiToActivity(Activity_API Activity)
+        private async Task<activity> ConvertActivityApiToActivity(Activity_API Activity)
         {
+            // Get the tags referenced by this activity
+            // http://stackoverflow.com/a/2101561
+            var tags = from tg in db.tags
+                       select tg;
+            var tagsPredicate = PredicateBuilder.False<tag>();
+            foreach (int id in Activity.tag_ids)
+                tagsPredicate = tagsPredicate.Or(p => p.id.Equals(id));
+            tags = tags.Where(tagsPredicate);
+
             // Convert the Activity_API to the EntityModel activity
             activity act = new activity();
             act.id = Activity.id;
@@ -176,6 +206,7 @@ namespace Server_API.Controllers
             act.description = Activity.description;
             act.ddate = Activity.ddate;
             act.mdate = DateTime.UtcNow;
+            act.tags = await tags.ToListAsync();
 
             return act;
         }

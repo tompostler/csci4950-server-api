@@ -39,82 +39,14 @@ namespace Server_API.Controllers
             foreach (var tg in taglist)
                 results.Add(ConvertTagToTagApi(tg));
 
-            if (results.Count == 0)
-                return NotFound();
-            else
-                return Ok(results);
-        }
-
-        // PUT: api/tags
-        public async Task<IHttpActionResult> Puttag(Tag_API Tag)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            // Convert the Tag_API to the EntityModel tags_users
-            tag tg = ConvertTagApiToTag(Tag);
-
-            // Update the tags_users
-            db.Entry(tg).State = EntityState.Modified;
-            await db.SaveChangesAsync();
-
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        // POST: api/tags
-        public async Task<IHttpActionResult> Posttag(Tag_API Tag)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            // Convert the Tag_API to the EntityModel tag
-            tag tg = ConvertTagApiToTag(Tag);
-
-            // Add the tag to the DB
-            db.tags.Add(tg);
-            await db.SaveChangesAsync();
-
-            // Update the ID with the one that was auto-assigned
-            Tag.id = tg.id;
-
-            return Ok(Tag);
-        }
-
-        // DELETE: api/tags/5
-        public async Task<IHttpActionResult> Deletetag(int id)
-        {
-            tag tg = await db.tags.FindAsync(id);
-            if (tg == null)
-            {
-                return NotFound();
-            }
-
-            db.tags.Remove(tg);
-            await db.SaveChangesAsync();
-
-            return StatusCode(HttpStatusCode.NoContent);
+            // Hard coded (at some point)
+            return Ok(results);
         }
 
         // OPTIONS: api/tags
-        [RequireHttps]
         public IHttpActionResult Options()
         {
             return Ok();
-        }
-
-        /// <summary>
-        /// Converts an Tag_API to an EntitiyModel tag.
-        /// </summary>
-        /// <param name="Tag">The Tag_API to convert.</param>
-        /// <returns>An EntitiyModel tag corresponding to the Tag_API.</returns>
-        private static tag ConvertTagApiToTag(Tag_API Tag)
-        {
-            // Convert the Tag_API to the EntityModel tag
-            tag tg = new tag();
-            tg.id = Tag.id;
-            tg.default_color = Tag.default_color;
-
-            return tg;
         }
 
         /// <summary>

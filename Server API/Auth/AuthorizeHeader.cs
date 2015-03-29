@@ -19,18 +19,29 @@ namespace Server_API.Auth
         public static string VerifyTokenWithUserId(HttpActionContext actionContext, int user_id)
         {
             int tok = VerifyToken(actionContext);
-            if (tok < 0)
+            return InvalidTokenToMessage(tok, user_id);
+        }
+
+        /// <summary>
+        /// Takes an invalid token and converts it to the corresponding error message.
+        /// </summary>
+        /// <param name="tok_id">The tok_id.</param>
+        /// <param name="user_id">The user_id.</param>
+        /// <returns></returns>
+        public static string InvalidTokenToMessage(int tok_id, int user_id = -1)
+        {
+            if (tok_id < 0)
                 return "token not found";
-            else if (tok == 0)
+            else if (tok_id == 0)
                 return "Expired token";
-            else if (tok != user_id)
+            else if ((user_id > -1) && (tok_id != user_id))
                 return "Permission denied by token";
 
             return null;
         }
 
         /// <summary>
-        /// Verifies the token.
+        /// Verifies the token. Returns -1 if not found, 0 if expired, else associated user_id.
         /// </summary>
         /// <returns>-1 if not found, 0 if expired, else associated user_id.</returns>
         public static int VerifyToken(HttpActionContext actionContext)

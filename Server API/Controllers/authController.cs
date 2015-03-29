@@ -85,10 +85,21 @@ namespace Server_API.Controllers
             if (aut == null)
                 return NotFound();
 
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, aut.user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
+
             db.auths.Remove(aut);
             await db.SaveChangesAsync();
 
             return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        // OPTIONS: api/auth
+        public IHttpActionResult Options()
+        {
+            return Ok();
         }
     }
 }

@@ -19,35 +19,40 @@ make against the API.
 In order to make a request of any type, the request URL must be a standard HTTP URL structured as
 such:
 
-    http://HOST/api/ROOTNODE[/SUBNODE][?PARAM1=VALUE1][&PARAM2=VALUE2][&PARAM3=VALUE3]...
+    http[s]://HOST/api/ROOTNODE[/SUBNODE][?PARAM1=VALUE1][&PARAM2=VALUE2][&PARAM3=VALUE3]...
 
 Where:
 
 Item | Description
 :---: | :---
-`HOST` | The hostname that is hosting the API. Right now, that would be `ralphie.cloudapp.net`
+`HOST` | The hostname that is hosting the API. Right now, that would be `msfrizzle.me`
 `ROOTNODE` | The root node on the API. This is elaborated on in the [root nodes](#root-nodes) section.
 `[/SUBNODE]` | If using a `PUT` or `DELETE`, then this is a shortcut used to handle one item.
 `[?PARAM1=VALUE1]` | If you wish/need to supply parameters to the URL for the request type you are using, then those start after the root node URL with a `?` and then a `key=value` system.
 `[&PARAM2=VALUE2]` | Any subsequent or additional parameters that you wish/need to define for the specific HTTP URL will continue in `key=value` format and are separated from other parameters with a `&`.
+
+__Note:__ Most actions now require you to use HTTPS. All actions support HTTPS, so there is no
+reason to not use HTTPS. To see how to handle security and authentication, jump to the
+[security section](#api-security).
 
 
 
 
 ## Request Types
 
-There are four types of requests you can make against the server, each of which performs a different
+There are five types of requests you can make against the server, each of which performs a different
 action detailed below:
 
 * `GET`
 * `PUT`
 * `POST`
 * `DELETE`
+* `OPTIONS`
 
 Requests will always have a status code representing what happend, with optionally including JSON.
 
 To send data with a request, the HTTP header `Content-Type` must be `application/json` if you are
-sending JSON in the request body. You will receive an error otherwise.
+sending JSON in the request body. You will most likely receive an error otherwise.
 
 
 
@@ -56,10 +61,10 @@ sending JSON in the request body. You will receive an error otherwise.
 These are used to request data from the server in a read-only style.
 
 All parameters that you wish to supply are passed to the API via URL parameters. For example, if you
-wish to ask for the activity associated with user ID 7 and category 4, then the URL string you would
-use is:
+wish to ask for the activity associated with user ID 7 and course id "CSCI 4950", then the URL
+string you would use is:
 
-    http://ralphie.cloudapp.net/api/activities?user=7&category=4
+    msfrizzle.me/api/activities?user_id=7&course_id=CSCI%204950
 
 
 
@@ -71,7 +76,7 @@ All parameters are passed via JSON in a `PUT` request to the appropriate root no
 update as a subnode. For example, if you wish to update the activity with ID of 1, then you would
 send a `PUT` request with a JSON body of information to update to the URL string:
 
-    ralphie.cloudapp.net/api/activities/1
+    msfrizzle.me/api/activities/1
 
 You must send the entire item (as if you were doing a `POST` request) to the server.
 
@@ -85,7 +90,7 @@ All parameters are passed via JSON in a `POST` request to the appropriate root n
 you wanted to create a new activity, then you would send a `POST` request with a JSON body of
 information to the URL string:
 
-    ralphie.cloudapp.net/api/activities
+    msfrizzle.me/api/activities
 
 
 
@@ -97,10 +102,15 @@ No parameters are necessary. Simply send a `DELETE` request to the appropriate r
 to delete as a subnode. For example, if you wish to delete the activity with ID of 1, then you would
 send a `DELETE` request to the URL string:
 
-    ralphie.cloudapp.net/api/activities/1
+    msfrizzle.me/api/activities/1
 
 Deleting an item that is depended upon by other items (such as deleting a user) will cascade the
 deletion to delete all dependencies.
+
+
+### OPTIONS Requests
+
+You will never need to use this request type yourself.
 
 
 
@@ -115,38 +125,43 @@ __Notes:__
 Found` is returned to the caller, regardless of what it says are possible return results.
 - In all cases below, if some action causes an error, then a generic status of `400 Bad Request` is
 returned to the caller, regardless of what it says are possible return results.
+- In all cases below, if there is an issue with the Authorization header and the request placed,
+then the `400 Bad Request` status is returned with an error message saying what went wrong.
 
 
 
-### GET Requests
+### GET Responses
 
-When any `GET` requests are issued with an ID specified, the result will be the one corresponding
-item with a `200 OK` status.
+There are 2 scenarios with a `GET`:
 
-All other `GET` requests will return a list containing one or more matching items with a `200 OK`
-status.
-
-
-
-### PUT Requests
-
-Upon successful `PUT`, will return the updated data with a `200 OK` status.
-
-This may be changed to return a `204 No Content` status on a successful `PUT` in the future. This
-will be determined by the volume of complaints from you guys.
+- Requesting a specifc item by its ID. This will return one item in the appropriate format.
+- Requesting items based off a query. This will return a list of items, and the list returned may be
+empty based off of the query.
 
 
 
-### POST Requests
+### PUT Responses
 
-Upon successful `POST` will return the new item with a `201 Created` status and the `Location`
-header set to a link for the new item.
-
+Upon successful `PUT`, will return a `204 No Content` status.
 
 
-### DELETE Requests
 
-Upon successful `DELETE`, will return a `200 OK` status.
+### POST Responses
+
+Upon successful `POST` will return the new item with a `201 Created` status and the body containing
+the created item.
+
+
+
+### DELETE Responses
+
+Upon successful `DELETE`, will return a `204 No Content` status.
+
+
+
+### OPTIONS Responses
+
+Will always return a `200 OK` status.
 
 
 ----------------------------------------------------------------------------------------------------
@@ -154,7 +169,7 @@ Upon successful `DELETE`, will return a `200 OK` status.
 
 # Nodes
 
-There are currently 5 root nodes, each with several optional and/or required subnodes for basic
+There are currently 9 root nodes, each with several optional and/or required subnodes for basic
 `GET` querying (along with `PUT` and `POST` operations).
 
 
@@ -165,23 +180,31 @@ There are currently 5 root nodes, each with several optional and/or required sub
 Node | Description
 :--- | :---
 [`/activities`](#activities-node) | Corresponds to an activity.
-[`/activity_units`](#activity_units-node) | Corresponds to an activity work unit.
+[`/activityunits`](#activityunits-node) | Corresponds to an activity work unit.
+[`/auth`](#auth-node) | Corresponds to an authentication instance.
+[`/courses`](#courses-node) | Corresponds to a course offered at UMNTC.
+[`/info`](#info-node) | Corresponds to information about the API.
 [`/locations`](#locations-node) | Corresponds to a location.
+[`/settings`](#settings-node) | Corresponds to a user's settings.
 [`/tags`](#tags-node) | Corresponds to a user-defined tag.
 [`/users`](#users-node) | Corresponds to a user.
 
-For `GET` requests, the root level nodes will return __all__ entries in the database corresponding
-to that node. This is a _very_ expensive operation, and will be removed as a "feature" once we have
-moved from the development phase into the beta testing phase.
+Unless otherwise stated, each request type has the following action:
+
+For `GET` requests, you may perform queries on the data restricted to the level of access provided
+by the token used in the Authorization header.
 
 For `PUT` and `DELETE` requests, this will need to be coupled with a [subnode](#subnodes) for proper
-usage.
+usage. `PUT` requies the entire item and all of the elements, while `DELETE` does not require any
+message body. You cannot change the ID or user_id in a `PUT` request
 
 For `POST` requests, this is all the information you need since all data to `POST` will be in the
-body of your request.
+body of your request. All elements are required for an item in the `POST` body, not counting
+auto-generated IDs.
 
 The following descriptions of the parameters on the nodes are used in the URL parameters of `GET`
-requests and the bodies of `PUT` and `POST` requests.
+requests and the bodies of `PUT` and `POST` requests. Specifics for each node and what parameters
+are allowed for each request type follows the node if it differs from the above descriptions.
 
 
 
@@ -191,42 +214,114 @@ Parameter | Description
 :--- | :---
 `id` | An integer ID uniquely identifying the activity. This is automatically incremented on creation of a new activity.
 `user_id` | An integer correlating to an existing user ID. This will link an activity to a specific user.
+`course_id` | A string correlating to an existing course ID. This will link an activity to a specific course.
 `name` | A maximum 50-character string for the user-defined name of an activity.
-`category` | A tinyint (range -128 to 127) matching one of the predefined categories. The categories are TBD, but will be linked from here in the future.
-`tag_ids` | A list of integers correlating to existing tag IDs.
+`description` | An _optional_ 100-character string for the user-defined description of an activity.
+`ddate` | An _optional_ due date for an activity. If this is not used, it should be set to `null`.
+`mdate` | A last modified date for the activity to track the latest version. This is automatically set to the UTC time on the server.
+`tag_ids` | A list of 8-bit integers correlating to existing tag IDs.
+`activityunit_ids` | A list of 64-bit integers correlating to later-created activity work units.
+
+
+#### GET
+
+You may only query by `id`, `course_id`, `name`, or `ddate`. Filtering by `user_id` is automatically applied based on
+the access token provided.
+
+
+#### PUT
+
+`activityunit_ids` and `mdate` are overridden by the server.
+    
+
+#### POST
+    
+`mdate` is overridden and `activityunit_ids` is ignored.
 
 
 
-### activity_units Node
-
-There are two forms of the API available for `activity_units`. The first is as follows and supports
-the expected requests:
+### activityunits Node
 
 Parameter | Description
 :--- | :---
 `id` | An integer ID uniquely identifying the activity work unit. This is automatically incremented on creation of a new activity work unit.
 `activity_id` | An integer correlating to an existing activity ID. This will link an activity work unit to a specific activity.
 `location_id` | An integer correlating to an existing location ID. This will link an activity work unit to a specific location.
+`name` | A maximum 50-character string for the user-defined name of an activity.
+`description` | An _optional_ 100-character string for the user-defined description of an activity.
 `stime` | The start date and time of the activity work unit, in [UTC format](#date-time-formats).
 `etime` | The end date and time of the activity work unit, in [UTC format](#date-time-formats).
 `tag_ids` | A list of integers correlating to existing tag IDs.
 
-The other form of the API is strictly for `GET` requests. It allows querying of date ranges to
-return activity work units. (Hint: This may be useful for building a calendar day of events rapidly)
 
-Parameter | Required? | Description
-:--- | :---: | :---
-`btime` | Yes | The beginning of the range for the date and time to search, in [UTC format](#date-time-formats).
-`etime` | Yes | The end of the range for the date and time to search, in [UTC format](#date-time-formats).
-`activity` | No | An integer correlating to an existing activity ID. This will link an activity work unit to a specific activity.
-`location` | No | An integer correlating to an existing location ID. This will link an activity work unit to a specific location.
+#### GET
 
-For example, if I wanted to find all activity work units corresponding to an activity with ID of 7
-that occurred on February 19th (in CST), then I would use the following HTTP `GET` request to ask
-for all activity units that started sometime on Feb 19 and ended sometime on Feb 19 with activity ID
-of 7:
+You may only query by `id`, `activity_id`, or `location_id`.
 
-    ralphie.cloudapp.net/api/activity_units?activity=7&btime=2014-02-19T06:00:00Z&etime=2014-02-20T06:00:00Z
+
+#### PUT
+
+You will not be able to change the `activity_id` to that of an activity belonging to a different
+user.
+
+
+
+### auth Node
+
+The auth node only supports `POST` requests.
+
+There are two interfaces to an auth instance: one for the request and one for the response.
+
+The request interface, sent by the client to the server with the `POST` request:
+
+Parameter | Description
+:--- | :---
+`user_id` | An integer correlating to an existing user ID. This will link an auth instance to a specific user.
+`password` | The password of the user.
+
+The response interface, sent by the server to the client when responding to a `POST` request:
+
+Parameter | Description
+:--- | :---
+`user_id` | An integer correlating to an existing user ID. This will link an auth instance to a specific user.
+`token` | A 64-character base64-encoded string corresponding to a user-specific auth instance. For details on how this works, see [API Security](#api-security).
+`etime` | A date and time in [UTC format](#date-time-formats) corresponding to the expiration of the token. A token expires in 24 hours from its creation.
+
+
+
+### courses Node
+
+This contains a list of all courses offered by the University of Minnesota - Twin Cities, gathered
+on March 25, 2015.
+
+The courses node only supports `GET` requests.
+
+Parameter | Description
+:--- | :---
+`id` | A 12-character string corresponding to a course identifier (e.g. "CSCI 4950").
+`name` | A 100-character string corresponding to the course name (e.g. "Senior Software Project").
+
+
+#### GET
+
+Querying by `name` is not supported. Querying by `id` returns all courses whose `id` contains the
+parameter you used for the query.
+
+
+
+### info Node
+
+The info node contains information about the API.
+
+This node contains:
+
+* Version number
+* Version date
+* Contact list
+* Hostname
+* Root nodes list
+* Comment
+* Fun fact
 
 
 
@@ -237,20 +332,64 @@ Parameter | Description
 `id` | An integer uniquely identifying the location. This is automatically incremented on creation of a new location.
 `user_id` | An integer correlating to an existing user ID. This will link a location to a specific user.
 `name` | A maximum 50-character string for the user-defined (or potentially suggested) name of a location.
-`type` | A tinyint (range -128 to 127) matching one of the predefined location types. The types are TBD, but will be linked from here in the future.
 `content` | A maximum 100-character string for storing location data. This can be a lat-long, an address, or whatever.
+`activityunit_ids` | A list of 64-bit integers correlating to later-created activity work units.
+
+
+#### GET
+
+You may only query by `id`. Filtering by `user_id` is automatically applied based on the access
+token provided.
+
+
+#### PUT
+
+`activityunit_ids` is overridden by the server.
+    
+
+#### POST
+    
+`activityunit_ids` is ignored.
+
+
+
+### settings Node
+
+The settings node holds settings for a user that may need to be synced or stored across devices.
+
+Parameter | Description
+:--- | :---
+`user_id` | An integer correlating to an existing user ID. This will link a location to a specific user.
+`value` | A maximum 1e9-character string used to store settings data however the App team wishes.
+`mdate` | A last modified date for the activity to track the latest version. This is automatically set to the UTC time on the server.
+
+
+#### GET
+
+You do not need any parameters to search. The settings are returned based off the user token.
+
+
+#### PUT
+
+`mdate` is overridden by the server.
+    
+
+#### POST
+    
+`mdate` is overridden.
+
 
 
 
 ### tags Node
 
+Tags are hard-coded and only `GET`table.
+
 Parameter | Description
 :--- | :---
 `id` | An integer uniquely identifying the tag. This is automatically incremented on creation of a new tag.
-`user_id` | An integer correlating to an existing user ID. This will link a tag to a specific user.
 `name` | A maximum 20-character string for the user-defined (or potentially suggested) name of a tag.
-`description` | A maximum 100-character string for storing the user-defined (or potentially suggested) description of a tag.
-`color` | A maximum 6-character string for storing color data. This should be represented in hex, but this is currently not verified server-side.
+`default_color` | A 6-character string for storing color data. This will be in hex.
 
 
 
@@ -263,11 +402,25 @@ Parameter | Description
 `lname` | A maximum 50-character string for the user's last name.
 `email` | A maximum 50-character string for the user's email. __Uniqueness of the email is not enforced by the API.__
 `password` | A maximum 50-character string for the user's password. This is currently stored in the wonderfullness of plaintext. See [the notes](#password-storage) on this for more info.
+`activity_ids` | A list of integers correlating to activity IDs.
+`location_ids` | A list of integers correlating to location IDs.
 
-Of the above parameters, `GET` requests only support querying by `id` and `email`.
-    
-If you wish to issue `GET` queries for `fname`, `lname`, or `password`, then we suggest you
-think about what you are doing and decide not to do it instead.
+
+#### GET
+
+You may only query by `id` and `email`.
+
+`password` will be omitted.
+
+#### PUT
+
+`activity_ids` and `location_ids` are ignored.
+
+#### POST
+
+`activity_ids` and `location_ids` are ignored.
+
+`password` will be omitted.
 
 
 
@@ -281,7 +434,7 @@ For `PUT` and `DELETE` requests, this format is necessary to work with only one 
 
 The URL format for working with a subnode is:
 
-    http://ralphie.cloudapp.net/api/ROOTNODE/SUBNODE
+    msfrizzle.me/api/ROOTNODE/SUBNODE
 
 
 ----------------------------------------------------------------------------------------------------
@@ -289,11 +442,7 @@ The URL format for working with a subnode is:
 
 # Examples
 
-TBW (To Be Written)
-
-Languages to write examples for:
-
-- JavaScript
+REFACTOR
 
 
 ----------------------------------------------------------------------------------------------------
@@ -307,31 +456,40 @@ Random notes and things that don't have a better place in this documentation.
 
 ### API Security
 
-This API is currently completely public with no authentication, verification, encryption,
-obfuscation, or logging whatsoever.
+This API features three main security features.
 
-This will be our next feature target as soon as this API is determined to be stable and good enough
-for the rest of the team.
+The first is HTTPS. All types of requests on all controllers that handle user-specific data require
+HTTPS for any action.
 
-We are researching the best way to implement security in a non-intrusive manner.
+The second security feature is token-based authentication. All `GET`, `PUT`, `POST`, and `DELETE`
+requests relating to a specific user require that a server-generated token (described further
+[below](#token-generation)) be supplied in the `Authorization` HTTP header of the request. Examples
+of how to use the token will be provided in the [examples](#examples) section.
 
-Setting up HTTPS sucks, but that is our first step. HTTP requests will not be accepted (if this is
-possible).
+The last security feature is that the request can only request, modify, add, or delete data
+corresponding to the user that a token was generated for. This will prevent one user from modifying
+another user's password (for example).
 
 
 
 ### Password Storage
 
-Ideally, a user's password will be salted and hashed before being sent to the server and then the
-server will salt and hash the password again so that no part of the chain knows the password and it
-is incredibly difficult to guess.
+Passwords will only be accepted by the API in POST requests over an HTTPS connection.
 
-Or we just support logging in with Google/Facebook/Twitter/etc and we at the API store the OAuth
-token for you.
+Passwords are hashed with bcrypt and stored in the database. You cannot retrieve a password for a
+specific user.
 
-In the meantime for the wonderfullness that is quick-and-dirty, we are using plaintext storage on
-the API for passwords capped at 50 characters. How the client handles passwords handed to the API
-will be treated as an [SEP](http://en.wikipedia.org/wiki/Somebody_Else%27s_Problem#Fiction).
+
+
+### Token Generation
+
+A user must be created.
+
+Then a request is sent to the `auth` node with the user id and password.
+    
+Handed back is the base64-encoded token and the expiration time in UTC format.
+
+For more information and precise code examples, see the [examples](#examples) section.
 
 
 
@@ -344,6 +502,6 @@ For example, February 18th, 2014 at 9:25:07 PM CST would translate to `2015-02-1
 Daylight Savings Time not in effect on that date, CST is 6 hours behind UTC).
 </xmp>
 
-    <script src="http://ndossougbe.github.io/strapdown/dist/strapdown.js"></script>
+    <script src="https://ndossougbe.github.io/strapdown/dist/strapdown.js"></script>
 </body>
 </html>

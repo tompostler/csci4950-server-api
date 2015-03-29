@@ -53,16 +53,23 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activityunit
-        public async Task<IHttpActionResult> Getactivityunit(int id = 0, int activity_id = 0, int location_id = 0, DateTime? stime = null, DateTime? etime = null)
+        public async Task<IHttpActionResult> Getactivityunit(int id = 0, int activity_id = 0, int location_id = 0)
         {
+            // Verify token
+            int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
+            if (tok_id <= 0)
+                return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
+
             // If we have an ID to search by, handle it
             if (id != 0)
             {
                 activityunit acu = await db.activityunits.FindAsync(id);
                 if (acu == null)
                     return NotFound();
-                else
+                else if (acu.activity.user_id == tok_id)
                     return Ok(ConvertActivityUnitToActivityUnitApi(acu));
+                else
+                    return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id, acu.activity.user_id));
             }
 
             // Create the result set
@@ -77,19 +84,13 @@ namespace Server_API.Controllers
             if (location_id != 0)
                 activityunit = activityunit.Where(p => p.location.Equals(location_id));
 
-            // Filter on stime
-            if (stime != null)
-                activityunit = activityunit.Where(p => p.stime.Equals(stime.Value.ToUniversalTime()));
-
-            // Filter on etime
-            if (etime != null)
-                activityunit = activityunit.Where(p => p.etime.Equals(etime.Value.ToUniversalTime()));
-
             // Convert the activityunit to more API friendly things
+            // Also only include the ones that the token has permission to
             List<ActivityUnit_API> results = new List<ActivityUnit_API>();
             List<activityunit> activityunitlist = await activityunit.ToListAsync();
             foreach (var acu in activityunitlist)
-                results.Add(ConvertActivityUnitToActivityUnitApi(acu));
+                if (acu.activity.user_id == tok_id)
+                    results.Add(ConvertActivityUnitToActivityUnitApi(acu));
 
             if (results.Count == 0)
                 return NotFound();
@@ -107,6 +108,11 @@ namespace Server_API.Controllers
             if (id != ActivityUnit.id)
                 return BadRequest("PUT URL and ID in the activity unit do not match");
 
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, (await db.activities.FindAsync(ActivityUnit.activity_id)).user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
+
             // Convert the ActivityUnit_API to the EntityModel activityunit
             activityunit acu = ConvertActivityUnitApiToActivityUnit(ActivityUnit);
 
@@ -122,6 +128,11 @@ namespace Server_API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, (await db.activities.FindAsync(ActivityUnit.activity_id)).user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
 
             // Convert the ActivityUnit_API to the EntityModel activityunit
             activityunit acu = ConvertActivityUnitApiToActivityUnit(ActivityUnit);
@@ -144,6 +155,11 @@ namespace Server_API.Controllers
             {
                 return NotFound();
             }
+
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, (await db.activities.FindAsync(activityunit.activity_id)).user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
 
             db.activityunits.Remove(activityunit);
             await db.SaveChangesAsync();
