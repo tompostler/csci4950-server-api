@@ -91,6 +91,9 @@ namespace Server_API.Controllers
             db.settings.Add(set);
             await db.SaveChangesAsync();
 
+            // Update the mdate
+            Setting.mdate = set.mdate;
+
             return Ok(Setting);
         }
 
@@ -133,7 +136,7 @@ namespace Server_API.Controllers
             setting set = new setting();
             set.user_id = Setting.user_id;
             set.value = Setting.value;
-            set.mdate = Setting.mdate;
+            set.mdate = DateTime.UtcNow;
 
             return set;
         }
