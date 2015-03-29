@@ -480,7 +480,7 @@ redacted and the `user_id` set:
 
 
 
-### Generating an Authorization Token
+### Generating a Token
 
 In order to perform any useful actions on the API regarding a specific user, all requests must have
 the corresponding token in the Authorization header in the HTTP request.
@@ -509,7 +509,7 @@ expiration date (in UTC) specified:
 
 
 
-### Using an Authorization Token (POST)
+### Using a Token (POST)
 
 Now that you have generated an authorization token, let's perform the basic task of adding an
 activity for a user.
@@ -544,7 +544,7 @@ Assuming your request was successful, then you will get back a full activity:
 
 
 
-### Using an Authorization Token (GET-all)
+### Using a Token (GET-all)
 
 Now that you have generated an authorization token and activity, let's perform the basic task of
 getting all activities associated with the current user (based on the Authorization token).
@@ -576,7 +576,7 @@ In this example, the user with ID 10 only has one activity.
 
 
 
-### Using an Authorization Token (PUT)
+### Using a Token (PUT)
 
 Now that you have generated an authorization token, let's perform the basic task of editing an
 activity for a user.
@@ -605,7 +605,7 @@ item (the next example).
 
 
 
-### Using an Authorization Token (GET-one)
+### Using a Token (GET-one)
 
 Now that you have generated an authorization token and edited an activity, let's perform the basic
 task of looking at that one activity.
