@@ -43,16 +43,23 @@ namespace Server_API.Controllers
         }
 
         // GET: api/locations
-        public async Task<IHttpActionResult> Getlocations(int id = 0, int user_id = 0)
+        public async Task<IHttpActionResult> Getlocations(int id = 0)
         {
+            // Verify token
+            int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
+            if (tok_id <= 0)
+                return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
+
             // If we have an ID to search by, handle it
             if (id != 0)
             {
                 location loc = await db.locations.FindAsync(id);
                 if (loc == null)
                     return NotFound();
-                else
+                else if (tok_id == loc.user_id)
                     return Ok(ConvertLocationToLocationApi(loc));
+                else
+                    return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id, loc.user_id));
             }
 
             // Create the result set
@@ -60,8 +67,7 @@ namespace Server_API.Controllers
                                              select loc;
 
             // Filter on user_id
-            if (user_id != 0)
-                locations = locations.Where(p => p.user.Equals(user_id));
+            locations = locations.Where(p => p.user.Equals(tok_id));
 
             // Convert the locations to more API friendly things
             List<Location_API> results = new List<Location_API>();

@@ -55,16 +55,23 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activities
-        public async Task<IHttpActionResult> Getactivities(int id = 0, int user_id = 0, string course_id = "", string name = "", DateTime? ddate = null)
+        public async Task<IHttpActionResult> Getactivities(int id = 0, string course_id = "", string name = "", DateTime? ddate = null)
         {
+            // Verify token
+            int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
+            if (tok_id <= 0)
+                return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
+
             // If we have an ID to search by, handle it
             if (id != 0)
             {
                 activity act = await db.activities.FindAsync(id);
                 if (act == null)
                     return NotFound();
-                else
+                else if (tok_id == act.user_id)
                     return Ok(ConvertActivityToActivityApi(act));
+                else
+                    return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id, act.user_id));
             }
 
             // Create the result set
@@ -72,8 +79,7 @@ namespace Server_API.Controllers
                                               select act;
 
             // Filter by user_id
-            if (user_id != 0)
-                activities = activities.Where(p => p.user.Equals(user_id));
+            activities = activities.Where(p => p.user.Equals(tok_id));
 
             // Filter by course_id
             if (!String.IsNullOrEmpty(course_id))

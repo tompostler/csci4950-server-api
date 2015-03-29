@@ -32,15 +32,15 @@ namespace Server_API.Controllers
         }
 
         // GET: api/settings
-        public async Task<IHttpActionResult> Getsetting(int user_id)
+        public async Task<IHttpActionResult> Getsetting()
         {
             // Verify token
-            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, user_id);
-            if (!String.IsNullOrEmpty(msg))
-                return BadRequest(msg);
+            int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
+            if (tok_id <= 0)
+                return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
 
             // Get the setting
-            setting set = await db.settings.FindAsync(user_id);
+            setting set = await db.settings.FindAsync(tok_id);
             if (set == null)
                 return NotFound();
             else

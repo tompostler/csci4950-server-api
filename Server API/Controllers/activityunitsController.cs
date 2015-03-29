@@ -55,14 +55,21 @@ namespace Server_API.Controllers
         // GET: api/activityunit
         public async Task<IHttpActionResult> Getactivityunit(int id = 0, int activity_id = 0, int location_id = 0)
         {
+            // Verify token
+            int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
+            if (tok_id <= 0)
+                return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
+
             // If we have an ID to search by, handle it
             if (id != 0)
             {
                 activityunit acu = await db.activityunits.FindAsync(id);
                 if (acu == null)
                     return NotFound();
-                else
+                else if (acu.activity.user_id == tok_id)
                     return Ok(ConvertActivityUnitToActivityUnitApi(acu));
+                else
+                    return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id, acu.activity.user_id));
             }
 
             // Create the result set
@@ -78,10 +85,12 @@ namespace Server_API.Controllers
                 activityunit = activityunit.Where(p => p.location.Equals(location_id));
 
             // Convert the activityunit to more API friendly things
+            // Also only include the ones that the token has permission to
             List<ActivityUnit_API> results = new List<ActivityUnit_API>();
             List<activityunit> activityunitlist = await activityunit.ToListAsync();
             foreach (var acu in activityunitlist)
-                results.Add(ConvertActivityUnitToActivityUnitApi(acu));
+                if (acu.activity.user_id == tok_id)
+                    results.Add(ConvertActivityUnitToActivityUnitApi(acu));
 
             if (results.Count == 0)
                 return NotFound();

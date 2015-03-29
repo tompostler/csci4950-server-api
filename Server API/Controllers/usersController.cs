@@ -49,36 +49,19 @@ namespace Server_API.Controllers
         }
 
         // GET: api/users
-        public async Task<IHttpActionResult> Getusers(int id = 0, string email = "")
+        public async Task<IHttpActionResult> Getusers()
         {
-            // If we have an ID to search by, handle it
-            if (id != 0)
-            {
-                user usr = await db.users.FindAsync(id);
-                if (usr == null)
-                    return NotFound();
-                else
-                    return Ok(ConvertUserToUserApi(usr));
-            }
-
-            // Create the result set
-            IQueryable<user> users = from u in db.users
-                                     select u;
-
-            // Filter by email
-            if (!String.IsNullOrEmpty(email))
-                users = users.Where(p => p.email.Equals(email));
-
-            // Convert the users to more API friendly things
-            List<User_API> results = new List<User_API>();
-            List<user> userlist = await users.ToListAsync();
-            foreach (user usr in userlist)
-                results.Add(ConvertUserToUserApi(usr));
-
-            if (results.Count == 0)
+            // Verify token
+            int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
+            if (tok_id <= 0)
+                return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
+            
+            // Allow only querying the token's user_id
+            user usr = await db.users.FindAsync(tok_id);
+            if (usr == null)
                 return NotFound();
             else
-                return Ok(results);
+                return Ok(ConvertUserToUserApi(usr));
         }
 
         // PUT: api/users/5
