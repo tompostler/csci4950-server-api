@@ -442,7 +442,194 @@ The URL format for working with a subnode is:
 
 # Examples
 
-REFACTOR
+This section contains several examples in HTTP and JSON. It is up to you to figure out how that
+translates to a specific language you need.
+
+Every action/request is performed over HTTPS.
+
+
+
+
+### Creating a User
+
+Fill out a user item with all the necessary information and send it in a `POST` request to the
+server:
+
+    POST /api/users HTTP/1.1
+    Host: msfrizzle.me
+    Content-Type: application/json
+
+    {
+        "fname": "Tom",
+        "lname": "Hiddleston",
+        "email": "th@example.com",
+        "password": "Loki is better than Thor"
+    }
+
+Assuming your request was successful, then you will get back the same user item with the `password`
+redacted and the `user_id` set:
+
+    {
+        "id": 10,
+        "fname": "Tom",
+        "lname": "Hiddleston",
+        "email": "th@example.com",
+        "activity_ids": [],
+        "location_ids": []
+    }
+
+
+
+### Generating an Authorization Token
+
+In order to perform any useful actions on the API regarding a specific user, all requests must have
+the corresponding token in the Authorization header in the HTTP request.
+
+Tokens expire every 24 hours, so this will be a commonplace action.
+
+Send the appropriate `POST` request to the server to generate a unique token:
+
+    POST /api/auth HTTP/1.1
+    Host: msfrizzle.me
+    Content-Type: application/json
+
+    {
+        "user_id": 10,
+        "password": "Loki is better than Thor"
+    }
+
+Assuming your request was successful, then you will get back the same user ID with a token and
+expiration date (in UTC) specified:
+
+    {
+        "user_id": 10,
+        "token": "ASfKll5xCpgDjTTrXSaEcMyTjwZNwDLCjsAaUuhBKVQwDu4h+d1s0bGhXwJyBSnp",
+        "expire": "2015-03-30T19:27:12.3483113Z"
+    }
+
+
+
+### Using an Authorization Token (POST)
+
+Now that you have generated an authorization token, let's perform the basic task of adding an
+activity for a user.
+
+Issue the appropriate `POST` request with the Authorization HTTP header set to the token generated
+by the previous example:
+
+    POST /api/activities HTTP/1.1
+    Host: msfrizzle.me
+    Content-Type: application/json
+    Authorization: ASfKll5xCpgDjTTrXSaEcMyTjwZNwDLCjsAaUuhBKVQwDu4h+d1s0bGhXwJyBSnp
+
+    {
+        "user_id": 10,
+        "course_id": "CSCI 4950",
+        "name": "Testing the API",
+        "description": "Every once in a while, you have to write some example to make things more clear"
+    }
+
+Assuming your request was successful, then you will get back a full activity:
+
+    {
+        "id": 1,
+        "user_id": 10,
+        "course_id": "CSCI 4950",
+        "name": "Testing the API",
+        "description": "Every once in a while, you have to write some example to make things more clear",
+        "mdate": "2015-03-29T19:37:10.5691986",
+        "tag_ids": [],
+        "activityunit_ids": []
+    }
+
+
+
+### Using an Authorization Token (GET-all)
+
+Now that you have generated an authorization token and activity, let's perform the basic task of
+getting all activities associated with the current user (based on the Authorization token).
+
+Issue the appropriate `GET` request with the Authorization HTTP header set to the token generated
+earlier:
+
+    GET /api/activities HTTP/1.1
+    Host: msfrizzle.me
+    Content-Type: application/json
+    Authorization: ASfKll5xCpgDjTTrXSaEcMyTjwZNwDLCjsAaUuhBKVQwDu4h+d1s0bGhXwJyBSnp
+
+Assuming your request was successful, then you will get back the full activity list for the user:
+
+    [
+        {
+            "id": 1,
+            "user_id": 10,
+            "course_id": "CSCI 4950",
+            "name": "Testing the API",
+            "description": "Every once in a while, you have to write some example to make things more clear",
+            "mdate": "2015-03-29T19:37:10.5691986",
+            "tag_ids": [],
+            "activityunit_ids": []
+        }
+    ]
+
+In this example, the user with ID 10 only has one activity.
+
+
+
+### Using an Authorization Token (PUT)
+
+Now that you have generated an authorization token, let's perform the basic task of editing an
+activity for a user.
+
+Issue the appropriate `PUT` request with the Authorization HTTP header set to the token generated
+earlier:
+
+    PUT /api/activities/1 HTTP/1.1
+    Host: msfrizzle.me
+    Content-Type: application/json
+    Authorization: ASfKll5xCpgDjTTrXSaEcMyTjwZNwDLCjsAaUuhBKVQwDu4h+d1s0bGhXwJyBSnp
+
+    {
+        "id": 1,
+        "user_id": 10,
+        "course_id": "CSCI 4950",
+        "name": "Testing the API",
+        "description": "PUT me in that API"
+    }
+
+Assuming your request was successful, then you will get back a `204 No Content` status indicating
+that everything went well.
+    
+If you wish to verify that everything happened as expected, then perform a `GET` request for one
+item (the next example).
+
+
+
+### Using an Authorization Token (GET-one)
+
+Now that you have generated an authorization token and edited an activity, let's perform the basic
+task of looking at that one activity.
+
+Issue the appropriate `GET` request with the Authorization HTTP header set to the token generated
+earlier:
+
+    GET /api/activities/1 HTTP/1.1
+    Host: msfrizzle.me
+    Content-Type: application/json
+    Authorization: ASfKll5xCpgDjTTrXSaEcMyTjwZNwDLCjsAaUuhBKVQwDu4h+d1s0bGhXwJyBSnp
+
+Assuming your request was successful, then you will get back the one activity:
+
+    {
+        "id": 1,
+        "user_id": 10,
+        "course_id": "CSCI 4950",
+        "name": "Testing the API",
+        "description": "PUT me in that API",
+        "mdate": "2015-03-29T19:51:08.8027375",
+        "tag_ids": [],
+        "activityunit_ids": []
+    }
 
 
 ----------------------------------------------------------------------------------------------------
