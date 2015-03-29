@@ -46,7 +46,6 @@ namespace Server_API.Controllers
 
             public DateTime? ddate { get; set; }
 
-            [Required]
             public DateTime mdate { get; set; }
 
             public List<byte> tag_ids { get; set; }
@@ -79,7 +78,7 @@ namespace Server_API.Controllers
                                               select act;
 
             // Filter by user_id
-            activities = activities.Where(p => p.user.Equals(tok_id));
+            activities = activities.Where(p => p.user_id.Equals(tok_id));
 
             // Filter by course_id
             if (!String.IsNullOrEmpty(course_id))
@@ -148,8 +147,9 @@ namespace Server_API.Controllers
             db.activities.Add(act);
             await db.SaveChangesAsync();
 
-            // Update the ID with the one that was auto-assigned
+            // Update the ID and mdate with the one that was auto-assigned
             Activity.id = act.id;
+            Activity.mdate = act.mdate;
 
             return Ok(Activity);
         }
@@ -226,6 +226,7 @@ namespace Server_API.Controllers
             act.name = Activity.name;
             act.description = Activity.description;
             act.ddate = Activity.ddate;
+            act.mdate = Activity.mdate;
 
             // Magic to get just the IDs out of objects
             act.tag_ids = Activity.tags.Select(p => p.id).ToList();

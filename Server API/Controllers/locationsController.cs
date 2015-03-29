@@ -67,7 +67,7 @@ namespace Server_API.Controllers
                                              select loc;
 
             // Filter on user_id
-            locations = locations.Where(p => p.user.Equals(tok_id));
+            locations = locations.Where(p => p.user_id.Equals(tok_id));
 
             // Convert the locations to more API friendly things
             List<Location_API> results = new List<Location_API>();
