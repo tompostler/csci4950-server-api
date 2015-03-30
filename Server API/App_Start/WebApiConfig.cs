@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Web.Http;
@@ -16,7 +17,13 @@ namespace Server_API
             
             // Make JSON the default response type
             config.Formatters.Clear();
-            config.Formatters.Add(new JsonMediaTypeFormatter());
+            config.Formatters.Add(new JsonMediaTypeFormatter()
+                {
+                    SerializerSettings =
+                    {
+                        NullValueHandling = NullValueHandling.Ignore
+                    }
+                });
 
             // April Fools 2015
             if (DateTime.Today.Date.Equals(new DateTime(2015, 4, 1).Date))

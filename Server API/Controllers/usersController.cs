@@ -27,55 +27,41 @@ namespace Server_API.Controllers
             {
                 activity_ids = new List<int>();
                 location_ids = new List<int>();
-                custom_tags = new List<byte>();
             }
 
             public int id { get; set; }
+
             [Required, StringLength(50)]
             public string fname { get; set; }
+
             [Required, StringLength(50)]
             public string lname { get; set; }
+
             [Required, StringLength(50), EmailAddress]
             public string email { get; set; }
-            [Required, StringLength(128)]
+
+            [Required]
             public string password { get; set; }
 
             public List<int> activity_ids { get; set; }
+
             public List<int> location_ids { get; set; }
-            public List<byte> custom_tags { get; set; }
         }
 
         // GET: api/users
-        public async Task<IHttpActionResult> Getusers(int id = 0, string email = "")
+        public async Task<IHttpActionResult> Getusers()
         {
-            // If we have an ID to search by, handle it
-            if (id != 0)
-            {
-                user usr = await db.users.FindAsync(id);
-                if (usr == null)
-                    return NotFound();
-                else
-                    return Ok(ConvertUserToUserApi(usr));
-            }
-
-            // Create the result set
-            IQueryable<user> users = from u in db.users
-                                     select u;
-
-            // Filter by email
-            if (!String.IsNullOrEmpty(email))
-                users = users.Where(p => p.email.Equals(email));
-
-            // Convert the users to more API friendly things
-            List<User_API> results = new List<User_API>();
-            List<user> userlist = await users.ToListAsync();
-            foreach (user usr in userlist)
-                results.Add(ConvertUserToUserApi(usr));
-
-            if (results.Count == 0)
+            // Verify token
+            int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
+            if (tok_id <= 0)
+                return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
+            
+            // Allow only querying the token's user_id
+            user usr = await db.users.FindAsync(tok_id);
+            if (usr == null)
                 return NotFound();
             else
-                return Ok(results);
+                return Ok(ConvertUserToUserApi(usr));
         }
 
         // PUT: api/users/5
@@ -87,6 +73,11 @@ namespace Server_API.Controllers
             // Verify request ID
             if (id != User.id)
                 return BadRequest("PUT URL and ID in the location do not match");
+
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
 
             // Convert the User_API to the EntityModel location
             user usr = ConvertUserApiToUser(User);
@@ -112,7 +103,7 @@ namespace Server_API.Controllers
             await db.SaveChangesAsync();
 
             // Update the ID with the one that was auto-assigned
-            User.id = usr.id;
+            User = ConvertUserToUserApi(usr);
 
             return Ok(User);
         }
@@ -125,6 +116,11 @@ namespace Server_API.Controllers
             {
                 return NotFound();
             }
+
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
 
             db.users.Remove(user);
             await db.SaveChangesAsync();
@@ -152,7 +148,7 @@ namespace Server_API.Controllers
             usr.fname = User.fname;
             usr.lname = User.lname;
             usr.email = User.email;
-            usr.password = User.password;
+            usr.password = Hashing.HashPassword(User.password);
 
             return usr;
         }
@@ -170,12 +166,11 @@ namespace Server_API.Controllers
             usr.fname = User.fname;
             usr.lname = User.lname;
             usr.email = User.email;
-            usr.password = User.password;
+            usr.password = null;
 
             // Get the lists of ids for the corresponding types
             usr.activity_ids = User.activities.Select(p => p.id).ToList();
             usr.location_ids = User.locations.Select(p => p.id).ToList();
-            usr.custom_tags = User.tags_users.Select(p => p.tag_id).ToList();
 
             return usr;
         }

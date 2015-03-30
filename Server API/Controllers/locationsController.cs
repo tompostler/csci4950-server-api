@@ -25,7 +25,6 @@ namespace Server_API.Controllers
         {
             public Location_API()
             {
-                tag_ids = new List<byte>();
                 activityunit_ids = new List<long>();
             }
 
@@ -40,22 +39,27 @@ namespace Server_API.Controllers
             [Required, MaxLength(100)]
             public string content { get; set; }
 
-            public List<byte> tag_ids { get; set; }
-
             public List<long> activityunit_ids { get; set; }
         }
 
         // GET: api/locations
-        public async Task<IHttpActionResult> Getlocations(int id = 0, int user = 0)
+        public async Task<IHttpActionResult> Getlocations(int id = 0)
         {
+            // Verify token
+            int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
+            if (tok_id <= 0)
+                return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
+
             // If we have an ID to search by, handle it
             if (id != 0)
             {
                 location loc = await db.locations.FindAsync(id);
                 if (loc == null)
                     return NotFound();
-                else
+                else if (tok_id == loc.user_id)
                     return Ok(ConvertLocationToLocationApi(loc));
+                else
+                    return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id, loc.user_id));
             }
 
             // Create the result set
@@ -63,8 +67,7 @@ namespace Server_API.Controllers
                                              select loc;
 
             // Filter on user_id
-            if (user != 0)
-                locations = locations.Where(p => p.user.Equals(user));
+            locations = locations.Where(p => p.user_id.Equals(tok_id));
 
             // Convert the locations to more API friendly things
             List<Location_API> results = new List<Location_API>();
@@ -88,6 +91,11 @@ namespace Server_API.Controllers
             if (id != Location.id)
                 return BadRequest("PUT URL and ID in the location do not match");
 
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, Location.user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
+
             // Convert the Location_API to the EntityModel location
             location loc = ConvertLocationApiToLocation(Location);
 
@@ -103,6 +111,11 @@ namespace Server_API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, Location.user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
 
             // Convert the Location_API to the EntityModel location
             location loc = ConvertLocationApiToLocation(Location);
@@ -125,6 +138,11 @@ namespace Server_API.Controllers
             {
                 return NotFound();
             }
+
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, location.user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
 
             db.locations.Remove(location);
             await db.SaveChangesAsync();
@@ -171,7 +189,6 @@ namespace Server_API.Controllers
             loc.content = Location.content;
 
             // Magic to get just the IDs out of objects
-            loc.tag_ids = Location.tags.Select(p => p.id).ToList();
             loc.activityunit_ids = Location.activityunits.Select(p => p.id).ToList();
 
             return loc;

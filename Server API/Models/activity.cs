@@ -19,11 +19,23 @@ namespace Server_API.Models
         public int user_id { get; set; }
 
         [Required]
+        [StringLength(12)]
+        public string course_id { get; set; }
+
+        [Required]
         [StringLength(50)]
         public string name { get; set; }
 
         [StringLength(100)]
         public string description { get; set; }
+
+        [Column(TypeName = "datetime2")]
+        public DateTime? ddate { get; set; }
+
+        [Column(TypeName = "datetime2")]
+        public DateTime mdate { get; set; }
+
+        public virtual course course { get; set; }
 
         public virtual user user { get; set; }
 

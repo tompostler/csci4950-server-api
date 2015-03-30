@@ -26,8 +26,10 @@ namespace Server_API.Models
         [StringLength(100)]
         public string description { get; set; }
 
+        [Column(TypeName = "datetime2")]
         public DateTime stime { get; set; }
 
+        [Column(TypeName = "datetime2")]
         public DateTime etime { get; set; }
 
         public virtual activity activity { get; set; }
