@@ -24,12 +24,15 @@ namespace Server_API
                         NullValueHandling = NullValueHandling.Ignore
                     }
                 });
+            config.Formatters.Add(new Formatters.DsonFormatter());
 
-            // April Fools 2015
-            if (DateTime.Today.Date.Equals(new DateTime(2015, 4, 1).Date))
+            // April Fools 2015, only during class
+            DateTime now = DateTime.UtcNow;
+            DateTime start = new DateTime(2015, 4, 1, 10, 0, 0).ToUniversalTime();
+            DateTime end = new DateTime(2015, 4, 1, 12, 0, 0).ToUniversalTime();
+            if ((now > start) && (now < end))
             {
-                config.Formatters.Clear();
-                config.Formatters.Add(new Formatters.DsonFormatter());
+                config.Formatters.RemoveAt(0);
             }
 
             config.MapHttpAttributeRoutes();
