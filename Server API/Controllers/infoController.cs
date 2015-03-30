@@ -26,8 +26,8 @@ namespace Server_API.Controllers
         {
             Info_API info = new Info_API
             {
-                version = "2.08.0000",
-                version_date = "2015-03-29",
+                version = "2.09.0000",
+                version_date = "2015-03-30",
                 contacts = new List<Info_API.Contact>
                 {
                     new Info_API.Contact
