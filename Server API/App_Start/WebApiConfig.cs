@@ -4,7 +4,7 @@ using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Cors;
-using Server_API.Filters.ValidateViewModelAttribute;
+using Server_API.Filters;
 
 namespace Server_API
 {

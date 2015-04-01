@@ -15,7 +15,7 @@ namespace Server_API.Filters
         {
             if (actionContext.ActionArguments.Any(kv => kv.Value == null))
             {
-                actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Arguments cannot be null");
+                actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Body cannot be null");
             }
 
             if (actionContext.ModelState.IsValid == false)
