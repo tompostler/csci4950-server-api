@@ -4,6 +4,7 @@ using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using Server_API.Filters.ValidateViewModelAttribute;
 
 namespace Server_API
 {
@@ -24,6 +25,9 @@ namespace Server_API
                         NullValueHandling = NullValueHandling.Ignore
                     }
                 });
+
+            // Add null content filter.
+            config.Filters.Add(new ValidateViewModelAttribute());
 
             // April Fools 2015
             if (DateTime.Today.Date.Equals(new DateTime(2015, 4, 1).Date))
