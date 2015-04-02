@@ -4,6 +4,7 @@ using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using Server_API.Filters;
 
 namespace Server_API
 {
@@ -26,17 +27,11 @@ namespace Server_API
                 });
             config.Formatters.Add(new Formatters.DsonFormatter());
 
-            // April Fools 2015, only during class
-            DateTime now = DateTime.UtcNow;
-            DateTime start = new DateTime(2015, 4, 1, 10, 0, 0).ToUniversalTime();
-            DateTime end = new DateTime(2015, 4, 1, 12, 0, 0).ToUniversalTime();
-            if ((now > start) && (now < end))
-            {
-                config.Formatters.RemoveAt(0);
-            }
+            // Add null content filter.
+            config.Filters.Add(new ValidateViewModelAttribute());
+
 
             config.MapHttpAttributeRoutes();
-
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",

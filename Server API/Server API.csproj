@@ -121,6 +121,7 @@
     <Compile Include="Controllers\settingsController.cs" />
     <Compile Include="Controllers\tagsController.cs" />
     <Compile Include="Controllers\usersController.cs" />
+    <Compile Include="Filters\ValidateViewModel.cs" />
     <Compile Include="Formatters\DsonFormatter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
