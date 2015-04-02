@@ -2,6 +2,7 @@
 using Server_API.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Entity;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -42,9 +43,6 @@ namespace Server_API.Controllers
         // POST: api/auth
         public async Task<IHttpActionResult> Postauth(AuthReq_API AuthRequest)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             // Get the corresponding user
             user usr = await db.users.FindAsync(AuthRequest.user_id);
             if (usr == null)
@@ -54,28 +52,47 @@ namespace Server_API.Controllers
             if (!Hashing.ValidatePassword(AuthRequest.password, usr.password))
                 return BadRequest("password does not match user_id");
 
+            // Check for existing token and just update it if necessary
+            auth authExisting = await db.auths.FindAsync(AuthRequest.user_id);
+            if (authExisting != null)
+            {
+                authExisting.expire = DateTime.UtcNow.AddDays(21);
+                db.Entry(authExisting).State = EntityState.Modified;
+                await db.SaveChangesAsync();
+
+                // Convert to friendly
+                AuthRet_API authExistingReturn = new AuthRet_API
+                {
+                    user_id = authExisting.user_id,
+                    token = authExisting.token,
+                    expire = authExisting.expire
+                };
+
+                return Ok(authExistingReturn);
+            }   
+            
             // Generate the token
             string token = Hashing.GenerateToken();
 
             // Assemble and insert
-            auth aur = new auth
+            auth authRequest = new auth
             {
                 user_id = AuthRequest.user_id,
                 token = token,
-                expire = DateTime.UtcNow.AddDays(1)
+                expire = DateTime.UtcNow.AddDays(21)
             };
-            db.auths.Add(aur);
+            db.auths.Add(authRequest);
             await db.SaveChangesAsync();
 
             // Convert to friendly
-            AuthRet_API aut = new AuthRet_API
+            AuthRet_API authReturn = new AuthRet_API
             {
-                user_id = aur.user_id,
-                token = aur.token,
-                expire = aur.expire
+                user_id = authRequest.user_id,
+                token = authRequest.token,
+                expire = authRequest.expire
             };
 
-            return Ok(aut);
+            return Ok(authReturn);
         }
 
         // DELETE: api/auth/5

@@ -84,9 +84,6 @@ namespace Server_API.Controllers
         // PUT: api/locations/5
         public async Task<IHttpActionResult> Putlocation(int id, Location_API Location)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             // Verify request ID
             if (id != Location.id)
                 return BadRequest("PUT URL and ID in the location do not match");
@@ -109,9 +106,6 @@ namespace Server_API.Controllers
         // POST: api/locations
         public async Task<IHttpActionResult> Postlocation(Location_API Location)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             // Verify token
             string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, Location.user_id);
             if (!String.IsNullOrEmpty(msg))
@@ -135,9 +129,7 @@ namespace Server_API.Controllers
         {
             location location = await db.locations.FindAsync(id);
             if (location == null)
-            {
                 return NotFound();
-            }
 
             // Verify token
             string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, location.user_id);

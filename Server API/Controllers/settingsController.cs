@@ -76,9 +76,6 @@ namespace Server_API.Controllers
         // POST: api/settings
         public async Task<IHttpActionResult> Postsetting(Setting_API Setting)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             // Verify token
             string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, Setting.user_id);
             if (!String.IsNullOrEmpty(msg))
@@ -103,9 +100,7 @@ namespace Server_API.Controllers
         {
             setting setting = await db.settings.FindAsync(id);
             if (setting == null)
-            {
                 return NotFound();
-            }
 
             // Verify token
             string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, setting.user_id);
@@ -164,11 +159,6 @@ namespace Server_API.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool settingExists(int id)
-        {
-            return db.settings.Count(e => e.user_id == id) > 0;
         }
     }
 }

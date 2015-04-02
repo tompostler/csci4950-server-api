@@ -4,6 +4,7 @@ using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using Server_API.Filters;
 
 namespace Server_API
 {
@@ -24,16 +25,13 @@ namespace Server_API
                         NullValueHandling = NullValueHandling.Ignore
                     }
                 });
+            config.Formatters.Add(new Formatters.DsonFormatter());
 
-            // April Fools 2015
-            if (DateTime.Today.Date.Equals(new DateTime(2015, 4, 1).Date))
-            {
-                config.Formatters.Clear();
-                config.Formatters.Add(new Formatters.DsonFormatter());
-            }
+            // Add null content filter.
+            config.Filters.Add(new ValidateViewModelAttribute());
+
 
             config.MapHttpAttributeRoutes();
-
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
