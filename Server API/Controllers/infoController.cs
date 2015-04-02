@@ -26,8 +26,8 @@ namespace Server_API.Controllers
         {
             Info_API info = new Info_API
             {
-                version = "2.09.0000",
-                version_date = "2015-03-30",
+                version = "2.10.0000",
+                version_date = "2015-04-02",
                 contacts = new List<Info_API.Contact>
                 {
                     new Info_API.Contact
@@ -55,7 +55,7 @@ namespace Server_API.Controllers
                     "users"
                 },
                 comment = "Read the documentation. . . Now with HTTPS!",
-                fun_fact = "There is a volcano in Indonesia that spews blue lava."
+                fun_fact = "'Bae' is the Danish word for 'poop'"
             };
 
             return Ok(info);
