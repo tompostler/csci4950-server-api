@@ -43,9 +43,6 @@ namespace Server_API.Controllers
         // POST: api/auth
         public async Task<IHttpActionResult> Postauth(AuthReq_API AuthRequest)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             // Get the corresponding user
             user usr = await db.users.FindAsync(AuthRequest.user_id);
             if (usr == null)

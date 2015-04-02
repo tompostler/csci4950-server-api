@@ -101,9 +101,6 @@ namespace Server_API.Controllers
         // PUT: api/activityunit/5
         public async Task<IHttpActionResult> Putactivityunit(int id, ActivityUnit_API ActivityUnit)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             // Verify request ID
             if (id != ActivityUnit.id)
                 return BadRequest("PUT URL and ID in the activity unit do not match");
@@ -126,9 +123,6 @@ namespace Server_API.Controllers
         // POST: api/activityunit
         public async Task<IHttpActionResult> Postactivityunit(ActivityUnit_API ActivityUnit)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             // Verify token
             string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, (await db.activities.FindAsync(ActivityUnit.activity_id)).user_id);
             if (!String.IsNullOrEmpty(msg))
@@ -152,9 +146,7 @@ namespace Server_API.Controllers
         {
             activityunit activityunit = await db.activityunits.FindAsync(id);
             if (activityunit == null)
-            {
                 return NotFound();
-            }
 
             // Verify token
             string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, (await db.activities.FindAsync(activityunit.activity_id)).user_id);

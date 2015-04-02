@@ -67,9 +67,6 @@ namespace Server_API.Controllers
         // PUT: api/users/5
         public async Task<IHttpActionResult> Putuser(int id, User_API User)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             // Verify request ID
             if (id != User.id)
                 return BadRequest("PUT URL and ID in the location do not match");
@@ -92,9 +89,6 @@ namespace Server_API.Controllers
         // POST: api/users
         public async Task<IHttpActionResult> Postuser(User_API User)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             // Convert the User_API to the EntityModel user
             user usr = ConvertUserApiToUser(User);
 
@@ -113,9 +107,7 @@ namespace Server_API.Controllers
         {
             user user = await db.users.FindAsync(id);
             if (user == null)
-            {
                 return NotFound();
-            }
 
             // Verify token
             string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, id);
