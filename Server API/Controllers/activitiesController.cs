@@ -54,7 +54,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activities
-        public async Task<IHttpActionResult> Getactivities(int id = 0, string course_id = "", string name = "", DateTime? ddate = null)
+        public async Task<IHttpActionResult> Getactivities(int id = 0, string course_id = "", string name = "", DateTime ddate = default(DateTime))
         {
             // Verify token
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
@@ -89,7 +89,7 @@ namespace Server_API.Controllers
                 activities = activities.Where(p => p.name.Equals(name));
 
             // Filter by ddate
-            if (ddate != null)
+            if (ddate != default(DateTime))
                 activities = activities.Where(p => p.ddate.Equals(ddate));
 
             // Convert the activities to more API friendly things
