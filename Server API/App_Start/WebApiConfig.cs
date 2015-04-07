@@ -28,7 +28,7 @@ namespace Server_API
             config.Formatters.Add(new Formatters.DsonFormatter());
 
             // Add null content filter.
-            //config.Filters.Add(new ValidateViewModelAttribute());
+            config.Filters.Add(new ValidateViewModelAttribute());
 
 
             config.MapHttpAttributeRoutes();

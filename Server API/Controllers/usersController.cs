@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -66,7 +65,6 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/users/5
-        [ValidateViewModel]
         public async Task<IHttpActionResult> Putuser(int id, User_API User)
         {
             // Verify request ID
@@ -89,7 +87,6 @@ namespace Server_API.Controllers
         }
 
         // POST: api/users
-        [ValidateViewModel]
         public async Task<IHttpActionResult> Postuser(User_API User)
         {
             // Convert the User_API to the EntityModel user

@@ -10,7 +10,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -100,7 +99,6 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/activityunit/5
-        [ValidateViewModel]
         public async Task<IHttpActionResult> Putactivityunit(int id, ActivityUnit_API ActivityUnit)
         {
             // Verify request ID
@@ -123,7 +121,6 @@ namespace Server_API.Controllers
         }
 
         // POST: api/activityunit
-        [ValidateViewModel]
         public async Task<IHttpActionResult> Postactivityunit(ActivityUnit_API ActivityUnit)
         {
             // Verify token

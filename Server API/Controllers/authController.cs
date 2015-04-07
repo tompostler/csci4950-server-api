@@ -6,7 +6,6 @@ using System.Data.Entity;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -42,7 +41,6 @@ namespace Server_API.Controllers
         }
 
         // POST: api/auth
-        [ValidateViewModel]
         public async Task<IHttpActionResult> Postauth(AuthReq_API AuthRequest)
         {
             // Get the corresponding user
