@@ -18,18 +18,11 @@ namespace Server_API
             
             // Make JSON the default response type
             config.Formatters.Clear();
-            config.Formatters.Add(new JsonMediaTypeFormatter()
-                {
-                    SerializerSettings =
-                    {
-                        NullValueHandling = NullValueHandling.Ignore
-                    }
-                });
+            config.Formatters.Add(new JsonMediaTypeFormatter());
             config.Formatters.Add(new Formatters.DsonFormatter());
 
             // Add null content filter.
             config.Filters.Add(new ValidateViewModelAttribute());
-
 
             config.MapHttpAttributeRoutes();
             config.Routes.MapHttpRoute(
