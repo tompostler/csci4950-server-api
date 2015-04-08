@@ -22,7 +22,6 @@ namespace Server_API.Controllers
             [Required]
             public int user_id { get; set; }
 
-            [Required]
             public string password { get; set; }
         }
 
@@ -40,6 +39,61 @@ namespace Server_API.Controllers
             public DateTime expire { get; set; }
         }
 
+        // GET: api/auth
+        public async Task<IHttpActionResult> Getauth(int user_id)
+        {
+            // Verify token
+            string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, user_id);
+            if (!String.IsNullOrEmpty(msg))
+                return BadRequest(msg);
+
+            auth aut = await db.auths.FindAsync(user_id);
+            return Ok(ConvertAuthToAuthRetApi(aut));
+        }
+
+        // PUT: api/auth
+        public async Task<IHttpActionResult> Putauth(int id, AuthReq_API AuthRequest)
+        {
+            // Verify request ID
+            if (id != AuthRequest.user_id)
+                return BadRequest("PUT URL and ID in the auth request do not match");
+
+            // Get the corresponding user
+            user usr = await db.users.FindAsync(id);
+            if (usr == null)
+                return BadRequest("user_id not found");
+
+            // Get the token
+            int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
+
+            bool okay = false;
+
+            // Check for bad password
+            if (!String.IsNullOrEmpty(AuthRequest.password))
+                if (!Hashing.ValidatePassword(AuthRequest.password, usr.password))
+                    return BadRequest("password does not match user_id");
+                else
+                    okay = true;
+
+            // Check the token if necessary
+            if (!okay)
+            {
+                string tok_msg = AuthorizeHeader.InvalidTokenToMessage(tok_id, id);
+                if (!String.IsNullOrEmpty(tok_msg))
+                    return BadRequest(tok_msg);
+            }
+
+            // If we made it this far, then update the auth
+            auth authExisting = await db.auths.FindAsync(id);
+            if (authExisting == null)
+                return NotFound();
+            authExisting.expire = DateTime.UtcNow.AddDays(21);
+            db.Entry(authExisting).State = EntityState.Modified;
+            await db.SaveChangesAsync();
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
         // POST: api/auth
         public async Task<IHttpActionResult> Postauth(AuthReq_API AuthRequest)
         {
@@ -52,25 +106,6 @@ namespace Server_API.Controllers
             if (!Hashing.ValidatePassword(AuthRequest.password, usr.password))
                 return BadRequest("password does not match user_id");
 
-            // Check for existing token and just update it if necessary
-            auth authExisting = await db.auths.FindAsync(AuthRequest.user_id);
-            if (authExisting != null)
-            {
-                authExisting.expire = DateTime.UtcNow.AddDays(21);
-                db.Entry(authExisting).State = EntityState.Modified;
-                await db.SaveChangesAsync();
-
-                // Convert to friendly
-                AuthRet_API authExistingReturn = new AuthRet_API
-                {
-                    user_id = authExisting.user_id,
-                    token = authExisting.token,
-                    expire = authExisting.expire
-                };
-
-                return Ok(authExistingReturn);
-            }   
-            
             // Generate the token
             string token = Hashing.GenerateToken();
 
@@ -84,15 +119,7 @@ namespace Server_API.Controllers
             db.auths.Add(authRequest);
             await db.SaveChangesAsync();
 
-            // Convert to friendly
-            AuthRet_API authReturn = new AuthRet_API
-            {
-                user_id = authRequest.user_id,
-                token = authRequest.token,
-                expire = authRequest.expire
-            };
-
-            return Ok(authReturn);
+            return Ok(ConvertAuthToAuthRetApi(authRequest));
         }
 
         // DELETE: api/auth/5
@@ -117,6 +144,21 @@ namespace Server_API.Controllers
         public IHttpActionResult Options()
         {
             return Ok();
+        }
+
+        /// <summary>
+        /// Converts an EntityModel auth to an AuthRet_API.
+        /// </summary>
+        /// <param name="Auth">The EntityModel auth to convert.</param>
+        /// <returns>An AuthRet_API corresponding to the EntityModel auth.</returns>
+        private static AuthRet_API ConvertAuthToAuthRetApi(auth Auth)
+        {
+            return new AuthRet_API
+            {
+                user_id = Auth.user_id,
+                token = Auth.token,
+                expire = Auth.expire
+            };
         }
     }
 }
