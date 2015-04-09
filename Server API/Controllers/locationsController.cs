@@ -39,6 +39,8 @@ namespace Server_API.Controllers
             [Required, MaxLength(100)]
             public string content { get; set; }
 
+            public DateTime mdate { get; set; }
+
             public List<long> activityunit_ids { get; set; }
         }
 
@@ -162,6 +164,7 @@ namespace Server_API.Controllers
             loc.user_id = Location.user_id;
             loc.name = Location.name;
             loc.content = Location.content;
+            loc.mdate = DateTime.UtcNow;
 
             return loc;
         }
@@ -179,6 +182,7 @@ namespace Server_API.Controllers
             loc.user_id = Location.user_id;
             loc.name = Location.name;
             loc.content = Location.content;
+            loc.mdate = Location.mdate;
 
             // Magic to get just the IDs out of objects
             loc.activityunit_ids = Location.activityunits.Select(p => p.id).ToList();

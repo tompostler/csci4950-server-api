@@ -46,6 +46,12 @@ namespace Server_API.Controllers
 
             public DateTime? ddate { get; set; }
 
+            public float? eduration { get; set; }
+
+            public float? pduration { get; set; }
+
+            public byte? importance { get; set; }
+
             public DateTime mdate { get; set; }
 
             public List<byte> tag_ids { get; set; }
@@ -197,6 +203,9 @@ namespace Server_API.Controllers
             act.name = Activity.name;
             act.description = Activity.description;
             act.ddate = Activity.ddate;
+            act.eduration = Activity.eduration;
+            act.pduration = Activity.pduration;
+            act.importance = Activity.importance;
             act.mdate = DateTime.UtcNow;
             act.tags = await tags.ToListAsync();
 
@@ -218,6 +227,9 @@ namespace Server_API.Controllers
             act.name = Activity.name;
             act.description = Activity.description;
             act.ddate = Activity.ddate;
+            act.eduration = Activity.eduration;
+            act.pduration = Activity.pduration;
+            act.importance = Activity.importance;
             act.mdate = Activity.mdate;
 
             // Magic to get just the IDs out of objects

@@ -9,6 +9,9 @@ using System.Web.Http;
 
 namespace Server_API.Controllers
 {
+    /// <summary>
+    /// The auth controller breaks the normal API style, per discussion with Greyson.
+    /// </summary>
     [RequireHttps]
     public class authController : ApiController
     {

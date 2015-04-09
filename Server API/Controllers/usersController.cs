@@ -43,6 +43,8 @@ namespace Server_API.Controllers
             [Required]
             public string password { get; set; }
 
+            public DateTime mdate { get; set; }
+
             public List<int> activity_ids { get; set; }
 
             public List<int> location_ids { get; set; }
@@ -141,6 +143,7 @@ namespace Server_API.Controllers
             usr.lname = User.lname;
             usr.email = User.email;
             usr.password = Hashing.HashPassword(User.password);
+            usr.mdate = DateTime.UtcNow;
 
             return usr;
         }
@@ -159,6 +162,7 @@ namespace Server_API.Controllers
             usr.lname = User.lname;
             usr.email = User.email;
             usr.password = null;
+            usr.mdate = User.mdate;
 
             // Get the lists of ids for the corresponding types
             usr.activity_ids = User.activities.Select(p => p.id).ToList();
