@@ -6,39 +6,21 @@
 <body>
 
 <xmp style="display:none;" toc>
-# Overview and Basic Features
+# Information
 
-This section gives you an overview of how to use the API as well as what types of requests you can
-make against the API.
+This documentation is being considerably condensed because you are expected to understand how a
+RESTful Web API works. If you don't, see
+[this link](http://www.restapitutorial.com/lessons/httpmethods.html) which describes it for you. The
+basics are explained in the next section, [Requests](#requests).
 
-
-
-
-## Request URL Format
-
-In order to make a request of any type, the request URL must be a standard HTTP URL structured as
-such:
-
-    http[s]://HOST/api/ROOTNODE[/SUBNODE][?PARAM1=VALUE1][&PARAM2=VALUE2][&PARAM3=VALUE3]...
-
-Where:
-
-Item | Description
-:---: | :---
-`HOST` | The hostname that is hosting the API. Right now, that would be `msfrizzle.me`
-`ROOTNODE` | The root node on the API. This is elaborated on in the [root nodes](#root-nodes) section.
-`[/SUBNODE]` | If using a `PUT` or `DELETE`, then this is a shortcut used to handle one item.
-`[?PARAM1=VALUE1]` | If you wish/need to supply parameters to the URL for the request type you are using, then those start after the root node URL with a `?` and then a `key=value` system.
-`[&PARAM2=VALUE2]` | Any subsequent or additional parameters that you wish/need to define for the specific HTTP URL will continue in `key=value` format and are separated from other parameters with a `&`.
-
-__Note:__ Most actions now require you to use HTTPS. All actions support HTTPS, so there is no
-reason to not use HTTPS. To see how to handle security and authentication, jump to the
-[security section](#api-security).
+The current server hosting the API is `https://msfrizzle.me/api`, and the current server version
+(along with other useful information) can be found at the `info` node
+(https://msfrizzle.me/api/info).
 
 
 
 
-## Request Types
+## Requests
 
 There are five types of requests you can make against the server, each of which performs a different
 action detailed below:
@@ -49,119 +31,29 @@ action detailed below:
 * `DELETE`
 * `OPTIONS`
 
-Requests will always have a status code representing what happend, with optionally including JSON.
+Requests will always have a status code representing what happend, potentially with a response body.
 
 To send data with a request, the HTTP header `Content-Type` must be `application/json` if you are
 sending JSON in the request body. You will most likely receive an error otherwise.
 
+When requesting an entire collection, the current user's ID is automatically applied based on the
+authorization token.
 
-
-### GET Requests
-
-These are used to request data from the server in a read-only style.
-
-All parameters that you wish to supply are passed to the API via URL parameters. For example, if you
-wish to ask for the activity associated with user ID 7 and course id "CSCI 4950", then the URL
-string you would use is:
-
-    msfrizzle.me/api/activities?user_id=7&course_id=CSCI%204950
-
-
-
-### PUT Requests
-
-These are used when updating an existing item on the server.
-
-All parameters are passed via JSON in a `PUT` request to the appropriate root node with the id to
-update as a subnode. For example, if you wish to update the activity with ID of 1, then you would
-send a `PUT` request with a JSON body of information to update to the URL string:
-
-    msfrizzle.me/api/activities/1
-
-You must send the entire item (as if you were doing a `POST` request) to the server.
-
-
-
-### POST Requests
-
-These are used when creating a new item on the server.
-
-All parameters are passed via JSON in a `POST` request to the appropriate root node. For example, if
-you wanted to create a new activity, then you would send a `POST` request with a JSON body of
-information to the URL string:
-
-    msfrizzle.me/api/activities
-
-
-
-### DELETE Requests
-
-These are used when deleting an existing item on the server.
-
-No parameters are necessary. Simply send a `DELETE` request to the appropriate root node with the id
-to delete as a subnode. For example, if you wish to delete the activity with ID of 1, then you would
-send a `DELETE` request to the URL string:
-
-    msfrizzle.me/api/activities/1
-
-Deleting an item that is depended upon by other items (such as deleting a user) will cascade the
-deletion to delete all dependencies.
-
-
-### OPTIONS Requests
-
-You will never need to use this request type yourself.
-
-
-
-
-## Response Types
-
-There are different responses for each type of request sent to the server.
+| HTTP Verb | Entire Collection (e.g. /users)   | Specific Item (e.g. /users/{id}) |
+| :---      | :---                              | :--- |
+| GET       | `200 OK`, list of items           | `200 OK`, single item. `404 Not Found`, if ID not found |
+| PUT       | `405 Method Not Allowed`          | `204 No Content`. `404 Not Found`, if ID not found |
+| POST      | `200 OK`, containing the new item | `200 OK`, containing the new item |
+| DELETE    | `405 Method Not Allowed`          | `204 No Content`. `404 Not Found`, if ID not found |
 
 __Notes:__
     
-- In all cases below, if there is no valid match to the query or action, then a status of `404 Not
-Found` is returned to the caller, regardless of what it says are possible return results.
-- In all cases below, if some action causes an error, then a generic status of `400 Bad Request` is
-returned to the caller, regardless of what it says are possible return results.
-- In all cases below, if there is an issue with the Authorization header and the request placed,
-then the `400 Bad Request` status is returned with an error message saying what went wrong.
-
-
-
-### GET Responses
-
-There are 2 scenarios with a `GET`:
-
-- Requesting a specifc item by its ID. This will return one item in the appropriate format.
-- Requesting items based off a query. This will return a list of items, and the list returned may be
-empty based off of the query.
-
-
-
-### PUT Responses
-
-Upon successful `PUT`, will return a `204 No Content` status.
-
-
-
-### POST Responses
-
-Upon successful `POST` will return the new item with a `201 Created` status and the body containing
-the created item.
-
-
-
-### DELETE Responses
-
-Upon successful `DELETE`, will return a `204 No Content` status.
-
-
-
-### OPTIONS Responses
-
-Will always return a `200 OK` status.
+- If there is no valid match to the query or action, then a status of `404 Not Found` is returned to
+the caller, regardless of what it says are possible return results.
+- If some action causes an error, then a generic status of `400 Bad Request` is returned to the
+caller, regardless of what it says are possible return results.
+- If there is an issue with the Authorization header and the request placed, then the `400 Bad
+Request` status is returned with an error message saying what went wrong.
 
 
 ----------------------------------------------------------------------------------------------------
@@ -189,23 +81,6 @@ Node | Description
 [`/tags`](#tags-node) | Corresponds to a user-defined tag.
 [`/users`](#users-node) | Corresponds to a user.
 
-Unless otherwise stated, each request type has the following action:
-
-For `GET` requests, you may perform queries on the data restricted to the level of access provided
-by the token used in the Authorization header.
-
-For `PUT` and `DELETE` requests, this will need to be coupled with a [subnode](#subnodes) for proper
-usage. `PUT` requies the entire item and all of the elements, while `DELETE` does not require any
-message body. You cannot change the ID or user_id in a `PUT` request
-
-For `POST` requests, this is all the information you need since all data to `POST` will be in the
-body of your request. All elements are required for an item in the `POST` body, not counting
-auto-generated IDs.
-
-The following descriptions of the parameters on the nodes are used in the URL parameters of `GET`
-requests and the bodies of `PUT` and `POST` requests. Specifics for each node and what parameters
-are allowed for each request type follows the node if it differs from the above descriptions.
-
 
 
 ### activities Node
@@ -218,7 +93,10 @@ Parameter | Description
 `name` | A maximum 50-character string for the user-defined name of an activity.
 `description` | An _optional_ 100-character string for the user-defined description of an activity.
 `ddate` | An _optional_ due date for an activity. If this is not used, it should be set to `null`.
-`mdate` | A last modified date for the activity to track the latest version. This is automatically set to the UTC time on the server.
+`eduration` | An _optional_ float describing the estimated duration of the activity.
+`pduration` | An _optional_ float describing the progressed duration of the activity.
+`importance` | An _optional_ 8-bit integer describing the importance of the activity.
+`mdate` | A last modified date to track the latest version. This is automatically set to the UTC time on the server.
 `tag_ids` | A list of 8-bit integers correlating to existing tag IDs.
 `activityunit_ids` | A list of 64-bit integers correlating to later-created activity work units.
 
@@ -231,12 +109,12 @@ the access token provided.
 
 #### PUT
 
-`activityunit_ids` and `mdate` are overridden by the server.
+`activityunit_ids` is overridden by the server.
     
 
 #### POST
     
-`mdate` is overridden and `activityunit_ids` is ignored.
+`activityunit_ids` is ignored.
 
 
 
@@ -251,6 +129,7 @@ Parameter | Description
 `description` | An _optional_ 100-character string for the user-defined description of an activity.
 `stime` | The start date and time of the activity work unit, in [UTC format](#date-time-formats).
 `etime` | The end date and time of the activity work unit, in [UTC format](#date-time-formats).
+`mdate` | A last modified date to track the latest version. This is automatically set to the UTC time on the server.
 `tag_ids` | A list of integers correlating to existing tag IDs.
 
 
@@ -267,6 +146,8 @@ user.
 
 
 ### auth Node
+
+REFACTOR
 
 The auth node only supports `POST` requests.
 
@@ -333,6 +214,7 @@ Parameter | Description
 `user_id` | An integer correlating to an existing user ID. This will link a location to a specific user.
 `name` | A maximum 50-character string for the user-defined (or potentially suggested) name of a location.
 `content` | A maximum 100-character string for storing location data. This can be a lat-long, an address, or whatever.
+`mdate` | A last modified date to track the latest version. This is automatically set to the UTC time on the server.
 `activityunit_ids` | A list of 64-bit integers correlating to later-created activity work units.
 
 
@@ -369,21 +251,11 @@ Parameter | Description
 You do not need any parameters to search. The settings are returned based off the user token.
 
 
-#### PUT
-
-`mdate` is overridden by the server.
-    
-
-#### POST
-    
-`mdate` is overridden.
-
-
 
 
 ### tags Node
 
-Tags are hard-coded and only `GET`table.
+Tags are hard-coded and only `GET`-able.
 
 Parameter | Description
 :--- | :---
@@ -402,6 +274,7 @@ Parameter | Description
 `lname` | A maximum 50-character string for the user's last name.
 `email` | A maximum 50-character string for the user's email. __Uniqueness of the email is not enforced by the API.__
 `password` | A maximum 50-character string for the user's password. This is currently stored in the wonderfullness of plaintext. See [the notes](#password-storage) on this for more info.
+`mdate` | A last modified date to track the latest version. This is automatically set to the UTC time on the server.
 `activity_ids` | A list of integers correlating to activity IDs.
 `location_ids` | A list of integers correlating to location IDs.
 
@@ -410,7 +283,7 @@ Parameter | Description
 
 You may only query by `id` and `email`.
 
-`password` will be omitted.
+`password` will always be `null`.
 
 #### PUT
 
@@ -420,7 +293,7 @@ You may only query by `id` and `email`.
 
 `activity_ids` and `location_ids` are ignored.
 
-`password` will be omitted.
+`password` will be `null`.
 
 
 
@@ -431,205 +304,6 @@ For any request type (not including `GET` requests), an ID can be used to work w
 corresponding type from a root node.
 
 For `PUT` and `DELETE` requests, this format is necessary to work with only one item at a time.
-
-The URL format for working with a subnode is:
-
-    msfrizzle.me/api/ROOTNODE/SUBNODE
-
-
-----------------------------------------------------------------------------------------------------
-
-
-# Examples
-
-This section contains several examples in HTTP and JSON. It is up to you to figure out how that
-translates to a specific language you need.
-
-Every action/request is performed over HTTPS.
-
-
-
-
-### Creating a User
-
-Fill out a user item with all the necessary information and send it in a `POST` request to the
-server:
-
-    POST /api/users HTTP/1.1
-    Host: msfrizzle.me
-    Content-Type: application/json
-
-    {
-        "fname": "Tom",
-        "lname": "Hiddleston",
-        "email": "th@example.com",
-        "password": "Loki is better than Thor"
-    }
-
-Assuming your request was successful, then you will get back the same user item with the `password`
-redacted and the `user_id` set:
-
-    {
-        "id": 10,
-        "fname": "Tom",
-        "lname": "Hiddleston",
-        "email": "th@example.com",
-        "activity_ids": [],
-        "location_ids": []
-    }
-
-
-
-### Generating a Token
-
-In order to perform any useful actions on the API regarding a specific user, all requests must have
-the corresponding token in the Authorization header in the HTTP request.
-
-Tokens expire every 24 hours, so this will be a commonplace action.
-
-Send the appropriate `POST` request to the server to generate a unique token:
-
-    POST /api/auth HTTP/1.1
-    Host: msfrizzle.me
-    Content-Type: application/json
-
-    {
-        "user_id": 10,
-        "password": "Loki is better than Thor"
-    }
-
-Assuming your request was successful, then you will get back the same user ID with a token and
-expiration date (in UTC) specified:
-
-    {
-        "user_id": 10,
-        "token": "ASfKll5xCpgDjTTrXSaEcMyTjwZNwDLCjsAaUuhBKVQwDu4h+d1s0bGhXwJyBSnp",
-        "expire": "2015-03-30T19:27:12.3483113Z"
-    }
-
-
-
-### Using a Token (POST)
-
-Now that you have generated an authorization token, let's perform the basic task of adding an
-activity for a user.
-
-Issue the appropriate `POST` request with the Authorization HTTP header set to the token generated
-by the previous example:
-
-    POST /api/activities HTTP/1.1
-    Host: msfrizzle.me
-    Content-Type: application/json
-    Authorization: ASfKll5xCpgDjTTrXSaEcMyTjwZNwDLCjsAaUuhBKVQwDu4h+d1s0bGhXwJyBSnp
-
-    {
-        "user_id": 10,
-        "course_id": "CSCI 4950",
-        "name": "Testing the API",
-        "description": "Every once in a while, you have to write some example to make things more clear"
-    }
-
-Assuming your request was successful, then you will get back a full activity:
-
-    {
-        "id": 1,
-        "user_id": 10,
-        "course_id": "CSCI 4950",
-        "name": "Testing the API",
-        "description": "Every once in a while, you have to write some example to make things more clear",
-        "mdate": "2015-03-29T19:37:10.5691986",
-        "tag_ids": [],
-        "activityunit_ids": []
-    }
-
-
-
-### Using a Token (GET-all)
-
-Now that you have generated an authorization token and activity, let's perform the basic task of
-getting all activities associated with the current user (based on the Authorization token).
-
-Issue the appropriate `GET` request with the Authorization HTTP header set to the token generated
-earlier:
-
-    GET /api/activities HTTP/1.1
-    Host: msfrizzle.me
-    Content-Type: application/json
-    Authorization: ASfKll5xCpgDjTTrXSaEcMyTjwZNwDLCjsAaUuhBKVQwDu4h+d1s0bGhXwJyBSnp
-
-Assuming your request was successful, then you will get back the full activity list for the user:
-
-    [
-        {
-            "id": 1,
-            "user_id": 10,
-            "course_id": "CSCI 4950",
-            "name": "Testing the API",
-            "description": "Every once in a while, you have to write some example to make things more clear",
-            "mdate": "2015-03-29T19:37:10.5691986",
-            "tag_ids": [],
-            "activityunit_ids": []
-        }
-    ]
-
-In this example, the user with ID 10 only has one activity.
-
-
-
-### Using a Token (PUT)
-
-Now that you have generated an authorization token, let's perform the basic task of editing an
-activity for a user.
-
-Issue the appropriate `PUT` request with the Authorization HTTP header set to the token generated
-earlier:
-
-    PUT /api/activities/1 HTTP/1.1
-    Host: msfrizzle.me
-    Content-Type: application/json
-    Authorization: ASfKll5xCpgDjTTrXSaEcMyTjwZNwDLCjsAaUuhBKVQwDu4h+d1s0bGhXwJyBSnp
-
-    {
-        "id": 1,
-        "user_id": 10,
-        "course_id": "CSCI 4950",
-        "name": "Testing the API",
-        "description": "PUT me in that API"
-    }
-
-Assuming your request was successful, then you will get back a `204 No Content` status indicating
-that everything went well.
-    
-If you wish to verify that everything happened as expected, then perform a `GET` request for one
-item (the next example).
-
-
-
-### Using a Token (GET-one)
-
-Now that you have generated an authorization token and edited an activity, let's perform the basic
-task of looking at that one activity.
-
-Issue the appropriate `GET` request with the Authorization HTTP header set to the token generated
-earlier:
-
-    GET /api/activities/1 HTTP/1.1
-    Host: msfrizzle.me
-    Content-Type: application/json
-    Authorization: ASfKll5xCpgDjTTrXSaEcMyTjwZNwDLCjsAaUuhBKVQwDu4h+d1s0bGhXwJyBSnp
-
-Assuming your request was successful, then you will get back the one activity:
-
-    {
-        "id": 1,
-        "user_id": 10,
-        "course_id": "CSCI 4950",
-        "name": "Testing the API",
-        "description": "PUT me in that API",
-        "mdate": "2015-03-29T19:51:08.8027375",
-        "tag_ids": [],
-        "activityunit_ids": []
-    }
 
 
 ----------------------------------------------------------------------------------------------------
@@ -650,8 +324,9 @@ HTTPS for any action.
 
 The second security feature is token-based authentication. All `GET`, `PUT`, `POST`, and `DELETE`
 requests relating to a specific user require that a server-generated token (described further
-[below](#token-generation)) be supplied in the `Authorization` HTTP header of the request. Examples
-of how to use the token will be provided in the [examples](#examples) section.
+[below](#token-generation)) be supplied in the `Authorization` HTTP header of the request. Greyson
+should have completely encapsulated token handling and the details will not need to be explained
+further.
 
 The last security feature is that the request can only request, modify, add, or delete data
 corresponding to the user that a token was generated for. This will prevent one user from modifying
@@ -676,7 +351,7 @@ Then a request is sent to the `auth` node with the user id and password.
     
 Handed back is the base64-encoded token and the expiration time in UTC format.
 
-For more information and precise code examples, see the [examples](#examples) section.
+For more information, have a good reason to need the information, and then talk to Tom.
 
 
 
