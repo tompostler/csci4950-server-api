@@ -10,7 +10,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -49,6 +48,8 @@ namespace Server_API.Controllers
 
             [Required]
             public DateTime etime { get; set; }
+
+            public DateTime mdate { get; set; }
 
             public List<int> tag_ids { get; set; }
         }
@@ -100,7 +101,6 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/activityunit/5
-        [ValidateViewModel]
         public async Task<IHttpActionResult> Putactivityunit(int id, ActivityUnit_API ActivityUnit)
         {
             // Verify request ID
@@ -123,7 +123,6 @@ namespace Server_API.Controllers
         }
 
         // POST: api/activityunit
-        [ValidateViewModel]
         public async Task<IHttpActionResult> Postactivityunit(ActivityUnit_API ActivityUnit)
         {
             // Verify token
@@ -186,6 +185,7 @@ namespace Server_API.Controllers
             acu.description = ActivityUnit.description;
             acu.stime = ActivityUnit.stime;
             acu.etime = ActivityUnit.etime;
+            acu.mdate = DateTime.UtcNow;
 
             return acu;
         }
@@ -207,6 +207,7 @@ namespace Server_API.Controllers
             acu.description = ActivityUnit.description;
             acu.stime = ActivityUnit.stime;
             acu.etime = ActivityUnit.etime;
+            acu.mdate = ActivityUnit.mdate;
             // Magic to get just the IDs out of tag objects
             acu.tag_ids = ActivityUnit.tags.Select(p => p.id).ToList().ConvertAll(x => (int)x);
 

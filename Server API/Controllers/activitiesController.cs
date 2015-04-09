@@ -10,7 +10,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -46,6 +45,12 @@ namespace Server_API.Controllers
             public string description { get; set; }
 
             public DateTime? ddate { get; set; }
+
+            public float? eduration { get; set; }
+
+            public float? pduration { get; set; }
+
+            public byte? importance { get; set; }
 
             public DateTime mdate { get; set; }
 
@@ -106,7 +111,6 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/activities/5
-        [ValidateViewModel]
         public async Task<IHttpActionResult> Putactivity(int id, Activity_API Activity)
         {
             // Verify request ID
@@ -129,7 +133,6 @@ namespace Server_API.Controllers
         }
 
         // POST: api/activities
-        [ValidateViewModel]
         public async Task<IHttpActionResult> Postactivity(Activity_API Activity)
         {
             // Verify token
@@ -200,6 +203,9 @@ namespace Server_API.Controllers
             act.name = Activity.name;
             act.description = Activity.description;
             act.ddate = Activity.ddate;
+            act.eduration = Activity.eduration;
+            act.pduration = Activity.pduration;
+            act.importance = Activity.importance;
             act.mdate = DateTime.UtcNow;
             act.tags = await tags.ToListAsync();
 
@@ -221,6 +227,9 @@ namespace Server_API.Controllers
             act.name = Activity.name;
             act.description = Activity.description;
             act.ddate = Activity.ddate;
+            act.eduration = Activity.eduration;
+            act.pduration = Activity.pduration;
+            act.importance = Activity.importance;
             act.mdate = Activity.mdate;
 
             // Magic to get just the IDs out of objects

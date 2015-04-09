@@ -32,6 +32,9 @@ namespace Server_API.Models
         [Column(TypeName = "datetime2")]
         public DateTime etime { get; set; }
 
+        [Column(TypeName = "datetime2")]
+        public DateTime mdate { get; set; }
+
         public virtual activity activity { get; set; }
 
         public virtual location location { get; set; }

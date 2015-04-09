@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -44,6 +43,8 @@ namespace Server_API.Controllers
             [Required]
             public string password { get; set; }
 
+            public DateTime mdate { get; set; }
+
             public List<int> activity_ids { get; set; }
 
             public List<int> location_ids { get; set; }
@@ -66,7 +67,6 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/users/5
-        [ValidateViewModel]
         public async Task<IHttpActionResult> Putuser(int id, User_API User)
         {
             // Verify request ID
@@ -89,7 +89,6 @@ namespace Server_API.Controllers
         }
 
         // POST: api/users
-        [ValidateViewModel]
         public async Task<IHttpActionResult> Postuser(User_API User)
         {
             // Convert the User_API to the EntityModel user
@@ -144,6 +143,7 @@ namespace Server_API.Controllers
             usr.lname = User.lname;
             usr.email = User.email;
             usr.password = Hashing.HashPassword(User.password);
+            usr.mdate = DateTime.UtcNow;
 
             return usr;
         }
@@ -162,6 +162,7 @@ namespace Server_API.Controllers
             usr.lname = User.lname;
             usr.email = User.email;
             usr.password = null;
+            usr.mdate = User.mdate;
 
             // Get the lists of ids for the corresponding types
             usr.activity_ids = User.activities.Select(p => p.id).ToList();
