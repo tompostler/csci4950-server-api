@@ -1,8 +1,10 @@
 ﻿using Server_API.Auth;
 using Server_API.Models;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -22,9 +24,11 @@ namespace Server_API.Controllers
         /// </summary>
         public class AuthReq_API
         {
-            [Required]
-            public int user_id { get; set; }
+            public int? user_id { get; set; }
 
+            public string user_email { get; set; }
+
+            [Required]
             public string password { get; set; }
         }
 
@@ -80,8 +84,25 @@ namespace Server_API.Controllers
         // POST: api/auth
         public async Task<IHttpActionResult> Postauth(AuthReq_API AuthRequest)
         {
+            // Email/Password
+            if (!AuthRequest.user_id.HasValue)
+            {
+                // Find the user
+                IQueryable<user> users = from u in db.users
+                                         select u;
+                users = users.Where(p => p.email.Equals(AuthRequest.user_email));
+                List<user> results = await users.ToListAsync();
+                
+                // Check length
+                if (results.Count == 0)
+                    return BadRequest("user_email not found");
+
+                // Set the id
+                AuthRequest.user_id = results.First().id;
+            }
+
             // Get the corresponding user
-            user usr = await db.users.FindAsync(AuthRequest.user_id);
+            user usr = await db.users.FindAsync(AuthRequest.user_id.Value);
             if (usr == null)
                 return BadRequest("user_id not found");
 
@@ -95,7 +116,7 @@ namespace Server_API.Controllers
             // Assemble and insert
             auth authRequest = new auth
             {
-                user_id = AuthRequest.user_id,
+                user_id = AuthRequest.user_id.Value,
                 token = token,
                 expire = DateTime.UtcNow.AddDays(21)
             };

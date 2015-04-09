@@ -158,6 +158,7 @@ The request interface, sent by the client to the server with the `POST` request:
 Parameter | Description
 :--- | :---
 `user_id` | An integer correlating to an existing user ID. This will link an auth instance to a specific user.
+`user_email` | The email of the user for login without the user id.
 `password` | The password of the user.
 
 The response interface, sent by the server to the client when responding to a `POST` request:
@@ -272,7 +273,7 @@ Parameter | Description
 `id` | An integer uniquely identifying the user. This is automatically incremented on creation of a new user.
 `fname` | A maximum 50-character string for the user's first name.
 `lname` | A maximum 50-character string for the user's last name.
-`email` | A maximum 50-character string for the user's email. __Uniqueness of the email is not enforced by the API.__
+`email` | A maximum 50-character string for the user's email.
 `password` | A maximum 50-character string for the user's password. This is currently stored in the wonderfullness of plaintext. See [the notes](#password-storage) on this for more info.
 `mdate` | A last modified date to track the latest version. This is automatically set to the UTC time on the server.
 `activity_ids` | A list of integers correlating to activity IDs.
