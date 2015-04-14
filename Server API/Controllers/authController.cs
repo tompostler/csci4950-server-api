@@ -74,7 +74,7 @@ namespace Server_API.Controllers
             auth authExisting = await db.auths.FindAsync(tok_id);
             if (authExisting == null)
                 return NotFound();
-            authExisting.expire = DateTime.UtcNow.AddDays(21);
+            authExisting.expire = Util.UtcDateTimeInMilliseconds().AddDays(21);
             db.Entry(authExisting).State = EntityState.Modified;
             await db.SaveChangesAsync();
 
@@ -118,7 +118,7 @@ namespace Server_API.Controllers
             {
                 user_id = AuthRequest.user_id.Value,
                 token = token,
-                expire = DateTime.UtcNow.AddDays(21)
+                expire = Util.UtcDateTimeInMilliseconds().AddDays(21)
             };
             db.auths.Add(authRequest);
             await db.SaveChangesAsync();

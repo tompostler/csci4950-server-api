@@ -26,7 +26,7 @@ namespace Server_API.Controllers
         {
             public ActivityUnit_API()
             {
-                tag_ids = new List<int>();
+                tag_ids = new List<byte>();
             }
 
             public long id { get; set; }
@@ -51,7 +51,7 @@ namespace Server_API.Controllers
 
             public DateTime mdate { get; set; }
 
-            public List<int> tag_ids { get; set; }
+            public List<byte> tag_ids { get; set; }
         }
 
         // GET: api/activityunit
@@ -185,7 +185,7 @@ namespace Server_API.Controllers
             acu.description = ActivityUnit.description;
             acu.stime = ActivityUnit.stime;
             acu.etime = ActivityUnit.etime;
-            acu.mdate = DateTime.UtcNow;
+            acu.mdate = Util.UtcDateTimeInMilliseconds();
 
             return acu;
         }
@@ -209,7 +209,7 @@ namespace Server_API.Controllers
             acu.etime = ActivityUnit.etime;
             acu.mdate = ActivityUnit.mdate;
             // Magic to get just the IDs out of tag objects
-            acu.tag_ids = ActivityUnit.tags.Select(p => p.id).ToList().ConvertAll(x => (int)x);
+            acu.tag_ids = ActivityUnit.tags.Select(p => p.id).ToList();
 
             return acu;
         }

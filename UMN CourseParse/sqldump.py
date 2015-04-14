@@ -17,6 +17,8 @@ GO
 
 """;
 
+    sqltxt += '\n\n' + sqlins
+
     sqlvals = []
     maxnum = 12
     maxnam = 100

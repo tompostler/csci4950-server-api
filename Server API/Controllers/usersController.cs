@@ -143,7 +143,7 @@ namespace Server_API.Controllers
             usr.lname = User.lname;
             usr.email = User.email;
             usr.password = Hashing.HashPassword(User.password);
-            usr.mdate = DateTime.UtcNow;
+            usr.mdate = Util.UtcDateTimeInMilliseconds();
 
             return usr;
         }

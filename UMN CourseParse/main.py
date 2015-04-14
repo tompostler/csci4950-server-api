@@ -5,6 +5,7 @@
 from urllib import request
 from bs4 import BeautifulSoup
 from sqldump import DumpToTransactSQL
+from trim import TrimCourses
 from time import sleep
 from random import randint
 from sys import argv
@@ -88,6 +89,9 @@ if __name__ == '__main__':
     nums, names = GetAllCourses()
     print('\n'+'-'*80+'\n')
     print(len(nums), "courses found")
+
+    # Drop anything above 5xxx
+    nums, names = TrimCourses(nums, names, 5)
 
     # Convert to Transact-SQL
     DumpToTransactSQL(nums, names)

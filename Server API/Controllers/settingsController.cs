@@ -131,7 +131,7 @@ namespace Server_API.Controllers
             setting set = new setting();
             set.user_id = Setting.user_id;
             set.value = Setting.value;
-            set.mdate = DateTime.UtcNow;
+            set.mdate = Util.UtcDateTimeInMilliseconds();
 
             return set;
         }

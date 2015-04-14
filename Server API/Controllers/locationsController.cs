@@ -164,7 +164,7 @@ namespace Server_API.Controllers
             loc.user_id = Location.user_id;
             loc.name = Location.name;
             loc.content = Location.content;
-            loc.mdate = DateTime.UtcNow;
+            loc.mdate = Util.UtcDateTimeInMilliseconds();
 
             return loc;
         }
