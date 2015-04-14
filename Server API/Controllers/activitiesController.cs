@@ -206,7 +206,7 @@ namespace Server_API.Controllers
             act.eduration = Activity.eduration;
             act.pduration = Activity.pduration;
             act.importance = Activity.importance;
-            act.mdate = DateTime.UtcNow;
+            act.mdate = Util.UtcDateTimeInMilliseconds();
             act.tags = await tags.ToListAsync();
 
             return act;
