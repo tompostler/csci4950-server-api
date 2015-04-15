@@ -9,7 +9,6 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -49,7 +48,6 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/settings/5
-        [ValidateViewModel]
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> Putsetting(int id, Setting_API Setting)
         {
@@ -76,7 +74,6 @@ namespace Server_API.Controllers
         }
 
         // POST: api/settings
-        [ValidateViewModel]
         public async Task<IHttpActionResult> Postsetting(Setting_API Setting)
         {
             // Verify token
@@ -134,7 +131,7 @@ namespace Server_API.Controllers
             setting set = new setting();
             set.user_id = Setting.user_id;
             set.value = Setting.value;
-            set.mdate = DateTime.UtcNow;
+            set.mdate = Util.UtcDateTimeInMilliseconds();
 
             return set;
         }

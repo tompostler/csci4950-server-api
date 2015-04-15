@@ -8,7 +8,7 @@ namespace Server_API.Models
     public partial class csci4950s15Model : DbContext
     {
         public csci4950s15Model()
-            : base("name=csci4950s15Model1")
+            : base("name=csci4950s15ModelConnection")
         {
         }
 
@@ -30,8 +30,7 @@ namespace Server_API.Models
             modelBuilder.Entity<activity>()
                 .HasMany(e => e.activityunits)
                 .WithRequired(e => e.activity)
-                .HasForeignKey(e => e.activity_id)
-                .WillCascadeOnDelete(true);
+                .HasForeignKey(e => e.activity_id);
 
             modelBuilder.Entity<activity>()
                 .HasMany(e => e.tags)
@@ -58,7 +57,7 @@ namespace Server_API.Models
 
             modelBuilder.Entity<course>()
                 .HasMany(e => e.activities)
-                .WithRequired(e => e.course)
+                .WithRequired(e => e.cours)
                 .HasForeignKey(e => e.course_id)
                 .WillCascadeOnDelete(false);
 
@@ -81,22 +80,22 @@ namespace Server_API.Models
             modelBuilder.Entity<user>()
                 .HasMany(e => e.activities)
                 .WithRequired(e => e.user)
-                .HasForeignKey(e => e.user_id)
-                .WillCascadeOnDelete(true);
+                .HasForeignKey(e => e.user_id);
 
             modelBuilder.Entity<user>()
                 .HasOptional(e => e.auth)
-                .WithRequired(e => e.user);
+                .WithRequired(e => e.user)
+                .WillCascadeOnDelete();
 
             modelBuilder.Entity<user>()
                 .HasMany(e => e.locations)
                 .WithRequired(e => e.user)
-                .HasForeignKey(e => e.user_id)
-                .WillCascadeOnDelete(true);
+                .HasForeignKey(e => e.user_id);
 
             modelBuilder.Entity<user>()
                 .HasOptional(e => e.setting)
-                .WithRequired(e => e.user);
+                .WithRequired(e => e.user)
+                .WillCascadeOnDelete();
         }
     }
 }

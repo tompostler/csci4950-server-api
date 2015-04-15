@@ -32,10 +32,16 @@ namespace Server_API.Models
         [Column(TypeName = "datetime2")]
         public DateTime? ddate { get; set; }
 
+        public float? eduration { get; set; }
+
+        public float? pduration { get; set; }
+
+        public byte? importance { get; set; }
+
         [Column(TypeName = "datetime2")]
         public DateTime mdate { get; set; }
 
-        public virtual course course { get; set; }
+        public virtual course cours { get; set; }
 
         public virtual user user { get; set; }
 

@@ -24,6 +24,9 @@ namespace Server_API.Models
         [StringLength(100)]
         public string content { get; set; }
 
+        [Column(TypeName = "datetime2")]
+        public DateTime mdate { get; set; }
+
         public virtual ICollection<activityunit> activityunits { get; set; }
 
         public virtual user user { get; set; }

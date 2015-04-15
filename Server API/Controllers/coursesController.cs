@@ -1,14 +1,11 @@
 ﻿using Server_API.Auth;
 using Server_API.Models;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {

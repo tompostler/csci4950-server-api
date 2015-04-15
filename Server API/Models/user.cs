@@ -32,6 +32,9 @@ namespace Server_API.Models
         [StringLength(60)]
         public string password { get; set; }
 
+        [Column(TypeName = "datetime2")]
+        public DateTime mdate { get; set; }
+
         public virtual ICollection<activity> activities { get; set; }
 
         public virtual auth auth { get; set; }

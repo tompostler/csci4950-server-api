@@ -26,8 +26,8 @@ namespace Server_API.Controllers
         {
             Info_API info = new Info_API
             {
-                version = "2.10.0000",
-                version_date = "2015-04-02",
+                version = "3.02.0000",
+                version_date = "2015-04-13",
                 contacts = new List<Info_API.Contact>
                 {
                     new Info_API.Contact
@@ -54,8 +54,8 @@ namespace Server_API.Controllers
                     "tags",
                     "users"
                 },
-                comment = "Read the documentation. . . Now with HTTPS!",
-                fun_fact = "'Bae' is the Danish word for 'poop'"
+                comment = "DateTime precision now in milliseconds.",
+                fun_fact = "Various studies have shown that coffee makes you live longer, die sooner, prevent cancer, cause cancer, and prevent diabetes."
             };
 
             return Ok(info);
