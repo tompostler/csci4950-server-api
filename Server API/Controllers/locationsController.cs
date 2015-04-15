@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -84,6 +85,7 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/locations/5
+        [ValidateViewModel]
         public async Task<IHttpActionResult> Putlocation(int id, Location_API Location)
         {
             // Verify request ID
@@ -106,6 +108,7 @@ namespace Server_API.Controllers
         }
 
         // POST: api/locations
+        [ValidateViewModel]
         public async Task<IHttpActionResult> Postlocation(Location_API Location)
         {
             // Verify token
