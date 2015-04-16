@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -35,7 +36,7 @@ namespace Server_API.Controllers
             [Required]
             public int user_id { get; set; }
 
-            [Required, StringLength(12)]
+            [StringLength(12)]
             public string course_id { get; set; }
 
             [Required, StringLength(50)]
@@ -60,7 +61,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activities
-        public async Task<IHttpActionResult> Getactivities(int id = 0, string course_id = "", string name = "", DateTime ddate = default(DateTime))
+        public async Task<IHttpActionResult> Getactivities(int id = 0, string course_id = "", string name = "", DateTime? ddate = null)
         {
             // Verify token
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
@@ -95,8 +96,8 @@ namespace Server_API.Controllers
                 activities = activities.Where(p => p.name.Equals(name));
 
             // Filter by ddate
-            if (ddate != default(DateTime))
-                activities = activities.Where(p => p.ddate.Equals(ddate));
+            if (ddate != null)
+                activities = activities.Where(p => p.ddate.Equals(ddate.Value));
 
             // Convert the activities to more API friendly things
             List<Activity_API> results = new List<Activity_API>();
@@ -111,6 +112,7 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/activities/5
+        [ValidateViewModel]
         public async Task<IHttpActionResult> Putactivity(int id, Activity_API Activity)
         {
             // Verify request ID
@@ -133,6 +135,7 @@ namespace Server_API.Controllers
         }
 
         // POST: api/activities
+        [ValidateViewModel]
         public async Task<IHttpActionResult> Postactivity(Activity_API Activity)
         {
             // Verify token
