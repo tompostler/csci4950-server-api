@@ -18,7 +18,6 @@ namespace Server_API.Models
 
         public int user_id { get; set; }
 
-        [Required]
         [StringLength(12)]
         public string course_id { get; set; }
 
