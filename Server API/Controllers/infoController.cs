@@ -14,11 +14,15 @@ namespace Server_API.Controllers
             }
 
             public string version { get; set; }
+            
             public string version_date { get; set; }
+            
             public List<Contact> contacts { get; set; }
+            
             public string hostname { get; set; }
+            
             public List<string> root_nodes { get; set; }
-            public string comment { get; set; }
+            
             public string fun_fact { get; set; }
         }
 
@@ -26,8 +30,8 @@ namespace Server_API.Controllers
         {
             Info_API info = new Info_API
             {
-                version = "3.02.0000",
-                version_date = "2015-04-13",
+                version = "3.03.0000",
+                version_date = "2015-04-16",
                 contacts = new List<Info_API.Contact>
                 {
                     new Info_API.Contact
@@ -54,7 +58,6 @@ namespace Server_API.Controllers
                     "tags",
                     "users"
                 },
-                comment = "DateTime precision now in milliseconds.",
                 fun_fact = "Various studies have shown that coffee makes you live longer, die sooner, prevent cancer, cause cancer, and prevent diabetes."
             };
 

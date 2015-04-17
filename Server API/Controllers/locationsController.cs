@@ -177,7 +177,7 @@ namespace Server_API.Controllers
         /// </summary>
         /// <param name="Location">The EntityModel location to convert.</param>
         /// <returns>A Location_API corresponding to the EntityModel location.</returns>
-        private Location_API ConvertLocationToLocationApi(location Location)
+        internal static Location_API ConvertLocationToLocationApi(location Location)
         {
             // Convert the EntityModel location to the Location_API
             Location_API loc = new Location_API();
