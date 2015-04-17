@@ -1,5 +1,6 @@
 ﻿using Server_API.Auth;
 using Server_API.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
@@ -28,31 +29,15 @@ namespace Server_API.Controllers
         }
 
         // GET: api/courses
-        public async Task<IHttpActionResult> Get()
-        {
-            // Create the result set
-            IQueryable<course> courses = from cou in db.courses
-                                         select cou;
-
-            // Convert the courses to more API friendly things
-            List<Course_API> results = new List<Course_API>();
-            List<course> courselist = await courses.ToListAsync();
-            foreach (var cou in courselist)
-                results.Add(ConvertCourseToCourseApi(cou));
-
-            // Courses is hardcoded
-            return Ok(results);
-        }
-
-        // GET: api/courses?id=CSCI
-        public async Task<IHttpActionResult> Get(string id)
+        public async Task<IHttpActionResult> Get(string id = null)
         {
             // Create the result set
             IQueryable<course> courses = from cou in db.courses
                                          select cou;
 
             // Filter by id
-            courses = courses.Where(p => p.id.Contains(id));
+            if (!String.IsNullOrEmpty(id))
+                courses = courses.Where(p => p.id.Contains(id));
 
             // Convert the courses to more API friendly things
             List<Course_API> results = new List<Course_API>();
