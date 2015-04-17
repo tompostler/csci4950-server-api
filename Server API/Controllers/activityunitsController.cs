@@ -1,6 +1,6 @@
-﻿using Binbin.Linq;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Server_API.Auth;
+using Server_API.Filters;
 using Server_API.Models;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -56,44 +55,46 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activityunit
-        public async Task<IHttpActionResult> Getactivityunit(int id = 0, int activity_id = 0, int location_id = 0)
+        public async Task<IHttpActionResult> Get([FromUri] List<long> id = null, int activity_id = 0, int location_id = 0)
         {
             // Verify token
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
             if (tok_id <= 0)
                 return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
 
-            // If we have an ID to search by, handle it
-            if (id != 0)
+            // If we have IDs to search by, handle it
+            if (id != null)
             {
-                activityunit acu = await db.activityunits.FindAsync(id);
-                if (acu == null)
+                IQueryable<activityunit> acus = from acu in db.activityunits
+                                                where acu.activity.user_id == tok_id
+                                                where id.Contains(acu.id)
+                                                select acu;
+
+                // Get the results
+                var acusResults = (await acus.ToListAsync()).ConvertAll(acu => ConvertActivityUnitToActivityUnitApi(acu));
+                if (acusResults == null)
                     return NotFound();
-                else if (acu.activity.user_id == tok_id)
-                    return Ok(ConvertActivityUnitToActivityUnitApi(acu));
+                else if (acusResults.Count == 1)
+                    return Ok(acusResults.FirstOrDefault());
                 else
-                    return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id, acu.activity.user_id));
+                    return Ok(acusResults);
             }
 
             // Create the result set
-            IQueryable<activityunit> activityunit = from au in db.activityunits
-                                                        select au;
+            IQueryable<activityunit> activityunits = from au in db.activityunits
+                                                    where au.activity.user_id == tok_id
+                                                    select au;
 
             // Filter on activity_id
             if (activity_id != 0)
-                activityunit = activityunit.Where(p => p.activity_id.Equals(activity_id));
+                activityunits = activityunits.Where(p => p.activity_id.Equals(activity_id));
 
             // Filter on location_id
             if (location_id != 0)
-                activityunit = activityunit.Where(p => p.location.Equals(location_id));
+                activityunits = activityunits.Where(p => p.location.Equals(location_id));
 
             // Convert the activityunit to more API friendly things
-            // Also only include the ones that the token has permission to
-            List<ActivityUnit_API> results = new List<ActivityUnit_API>();
-            List<activityunit> activityunitlist = await activityunit.ToListAsync();
-            foreach (var acu in activityunitlist)
-                if (acu.activity.user_id == tok_id)
-                    results.Add(ConvertActivityUnitToActivityUnitApi(acu));
+            var results = (await activityunits.ToListAsync()).ConvertAll(acu => ConvertActivityUnitToActivityUnitApi(acu));
 
             if (results.Count == 0)
                 return NotFound();
@@ -103,7 +104,7 @@ namespace Server_API.Controllers
 
         // PUT: api/activityunit/5
         [ValidateViewModel]
-        public async Task<IHttpActionResult> Putactivityunit(int id, ActivityUnit_API ActivityUnit)
+        public async Task<IHttpActionResult> Put(int id, ActivityUnit_API ActivityUnit)
         {
             // Verify request ID
             if (id != ActivityUnit.id)
@@ -126,7 +127,7 @@ namespace Server_API.Controllers
 
         // POST: api/activityunit
         [ValidateViewModel]
-        public async Task<IHttpActionResult> Postactivityunit(ActivityUnit_API ActivityUnit)
+        public async Task<IHttpActionResult> Post(ActivityUnit_API ActivityUnit)
         {
             // Verify token
             string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, (await db.activities.FindAsync(ActivityUnit.activity_id)).user_id);
@@ -147,7 +148,7 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/activityunit/5
-        public async Task<IHttpActionResult> Deleteactivityunit(int id)
+        public async Task<IHttpActionResult> Delete(int id)
         {
             activityunit activityunit = await db.activityunits.FindAsync(id);
             if (activityunit == null)
@@ -220,9 +221,7 @@ namespace Server_API.Controllers
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 db.Dispose();
-            }
             base.Dispose(disposing);
         }
     }
