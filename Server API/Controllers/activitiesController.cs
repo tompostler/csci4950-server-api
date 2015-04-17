@@ -61,23 +61,29 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activities
-        public async Task<IHttpActionResult> Getactivities(int id = 0, string course_id = "", string name = "", DateTime? ddate = null)
+        public async Task<IHttpActionResult> Getactivities([FromUri] List<int> id = null, string course_id = "", string name = "", DateTime? ddate = null)
         {
             // Verify token
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
             if (tok_id <= 0)
                 return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
 
-            // If we have an ID to search by, handle it
-            if (id != 0)
+            // If we have IDs to search by, handle it
+            if (id != null)
             {
-                activity act = await db.activities.FindAsync(id);
-                if (act == null)
+                IQueryable<activity> acts = from act in db.activities
+                                            where act.user_id == tok_id
+                                            where id.Contains(act.id)
+                                            select act;
+
+                // Get the results
+                var actsResults = (await acts.ToListAsync()).ConvertAll(act => ConvertActivityToActivityApi(act));
+                if (actsResults == null)
                     return NotFound();
-                else if (tok_id == act.user_id)
-                    return Ok(ConvertActivityToActivityApi(act));
+                else if (actsResults.Count == 1)
+                    return Ok(actsResults.FirstOrDefault());
                 else
-                    return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id, act.user_id));
+                    return Ok(actsResults);
             }
 
             // Create the result set

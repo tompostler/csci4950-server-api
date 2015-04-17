@@ -56,23 +56,29 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activityunit
-        public async Task<IHttpActionResult> Getactivityunit(int id = 0, int activity_id = 0, int location_id = 0)
+        public async Task<IHttpActionResult> Getactivityunit([FromUri] List<long> id = null, int activity_id = 0, int location_id = 0)
         {
             // Verify token
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
             if (tok_id <= 0)
                 return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
 
-            // If we have an ID to search by, handle it
-            if (id != 0)
+            // If we have IDs to search by, handle it
+            if (id != null)
             {
-                activityunit acu = await db.activityunits.FindAsync(id);
-                if (acu == null)
+                IQueryable<activityunit> acus = from acu in db.activityunits
+                                                where acu.activity.user_id == tok_id
+                                                where id.Contains(acu.id)
+                                                select acu;
+
+                // Get the results
+                var acusResults = (await acus.ToListAsync()).ConvertAll(acu => ConvertActivityUnitToActivityUnitApi(acu));
+                if (acusResults == null)
                     return NotFound();
-                else if (acu.activity.user_id == tok_id)
-                    return Ok(ConvertActivityUnitToActivityUnitApi(acu));
+                else if (acusResults.Count == 1)
+                    return Ok(acusResults.FirstOrDefault());
                 else
-                    return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id, acu.activity.user_id));
+                    return Ok(acusResults);
             }
 
             // Create the result set

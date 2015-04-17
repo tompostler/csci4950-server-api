@@ -46,23 +46,29 @@ namespace Server_API.Controllers
         }
 
         // GET: api/locations
-        public async Task<IHttpActionResult> Getlocations(int id = 0)
+        public async Task<IHttpActionResult> Getlocations([FromUri] List<int> id = null)
         {
             // Verify token
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
             if (tok_id <= 0)
                 return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
 
-            // If we have an ID to search by, handle it
-            if (id != 0)
+            // If we have IDs to search by, handle it
+            if (id != null)
             {
-                location loc = await db.locations.FindAsync(id);
-                if (loc == null)
+                IQueryable<location> locs = from loc in db.locations
+                                            where loc.user_id == tok_id
+                                            where id.Contains(loc.id)
+                                            select loc;
+
+                // Get the results
+                var locsResults = (await locs.ToListAsync()).ConvertAll(loc => ConvertLocationToLocationApi(loc));
+                if (locsResults == null)
                     return NotFound();
-                else if (tok_id == loc.user_id)
-                    return Ok(ConvertLocationToLocationApi(loc));
+                else if (locsResults.Count == 1)
+                    return Ok(locsResults.FirstOrDefault());
                 else
-                    return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id, loc.user_id));
+                    return Ok(locsResults);
             }
 
             // Create the result set
