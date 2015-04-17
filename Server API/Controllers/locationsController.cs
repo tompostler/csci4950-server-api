@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Server_API.Auth;
+using Server_API.Filters;
 using Server_API.Models;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -202,9 +202,7 @@ namespace Server_API.Controllers
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 db.Dispose();
-            }
             base.Dispose(disposing);
         }
     }

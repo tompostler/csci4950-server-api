@@ -1,6 +1,6 @@
-﻿using Binbin.Linq;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Server_API.Auth;
+using Server_API.Filters;
 using Server_API.Models;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -56,7 +55,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activityunit
-        public async Task<IHttpActionResult> Getactivityunit([FromUri] List<long> id = null, int activity_id = 0, int location_id = 0)
+        public async Task<IHttpActionResult> Get([FromUri] List<long> id = null, int activity_id = 0, int location_id = 0)
         {
             // Verify token
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
@@ -109,7 +108,7 @@ namespace Server_API.Controllers
 
         // PUT: api/activityunit/5
         [ValidateViewModel]
-        public async Task<IHttpActionResult> Putactivityunit(int id, ActivityUnit_API ActivityUnit)
+        public async Task<IHttpActionResult> Put(int id, ActivityUnit_API ActivityUnit)
         {
             // Verify request ID
             if (id != ActivityUnit.id)
@@ -132,7 +131,7 @@ namespace Server_API.Controllers
 
         // POST: api/activityunit
         [ValidateViewModel]
-        public async Task<IHttpActionResult> Postactivityunit(ActivityUnit_API ActivityUnit)
+        public async Task<IHttpActionResult> Post(ActivityUnit_API ActivityUnit)
         {
             // Verify token
             string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, (await db.activities.FindAsync(ActivityUnit.activity_id)).user_id);
@@ -153,7 +152,7 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/activityunit/5
-        public async Task<IHttpActionResult> Deleteactivityunit(int id)
+        public async Task<IHttpActionResult> Delete(int id)
         {
             activityunit activityunit = await db.activityunits.FindAsync(id);
             if (activityunit == null)
@@ -226,9 +225,7 @@ namespace Server_API.Controllers
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 db.Dispose();
-            }
             base.Dispose(disposing);
         }
     }

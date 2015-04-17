@@ -1,15 +1,13 @@
 ﻿using Server_API.Auth;
+using Server_API.Filters;
 using Server_API.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -33,7 +31,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/settings
-        public async Task<IHttpActionResult> Getsetting()
+        public async Task<IHttpActionResult> Get()
         {
             // Verify token
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
@@ -51,7 +49,7 @@ namespace Server_API.Controllers
         // PUT: api/settings/5
         [ValidateViewModel]
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> Putsetting(int id, Setting_API Setting)
+        public async Task<IHttpActionResult> Put(int id, Setting_API Setting)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -77,7 +75,7 @@ namespace Server_API.Controllers
 
         // POST: api/settings
         [ValidateViewModel]
-        public async Task<IHttpActionResult> Postsetting(Setting_API Setting)
+        public async Task<IHttpActionResult> Post(Setting_API Setting)
         {
             // Verify token
             string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, Setting.user_id);
@@ -99,7 +97,7 @@ namespace Server_API.Controllers
 
         // DELETE: api/settings/5
         [ResponseType(typeof(setting))]
-        public async Task<IHttpActionResult> Deletesetting(int id)
+        public async Task<IHttpActionResult> Delete(int id)
         {
             setting setting = await db.settings.FindAsync(id);
             if (setting == null)
@@ -158,9 +156,7 @@ namespace Server_API.Controllers
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 db.Dispose();
-            }
             base.Dispose(disposing);
         }
     }

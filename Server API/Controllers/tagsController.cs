@@ -4,10 +4,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -28,7 +26,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/tags
-        public async Task<IHttpActionResult> Gettags()
+        public async Task<IHttpActionResult> Get()
         {
             // Create the result set
             IQueryable<tag> tags = from tg in db.tags
@@ -68,9 +66,7 @@ namespace Server_API.Controllers
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 db.Dispose();
-            }
             base.Dispose(disposing);
         }
     }

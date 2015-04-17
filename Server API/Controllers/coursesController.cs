@@ -6,7 +6,6 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -29,7 +28,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/courses
-        public async Task<IHttpActionResult> Getcourses()
+        public async Task<IHttpActionResult> Get()
         {
             // Create the result set
             IQueryable<course> courses = from cou in db.courses
@@ -46,7 +45,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/courses?id=CSCI
-        public async Task<IHttpActionResult> Getcourses(string id)
+        public async Task<IHttpActionResult> Get(string id)
         {
             // Create the result set
             IQueryable<course> courses = from cou in db.courses
@@ -84,6 +83,13 @@ namespace Server_API.Controllers
             cou.name = Course.name;
 
             return cou;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                db.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

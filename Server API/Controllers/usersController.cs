@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Server_API.Auth;
+using Server_API.Filters;
 using Server_API.Models;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -52,7 +52,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/users
-        public async Task<IHttpActionResult> Getusers()
+        public async Task<IHttpActionResult> Get()
         {
             // Verify token
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
@@ -69,7 +69,7 @@ namespace Server_API.Controllers
 
         // PUT: api/users/5
         [ValidateViewModel]
-        public async Task<IHttpActionResult> Putuser(int id, User_API User)
+        public async Task<IHttpActionResult> Put(int id, User_API User)
         {
             // Verify request ID
             if (id != User.id)
@@ -92,7 +92,7 @@ namespace Server_API.Controllers
 
         // POST: api/users
         [ValidateViewModel]
-        public async Task<IHttpActionResult> Postuser(User_API User)
+        public async Task<IHttpActionResult> Post(User_API User)
         {
             // Convert the User_API to the EntityModel user
             user usr = ConvertUserApiToUser(User);
@@ -108,7 +108,7 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/users/5
-        public async Task<IHttpActionResult> Deleteuser(int id)
+        public async Task<IHttpActionResult> Delete(int id)
         {
             user user = await db.users.FindAsync(id);
             if (user == null)
@@ -177,9 +177,7 @@ namespace Server_API.Controllers
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 db.Dispose();
-            }
             base.Dispose(disposing);
         }
     }

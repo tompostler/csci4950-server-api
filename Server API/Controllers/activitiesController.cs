@@ -61,7 +61,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/activities
-        public async Task<IHttpActionResult> Getactivities([FromUri] List<int> id = null, string course_id = "", string name = "", DateTime? ddate = null)
+        public async Task<IHttpActionResult> Get([FromUri] List<int> id = null, string course_id = "", string name = "", DateTime? ddate = null)
         {
             // Verify token
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
@@ -119,7 +119,7 @@ namespace Server_API.Controllers
 
         // PUT: api/activities/5
         [ValidateViewModel]
-        public async Task<IHttpActionResult> Putactivity(int id, Activity_API Activity)
+        public async Task<IHttpActionResult> Put(int id, Activity_API Activity)
         {
             // Verify request ID
             if (id != Activity.id)
@@ -142,7 +142,7 @@ namespace Server_API.Controllers
 
         // POST: api/activities
         [ValidateViewModel]
-        public async Task<IHttpActionResult> Postactivity(Activity_API Activity)
+        public async Task<IHttpActionResult> Post(Activity_API Activity)
         {
             // Verify token
             string msg = AuthorizeHeader.VerifyTokenWithUserId(ActionContext, Activity.user_id);
@@ -164,7 +164,7 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/activities/5
-        public async Task<IHttpActionResult> Deleteactivity(int id)
+        public async Task<IHttpActionResult> Delete(int id)
         {
             activity activity = await db.activities.FindAsync(id);
             if (activity == null)
@@ -251,9 +251,7 @@ namespace Server_API.Controllers
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 db.Dispose();
-            }
             base.Dispose(disposing);
         }
     }
