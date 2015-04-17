@@ -40,10 +40,7 @@ namespace Server_API.Controllers
                 courses = courses.Where(p => p.id.Contains(id));
 
             // Convert the courses to more API friendly things
-            List<Course_API> results = new List<Course_API>();
-            List<course> courselist = await courses.ToListAsync();
-            foreach (var cou in courselist)
-                results.Add(ConvertCourseToCourseApi(cou));
+            var results = (await courses.ToListAsync()).ConvertAll(cou => ConvertCourseToCourseApi(cou));
 
             // Courses is hardcoded
             return Ok(results);

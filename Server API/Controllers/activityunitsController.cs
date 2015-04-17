@@ -81,24 +81,20 @@ namespace Server_API.Controllers
             }
 
             // Create the result set
-            IQueryable<activityunit> activityunit = from au in db.activityunits
-                                                        select au;
+            IQueryable<activityunit> activityunits = from au in db.activityunits
+                                                    where au.activity.user_id == tok_id
+                                                    select au;
 
             // Filter on activity_id
             if (activity_id != 0)
-                activityunit = activityunit.Where(p => p.activity_id.Equals(activity_id));
+                activityunits = activityunits.Where(p => p.activity_id.Equals(activity_id));
 
             // Filter on location_id
             if (location_id != 0)
-                activityunit = activityunit.Where(p => p.location.Equals(location_id));
+                activityunits = activityunits.Where(p => p.location.Equals(location_id));
 
             // Convert the activityunit to more API friendly things
-            // Also only include the ones that the token has permission to
-            List<ActivityUnit_API> results = new List<ActivityUnit_API>();
-            List<activityunit> activityunitlist = await activityunit.ToListAsync();
-            foreach (var acu in activityunitlist)
-                if (acu.activity.user_id == tok_id)
-                    results.Add(ConvertActivityUnitToActivityUnitApi(acu));
+            var results = (await activityunits.ToListAsync()).ConvertAll(acu => ConvertActivityUnitToActivityUnitApi(acu));
 
             if (results.Count == 0)
                 return NotFound();

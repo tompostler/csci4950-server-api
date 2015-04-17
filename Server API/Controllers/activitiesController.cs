@@ -106,10 +106,7 @@ namespace Server_API.Controllers
                 activities = activities.Where(p => p.ddate.Equals(ddate.Value));
 
             // Convert the activities to more API friendly things
-            List<Activity_API> results = new List<Activity_API>();
-            List<activity> activitylist = await activities.ToListAsync();
-            foreach (var act in activitylist)
-                results.Add(ConvertActivityToActivityApi(act));
+            var results = (await activities.ToListAsync()).ConvertAll(act => ConvertActivityToActivityApi(act));
 
             if (results.Count == 0)
                 return NotFound();

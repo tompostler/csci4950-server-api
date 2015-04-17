@@ -33,10 +33,7 @@ namespace Server_API.Controllers
                                    select tg;
 
             // Convert the tags to more API friendly things
-            List<Tag_API> results = new List<Tag_API>();
-            List<tag> taglist = await tags.ToListAsync();
-            foreach (var tg in taglist)
-                results.Add(ConvertTagToTagApi(tg));
+            var results = (await tags.ToListAsync()).ConvertAll(tg => ConvertTagToTagApi(tg));
 
             // Hard coded (at some point)
             return Ok(results);
