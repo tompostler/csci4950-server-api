@@ -220,7 +220,7 @@ namespace Server_API.Controllers
         /// </summary>
         /// <param name="Activity">The EntityModel activity to convert.</param>
         /// <returns>An Activity_API corresponding to the EntityModel activity.</returns>
-        private Activity_API ConvertActivityToActivityApi(activity Activity)
+        internal static Activity_API ConvertActivityToActivityApi(activity Activity)
         {
             // Convert the EntityModel type to our API type
             Activity_API act = new Activity_API();

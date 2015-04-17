@@ -156,7 +156,7 @@ namespace Server_API.Controllers
         /// </summary>
         /// <param name="User">The EntityModel user to convert.</param>
         /// <returns>An User_API corresponding to the EntityModel user.</returns>
-        private User_API ConvertUserToUserApi(user User)
+        internal static User_API ConvertUserToUserApi(user User)
         {
             // Convert EntityModel type to our API type
             User_API usr = new User_API();

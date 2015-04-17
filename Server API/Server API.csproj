@@ -118,6 +118,7 @@
     <Compile Include="Controllers\coursesController.cs" />
     <Compile Include="Controllers\infoController.cs" />
     <Compile Include="Controllers\locationsController.cs" />
+    <Compile Include="Controllers\mdateController.cs" />
     <Compile Include="Controllers\settingsController.cs" />
     <Compile Include="Controllers\tagsController.cs" />
     <Compile Include="Controllers\usersController.cs" />

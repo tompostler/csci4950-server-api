@@ -199,7 +199,7 @@ namespace Server_API.Controllers
         /// </summary>
         /// <param name="ActivityUnit">The EntityModel activityunit to convert.</param>
         /// <returns>An ActivityUnit_API corresponding to the EntityModel activityunit.</returns>
-        private ActivityUnit_API ConvertActivityUnitToActivityUnitApi(activityunit ActivityUnit)
+        internal static ActivityUnit_API ConvertActivityUnitToActivityUnitApi(activityunit ActivityUnit)
         {
             // Convert EntityModel type to our API type
             ActivityUnit_API acu = new ActivityUnit_API();

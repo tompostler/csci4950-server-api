@@ -144,7 +144,7 @@ namespace Server_API.Controllers
         /// </summary>
         /// <param name="Setting">The EntityModel setting to convert.</param>
         /// <returns>A Setting_API correspond to the EntityModel setting.</returns>
-        private Setting_API ConvertSettingToSettingApi(setting Setting)
+        internal static Setting_API ConvertSettingToSettingApi(setting Setting)
         {
             // Convert the EntityModel type to our API type
             Setting_API set = new Setting_API();
