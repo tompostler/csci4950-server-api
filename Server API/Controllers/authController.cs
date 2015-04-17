@@ -112,6 +112,17 @@ namespace Server_API.Controllers
             if (!Hashing.ValidatePassword(AuthRequest.password, usr.password))
                 return BadRequest("password does not match user_id");
 
+            // Check for existing token
+            auth authExisting = await db.auths.FindAsync(AuthRequest.user_id);
+            if (authExisting != null)
+            {
+                authExisting.expire = Util.UtcDateTimeInMilliseconds().AddDays(21);
+                db.Entry(authExisting).State = EntityState.Modified;
+                await db.SaveChangesAsync();
+
+                return Ok(ConvertAuthToAuthRetApi(authExisting));
+            }
+
             // Generate the token
             string token = Hashing.GenerateToken();
 
