@@ -63,7 +63,7 @@ namespace Server_API.Controllers
                 return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
 
             // If we have IDs to search by, handle it
-            if (id != null)
+            if ((id != null) && (id.Count > 0))
             {
                 IQueryable<activityunit> acus = from acu in db.activityunits
                                                 where acu.activity.user_id == tok_id

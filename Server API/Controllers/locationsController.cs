@@ -54,7 +54,7 @@ namespace Server_API.Controllers
                 return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
 
             // If we have IDs to search by, handle it
-            if (id != null)
+            if ((id != null) && (id.Count > 0))
             {
                 IQueryable<location> locs = from loc in db.locations
                                             where loc.user_id == tok_id
