@@ -77,6 +77,7 @@ Node | Description
 [`/courses`](#courses-node) | Corresponds to a course offered at UMNTC.
 [`/info`](#info-node) | Corresponds to information about the API.
 [`/locations`](#locations-node) | Corresponds to a location.
+[`/mdate`](#mdate-node) | Retrieve data for a user by modified time.
 [`/settings`](#settings-node) | Corresponds to a user's settings.
 [`/tags`](#tags-node) | Corresponds to a user-defined tag.
 [`/users`](#users-node) | Corresponds to a user.
@@ -147,10 +148,6 @@ user.
 
 ### auth Node
 
-REFACTOR
-
-The auth node only supports `POST` requests.
-
 There are two interfaces to an auth instance: one for the request and one for the response.
 
 The request interface, sent by the client to the server with the `POST` request:
@@ -168,6 +165,19 @@ Parameter | Description
 `user_id` | An integer correlating to an existing user ID. This will link an auth instance to a specific user.
 `token` | A 64-character base64-encoded string corresponding to a user-specific auth instance. For details on how this works, see [API Security](#api-security).
 `etime` | A date and time in [UTC format](#date-time-formats) corresponding to the expiration of the token. A token expires in 24 hours from its creation.
+
+
+#### Usage
+
+To generate a token (or get the existing token on a different environment), send a `POST` request.
+
+To update an existing token's expiration with a token, use a `PUT` request. To update an existing
+token's expiration using the user's password, use a `POST` request.
+
+To find the expiration time of the current token, use the token in a `GET` request.
+
+To delete a token (thereby invalidating all other sessions with that token), use a valid token with
+a `DELETE` request.
 
 
 
@@ -236,6 +246,35 @@ token provided.
 
 
 
+### mdate Node
+
+The mdate node only supports `GET` requests with one required parameter.
+
+Parameter | Description
+:--- | :---
+`mdate` | A last modified date/time in UTC format. All items owned by the user newer than this parameter will be returned.
+
+#### GET
+
+A `404 Not Found` will be returned if no items are found newer than the specified date. This is to
+cut down on processing work so that you do not need to verify the whole data structure.
+
+Upon a successful query, the following object will always be returned:
+
+    {
+        "activities": [],
+        "activityunits": [],
+        "locations": [],
+        "setting": null,
+        "user": null
+    }
+
+Each of the different categories will be nonempty depending on what was returned.
+
+To see the specifics of the object returned, view the other node descriptions.
+
+
+
 ### settings Node
 
 The settings node holds settings for a user that may need to be synced or stored across devices.
@@ -250,7 +289,6 @@ Parameter | Description
 #### GET
 
 You do not need any parameters to search. The settings are returned based off the user token.
-
 
 
 

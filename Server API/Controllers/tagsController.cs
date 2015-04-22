@@ -4,10 +4,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -28,17 +26,14 @@ namespace Server_API.Controllers
         }
 
         // GET: api/tags
-        public async Task<IHttpActionResult> Gettags()
+        public async Task<IHttpActionResult> Get()
         {
             // Create the result set
             IQueryable<tag> tags = from tg in db.tags
                                    select tg;
 
             // Convert the tags to more API friendly things
-            List<Tag_API> results = new List<Tag_API>();
-            List<tag> taglist = await tags.ToListAsync();
-            foreach (var tg in taglist)
-                results.Add(ConvertTagToTagApi(tg));
+            var results = (await tags.ToListAsync()).ConvertAll(tg => ConvertTagToTagApi(tg));
 
             // Hard coded (at some point)
             return Ok(results);
@@ -68,9 +63,7 @@ namespace Server_API.Controllers
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 db.Dispose();
-            }
             base.Dispose(disposing);
         }
     }

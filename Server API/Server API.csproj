@@ -102,9 +102,6 @@
     <Content Include="frizzle.jpg" />
     <Content Include="Global.asax" />
     <Content Include="index.html" />
-    <Content Include="sql\courses.sql" />
-    <Content Include="sql\dbcreate.sql" />
-    <Content Include="sql\default_tags.sql" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +115,7 @@
     <Compile Include="Controllers\coursesController.cs" />
     <Compile Include="Controllers\infoController.cs" />
     <Compile Include="Controllers\locationsController.cs" />
+    <Compile Include="Controllers\mdateController.cs" />
     <Compile Include="Controllers\settingsController.cs" />
     <Compile Include="Controllers\statsController.cs" />
     <Compile Include="Controllers\tagsController.cs" />

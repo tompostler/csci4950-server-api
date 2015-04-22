@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Server_API.Auth;
+using Server_API.Filters;
 using Server_API.Models;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -46,23 +46,29 @@ namespace Server_API.Controllers
         }
 
         // GET: api/locations
-        public async Task<IHttpActionResult> Getlocations(int id = 0)
+        public async Task<IHttpActionResult> Getlocations([FromUri] List<int> id = null)
         {
             // Verify token
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
             if (tok_id <= 0)
                 return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id));
 
-            // If we have an ID to search by, handle it
-            if (id != 0)
+            // If we have IDs to search by, handle it
+            if ((id != null) && (id.Count > 0))
             {
-                location loc = await db.locations.FindAsync(id);
-                if (loc == null)
+                IQueryable<location> locs = from loc in db.locations
+                                            where loc.user_id == tok_id
+                                            where id.Contains(loc.id)
+                                            select loc;
+
+                // Get the results
+                var locsResults = (await locs.ToListAsync()).ConvertAll(loc => ConvertLocationToLocationApi(loc));
+                if (locsResults == null)
                     return NotFound();
-                else if (tok_id == loc.user_id)
-                    return Ok(ConvertLocationToLocationApi(loc));
+                else if (locsResults.Count == 1)
+                    return Ok(locsResults.FirstOrDefault());
                 else
-                    return BadRequest(AuthorizeHeader.InvalidTokenToMessage(tok_id, loc.user_id));
+                    return Ok(locsResults);
             }
 
             // Create the result set
@@ -73,10 +79,7 @@ namespace Server_API.Controllers
             locations = locations.Where(p => p.user_id.Equals(tok_id));
 
             // Convert the locations to more API friendly things
-            List<Location_API> results = new List<Location_API>();
-            List<location> locationlist = await locations.ToListAsync();
-            foreach (var loc in locationlist)
-                results.Add(ConvertLocationToLocationApi(loc));
+            var results = (await locations.ToListAsync()).ConvertAll(loc => ConvertLocationToLocationApi(loc));
 
             if (results.Count == 0)
                 return NotFound();
@@ -177,7 +180,7 @@ namespace Server_API.Controllers
         /// </summary>
         /// <param name="Location">The EntityModel location to convert.</param>
         /// <returns>A Location_API corresponding to the EntityModel location.</returns>
-        private Location_API ConvertLocationToLocationApi(location Location)
+        internal static Location_API ConvertLocationToLocationApi(location Location)
         {
             // Convert the EntityModel location to the Location_API
             Location_API loc = new Location_API();
@@ -196,9 +199,7 @@ namespace Server_API.Controllers
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 db.Dispose();
-            }
             base.Dispose(disposing);
         }
     }

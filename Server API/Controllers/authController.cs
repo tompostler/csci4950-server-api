@@ -1,4 +1,5 @@
 ﻿using Server_API.Auth;
+using Server_API.Filters;
 using Server_API.Models;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Server_API.Filters;
 
 namespace Server_API.Controllers
 {
@@ -48,7 +48,7 @@ namespace Server_API.Controllers
         }
 
         // GET: api/auth
-        public async Task<IHttpActionResult> Getauth()
+        public async Task<IHttpActionResult> Get()
         {
             // Verify token
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
@@ -61,7 +61,7 @@ namespace Server_API.Controllers
         }
 
         // PUT: api/auth
-        public async Task<IHttpActionResult> Putauth()
+        public async Task<IHttpActionResult> Put()
         {
             // Get the token
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
@@ -84,7 +84,7 @@ namespace Server_API.Controllers
 
         // POST: api/auth
         [ValidateViewModel]
-        public async Task<IHttpActionResult> Postauth(AuthReq_API AuthRequest)
+        public async Task<IHttpActionResult> Post(AuthReq_API AuthRequest)
         {
             // Email/Password
             if (!AuthRequest.user_id.HasValue)
@@ -112,6 +112,17 @@ namespace Server_API.Controllers
             if (!Hashing.ValidatePassword(AuthRequest.password, usr.password))
                 return BadRequest("password does not match user_id");
 
+            // Check for existing token
+            auth authExisting = await db.auths.FindAsync(AuthRequest.user_id);
+            if (authExisting != null)
+            {
+                authExisting.expire = Util.UtcDateTimeInMilliseconds().AddDays(21);
+                db.Entry(authExisting).State = EntityState.Modified;
+                await db.SaveChangesAsync();
+
+                return Ok(ConvertAuthToAuthRetApi(authExisting));
+            }
+
             // Generate the token
             string token = Hashing.GenerateToken();
 
@@ -129,7 +140,7 @@ namespace Server_API.Controllers
         }
 
         // DELETE: api/auth/5
-        public async Task<IHttpActionResult> Deleteauth()
+        public async Task<IHttpActionResult> Delete()
         {
             int tok_id = AuthorizeHeader.VerifyToken(ActionContext);
             auth aut = await db.auths.FindAsync(tok_id);
@@ -166,6 +177,13 @@ namespace Server_API.Controllers
                 token = Auth.token,
                 expire = Auth.expire
             };
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                db.Dispose();
+            base.Dispose(disposing);
         }
     }
 }
