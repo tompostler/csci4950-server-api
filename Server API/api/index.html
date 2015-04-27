@@ -79,6 +79,7 @@ Node | Description
 [`/locations`](#locations-node) | Corresponds to a location.
 [`/mdate`](#mdate-node) | Retrieve data for a user by modified time.
 [`/settings`](#settings-node) | Corresponds to a user's settings.
+[`/stats`](#stats-node) | Corresponds to stats.
 [`/tags`](#tags-node) | Corresponds to a user-defined tag.
 [`/users`](#users-node) | Corresponds to a user.
 
@@ -290,7 +291,23 @@ Parameter | Description
 
 You do not need any parameters to search. The settings are returned based off the user token.
 
+### stats Node
 
+The stats node holds the stats associated with a class or an assignment (class id and due date pair).
+
+Parameter | Description
+:--- | :---
+`eduration_average` | The average estimated duration for this query.
+`pduration_average` | The average actual duration for this activity.
+`total_eduration` | The total estimated duration for all activities found matching the query.
+`total_pduration` | The total actual duration for all the activities found matching the query.
+`total_activities` | The total number of activities found matching the query.
+
+#### Usage
+
+To get stats about a specific course, send a GET request to https://msfrizzle.me/api/stats?course_id= (Course ID Here)
+
+To get stats about a specific assignment, send a GET request to https://msfrizzle.me/api/stats?course_id= (Course ID Here) &Aacute; ddate= (UTC date here)
 
 ### tags Node
 
