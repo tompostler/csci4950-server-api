@@ -1,1 +1,412 @@
-Click the documentation link on the right.
+# Information
+
+This documentation is being considerably condensed because you are expected to understand how a
+RESTful Web API works. If you don't, see
+[this link](http://www.restapitutorial.com/lessons/httpmethods.html) which describes it for you. The
+basics are explained in the next section, [Requests](#requests).
+
+The current server hosting the API is `https://msfrizzle.me/api`, and the current server version
+(along with other useful information) can be found at the `info` node
+(https://msfrizzle.me/api/info).
+
+
+
+
+## Requests
+
+There are five types of requests you can make against the server, each of which performs a different
+action detailed below:
+
+* `GET`
+* `PUT`
+* `POST`
+* `DELETE`
+* `OPTIONS`
+
+Requests will always have a status code representing what happend, potentially with a response body.
+
+To send data with a request, the HTTP header `Content-Type` must be `application/json` if you are
+sending JSON in the request body. You will most likely receive an error otherwise.
+
+When requesting an entire collection, the current user's ID is automatically applied based on the
+authorization token.
+
+| HTTP Verb | Entire Collection (e.g. /users)   | Specific Item (e.g. /users/{id}) |
+| :---      | :---                              | :--- |
+| GET       | `200 OK`, list of items           | `200 OK`, single item. `404 Not Found`, if ID not found |
+| PUT       | `405 Method Not Allowed`          | `204 No Content`. `404 Not Found`, if ID not found |
+| POST      | `200 OK`, containing the new item | `200 OK`, containing the new item |
+| DELETE    | `405 Method Not Allowed`          | `204 No Content`. `404 Not Found`, if ID not found |
+
+__Notes:__
+    
+- If there is no valid match to the query or action, then a status of `404 Not Found` is returned to
+the caller, regardless of what it says are possible return results.
+- If some action causes an error, then a generic status of `400 Bad Request` is returned to the
+caller, regardless of what it says are possible return results.
+- If there is an issue with the Authorization header and the request placed, then the `400 Bad
+Request` status is returned with an error message saying what went wrong.
+
+
+----------------------------------------------------------------------------------------------------
+
+
+# Nodes
+
+There are currently 9 root nodes, each with several optional and/or required subnodes for basic
+`GET` querying (along with `PUT` and `POST` operations).
+
+
+
+
+## Root Nodes
+
+Node | Description
+:--- | :---
+[`/activities`](#activities-node) | Corresponds to an activity.
+[`/activityunits`](#activityunits-node) | Corresponds to an activity work unit.
+[`/auth`](#auth-node) | Corresponds to an authentication instance.
+[`/courses`](#courses-node) | Corresponds to a course offered at UMNTC.
+[`/info`](#info-node) | Corresponds to information about the API.
+[`/locations`](#locations-node) | Corresponds to a location.
+[`/mdate`](#mdate-node) | Retrieve data for a user by modified time.
+[`/settings`](#settings-node) | Corresponds to a user's settings.
+[`/stats`](#stats-node) | Corresponds to stats.
+[`/tags`](#tags-node) | Corresponds to a user-defined tag.
+[`/users`](#users-node) | Corresponds to a user.
+
+
+
+### activities Node
+
+Parameter | Description
+:--- | :---
+`id` | An integer ID uniquely identifying the activity. This is automatically incremented on creation of a new activity.
+`user_id` | An integer correlating to an existing user ID. This will link an activity to a specific user.
+`course_id` | A string correlating to an existing course ID. This will link an activity to a specific course.
+`name` | A maximum 50-character string for the user-defined name of an activity.
+`description` | An _optional_ 100-character string for the user-defined description of an activity.
+`ddate` | An _optional_ due date for an activity. If this is not used, it should be set to `null`.
+`eduration` | An _optional_ float describing the estimated duration of the activity.
+`pduration` | An _optional_ float describing the progressed duration of the activity.
+`importance` | An _optional_ 8-bit integer describing the importance of the activity.
+`mdate` | A last modified date to track the latest version. This is automatically set to the UTC time on the server.
+`tag_ids` | A list of 8-bit integers correlating to existing tag IDs.
+`activityunit_ids` | A list of 64-bit integers correlating to later-created activity work units.
+
+
+#### GET
+
+You may only query by `id`, `course_id`, `name`, or `ddate`. Filtering by `user_id` is automatically applied based on
+the access token provided.
+
+
+#### PUT
+
+`activityunit_ids` is overridden by the server.
+    
+
+#### POST
+    
+`activityunit_ids` is ignored.
+
+
+
+### activityunits Node
+
+Parameter | Description
+:--- | :---
+`id` | An integer ID uniquely identifying the activity work unit. This is automatically incremented on creation of a new activity work unit.
+`activity_id` | An integer correlating to an existing activity ID. This will link an activity work unit to a specific activity.
+`location_id` | An integer correlating to an existing location ID. This will link an activity work unit to a specific location.
+`name` | A maximum 50-character string for the user-defined name of an activity unit.
+`description` | An _optional_ 100-character string for the user-defined description of an activity.
+`stime` | The start date and time of the activity work unit, in [UTC format](#date-time-formats).
+`etime` | The end date and time of the activity work unit, in [UTC format](#date-time-formats).
+`mdate` | A last modified date to track the latest version. This is automatically set to the UTC time on the server.
+`tag_ids` | A list of integers correlating to existing tag IDs.
+
+
+#### GET
+
+You may only query by `id`, `activity_id`, or `location_id`.
+
+
+#### PUT
+
+You will not be able to change the `activity_id` to that of an activity belonging to a different
+user.
+
+
+
+### auth Node
+
+There are two interfaces to an auth instance: one for the request and one for the response.
+
+The request interface, sent by the client to the server with the `POST` request:
+
+Parameter | Description
+:--- | :---
+`user_id` | An integer correlating to an existing user ID. This will link an auth instance to a specific user.
+`user_email` | The email of the user for login without the user id.
+`password` | The password of the user.
+
+The response interface, sent by the server to the client when responding to a `POST` request:
+
+Parameter | Description
+:--- | :---
+`user_id` | An integer correlating to an existing user ID. This will link an auth instance to a specific user.
+`token` | A 64-character base64-encoded string corresponding to a user-specific auth instance. For details on how this works, see [API Security](#api-security).
+`etime` | A date and time in [UTC format](#date-time-formats) corresponding to the expiration of the token. A token expires in 24 hours from its creation.
+
+
+#### Usage
+
+To generate a token (or get the existing token on a different environment), send a `POST` request.
+
+To update an existing token's expiration with a token, use a `PUT` request. To update an existing
+token's expiration using the user's password, use a `POST` request.
+
+To find the expiration time of the current token, use the token in a `GET` request.
+
+To delete a token (thereby invalidating all other sessions with that token), use a valid token with
+a `DELETE` request.
+
+
+
+### courses Node
+
+This contains a list of all courses offered by the University of Minnesota - Twin Cities, gathered
+on March 25, 2015.
+
+The courses node only supports `GET` requests.
+
+Parameter | Description
+:--- | :---
+`id` | A 12-character string corresponding to a course identifier (e.g. "CSCI 4950").
+`name` | A 100-character string corresponding to the course name (e.g. "Senior Software Project").
+
+
+#### GET
+
+Querying by `name` is not supported. Querying by `id` returns all courses whose `id` contains the
+parameter you used for the query.
+
+
+
+### info Node
+
+The info node contains information about the API.
+
+This node contains:
+
+* Version number
+* Version date
+* Contact list
+* Hostname
+* Root nodes list
+* Comment
+* Fun fact
+
+
+
+### locations Node
+
+Parameter | Description
+:--- | :---
+`id` | An integer uniquely identifying the location. This is automatically incremented on creation of a new location.
+`user_id` | An integer correlating to an existing user ID. This will link a location to a specific user.
+`name` | A maximum 50-character string for the user-defined (or potentially suggested) name of a location.
+`content` | A maximum 100-character string for storing location data. This can be a lat-long, an address, or whatever.
+`mdate` | A last modified date to track the latest version. This is automatically set to the UTC time on the server.
+`activityunit_ids` | A list of 64-bit integers correlating to later-created activity work units.
+
+
+#### GET
+
+You may only query by `id`. Filtering by `user_id` is automatically applied based on the access
+token provided.
+
+
+#### PUT
+
+`activityunit_ids` is overridden by the server.
+    
+
+#### POST
+    
+`activityunit_ids` is ignored.
+
+
+
+### mdate Node
+
+The mdate node only supports `GET` requests with one required parameter.
+
+Parameter | Description
+:--- | :---
+`mdate` | A last modified date/time in UTC format. All items owned by the user newer than this parameter will be returned.
+
+#### GET
+
+A `404 Not Found` will be returned if no items are found newer than the specified date. This is to
+cut down on processing work so that you do not need to verify the whole data structure.
+
+Upon a successful query, the following object will always be returned:
+
+    {
+        "activities": [],
+        "activityunits": [],
+        "locations": [],
+        "setting": null,
+        "user": null
+    }
+
+Each of the different categories will be nonempty depending on what was returned.
+
+To see the specifics of the object returned, view the other node descriptions.
+
+
+
+### settings Node
+
+The settings node holds settings for a user that may need to be synced or stored across devices.
+
+Parameter | Description
+:--- | :---
+`user_id` | An integer correlating to an existing user ID. This will link a location to a specific user.
+`value` | A maximum 1e9-character string used to store settings data however the App team wishes.
+`mdate` | A last modified date for the activity to track the latest version. This is automatically set to the UTC time on the server.
+
+
+#### GET
+
+You do not need any parameters to search. The settings are returned based off the user token.
+
+### stats Node
+
+The stats node holds the stats associated with a class or an assignment (class id and due date pair).
+
+Parameter | Description
+:--- | :---
+`eduration_average` | The average estimated duration for this query.
+`pduration_average` | The average actual duration for this activity.
+`total_eduration` | The total estimated duration for all activities found matching the query.
+`total_pduration` | The total actual duration for all the activities found matching the query.
+`total_activities` | The total number of activities found matching the query.
+
+#### Usage
+
+To get stats about a specific course, send a GET request to https://msfrizzle.me/api/stats?course_id= (Course ID Here)
+
+To get stats about a specific assignment, send a GET request to https://msfrizzle.me/api/stats?course_id= (Course ID Here) &Aacute; ddate= (UTC date here)
+
+### tags Node
+
+Tags are hard-coded and only `GET`-able.
+
+Parameter | Description
+:--- | :---
+`id` | An integer uniquely identifying the tag. This is automatically incremented on creation of a new tag.
+`name` | A maximum 20-character string for the user-defined (or potentially suggested) name of a tag.
+`default_color` | A 6-character string for storing color data. This will be in hex.
+
+
+
+### users Node
+
+Parameter | Description
+:--- | :---
+`id` | An integer uniquely identifying the user. This is automatically incremented on creation of a new user.
+`fname` | A maximum 50-character string for the user's first name.
+`lname` | A maximum 50-character string for the user's last name.
+`email` | A maximum 50-character string for the user's email.
+`password` | A maximum 50-character string for the user's password. This is currently stored in the wonderfullness of plaintext. See [the notes](#password-storage) on this for more info.
+`mdate` | A last modified date to track the latest version. This is automatically set to the UTC time on the server.
+`activity_ids` | A list of integers correlating to activity IDs.
+`location_ids` | A list of integers correlating to location IDs.
+
+
+#### GET
+
+You may only query by `id` and `email`.
+
+`password` will always be `null`.
+
+#### PUT
+
+`activity_ids` and `location_ids` are ignored.
+
+#### POST
+
+`activity_ids` and `location_ids` are ignored.
+
+`password` will be `null`.
+
+
+
+
+## Subnodes
+
+For any request type (not including `GET` requests), an ID can be used to work with one item of the
+corresponding type from a root node.
+
+For `PUT` and `DELETE` requests, this format is necessary to work with only one item at a time.
+
+
+----------------------------------------------------------------------------------------------------
+
+
+# Notes
+
+Random notes and things that don't have a better place in this documentation.
+
+
+
+### API Security
+
+This API features three main security features.
+
+The first is HTTPS. All types of requests on all controllers that handle user-specific data require
+HTTPS for any action.
+
+The second security feature is token-based authentication. All `GET`, `PUT`, `POST`, and `DELETE`
+requests relating to a specific user require that a server-generated token (described further
+[below](#token-generation)) be supplied in the `Authorization` HTTP header of the request. Greyson
+should have completely encapsulated token handling and the details will not need to be explained
+further.
+
+The last security feature is that the request can only request, modify, add, or delete data
+corresponding to the user that a token was generated for. This will prevent one user from modifying
+another user's password (for example).
+
+
+
+### Password Storage
+
+Passwords will only be accepted by the API in POST requests over an HTTPS connection.
+
+Passwords are hashed with bcrypt and stored in the database. You cannot retrieve a password for a
+specific user.
+
+
+
+### Token Generation
+
+A user must be created.
+
+Then a request is sent to the `auth` node with the user id and password.
+    
+Handed back is the base64-encoded token and the expiration time in UTC format.
+
+For more information, have a good reason to need the information, and then talk to Tom.
+
+
+
+### Date/Time Formats
+
+Any Date/Time formats that are passed in or received via the URL or in JSON bodies will be
+represented by the standard UTC format of `yyyy-mm-ddThh:mm:ssZ`.
+    
+For example, February 18th, 2014 at 9:25:07 PM CST would translate to `2015-02-19T03:25:07Z` (with
+Daylight Savings Time not in effect on that date, CST is 6 hours behind UTC).
